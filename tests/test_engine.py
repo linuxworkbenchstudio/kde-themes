@@ -120,7 +120,7 @@ class Packs(unittest.TestCase):
         self.assertIn("[theme] colour: not a known setting", "\n".join(cm.exception.problems))
 
     def test_ids_and_parts(self):
-        bad = MINIMAL.replace('lookandfeel_id = "org.thelinuxworkbench.test"',
+        bad = MINIMAL.replace('parts = ["kde-colors", "konsole"]\n', "").replace('lookandfeel_id = "org.thelinuxworkbench.test"',
                               'lookandfeel_id = "Org.Test"\nprevious_ids = ["org.waypoint"]\nparts = ["konsole", "nope"]')
         with self.assertRaises(PackError) as cm:
             load(write_pack(bad))
