@@ -30,8 +30,8 @@ order), different (with the first difference), or new. Its coverage figure is th
 released theme the engine already makes. Each pack's `parts` list in `[theme]` switches parts on as
 they pass.
 
-Starting point (4 Nov 2026): Waypoint 6 of 2,169 files (reference: Waypoint 0.2.0 from GitHub until
-the 0.5.0 release zip is imported); Vice Horizon 0 of 5,865 (1.8.2 source tree; its pack comes in
+Starting point (4 Nov 2026): Waypoint 6 of 3,867 files (reference: the Waypoint KDE 0.5.0 release
+zip); Vice Horizon 0 of 5,865 (1.8.2 source tree; its pack comes in
 phase 2). New releases from the engine start at **0.1.0** for every theme.
 
 `python3 -m engine build packs/waypoint` writes the theme; `python3 -m engine check packs/waypoint`
