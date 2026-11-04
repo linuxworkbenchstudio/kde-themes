@@ -39,6 +39,24 @@ LAYOUTS = {
     },
     "waypoint": {},                     # already the engine's layout
 }
+# old names in each reference, read as the new ones when comparing
+RENAME = {
+    "vice-horizon": {"DigitalCohesion": "The Linux Workbench", "1.8.2": "0.1.0", "1.4.5": "0.1.0"},
+    "waypoint": {"DigitalCohesion": "The Linux Workbench", "0.5.0": "0.1.0"},
+}
+# changes made on purpose, with the reason
+ACCEPT = {
+    "vice-horizon": [],
+    "waypoint": [{"path": "plasma/desktoptheme/*/metadata.json",
+                  "why": "Plasma 6 metadata: X-Plasma-API-Minimum-Version 6.0 replaces X-Plasma-API 5.0"},
+                 {"path": "plasma/desktoptheme/*/widgets/tabbar.svgz",
+                  "why": "the open-widget line's corner pieces are hidden too (Vice Horizon 1.8's fix, now in every theme)"}],
+}
+# files the engine adds that the release didn't have
+NEW_OK = {
+    "vice-horizon": ["*/COPYING", "*/CREDITS", "cursors/*/cursors_scalable/*"],
+    "waypoint": ["cursors/*/aliases.txt"],
+}
 # what to copy from each kind of tree
 KEEP = {
     "vice-horizon": ["kde", "assets/icons", "assets/wallpapers", "assets/brand", "VERSION", "LICENSE", "LICENSES"],
@@ -88,7 +106,8 @@ def main(argv):
                 shutil.copy2(p, dest / k)
     version = (dest / "VERSION").read_text().strip() if (dest / "VERSION").is_file() else ""
     (dest / "reference.json").write_text(json.dumps(
-        {"pack": pack, "origin": str(src), "version": version, "map": LAYOUTS[pack]}, indent=1) + "\n")
+        {"pack": pack, "origin": str(src), "version": version, "map": LAYOUTS[pack], "rename": RENAME[pack],
+         "accept": ACCEPT[pack], "new_ok": NEW_OK[pack]}, indent=1) + "\n")
     n = sum(1 for p in dest.rglob("*") if p.is_file())
     print(f"{n} files from {src} in {dest}")
     if tmp:

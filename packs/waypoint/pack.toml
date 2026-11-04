@@ -11,12 +11,13 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.waypoint"
 previous_ids = ["org.waypoint"]       # the installer moves people off these
-parts = ["kde-colors", "konsole"]     # grows as parts move over
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors"]
 
 [theme.names]
 # as released; installed systems refer to these, so they stay
 color_scheme = "{Slug}-{Edition}"      # Waypoint-Dark
 konsole = "{Compact}{Edition}"         # WaypointDark
+plasma_style = "{id}-{edition}"        # waypoint-dark
 
 [colours]
 graphite_black = "#0F1217"
@@ -42,6 +43,10 @@ green = "#237D4B"
 # ----------------------------------------------------------------------------- Dark
 [edition.dark]
 name = "Dark"
+
+[edition.dark.text]
+plasma = "Waypoint dark Plasma theme with restrained amber highlights."
+decoration = "Machined graphite window decoration (dark)."
 
 [edition.dark.roles]
 base_bg = "graphite_black"      # terminal background, inactive title bar
@@ -103,6 +108,10 @@ bright = ["#4A5562",         "#E58A8C", "#A9CB94", "#E8B572", "#9DB8DB", "#C9A9D
 # ----------------------------------------------------------------------------- Light
 [edition.light]
 name = "Light"
+
+[edition.light.text]
+plasma = "Waypoint light Plasma theme with restrained amber highlights."
+decoration = "Machined graphite window decoration (light)."
 
 [edition.light.roles]
 window_bg = "light_grey"

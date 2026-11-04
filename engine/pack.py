@@ -75,6 +75,15 @@ NAME_DEFAULTS = {
     # settings pointing at names that no longer exist.
     "color_scheme": "{Slug}-{Edition}",
     "konsole": "{Slug}-{Edition}",
+    "plasma_style": "{Slug}-{Edition}",
+    "aurorae": "{Slug}-{Edition}",
+    "cursors": "{Slug}-Cursors-{Edition}",
+}
+EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template"}
+TEXT_DEFAULTS = {   # descriptions in the theme's metadata; {Name} and {Edition} are filled in
+    "plasma": "{Name} {Edition} Plasma style",
+    "decoration": "{Name} {Edition} window decoration",
+    "cursors": "Breeze cursors recoloured for {Name} {Edition} (GPL-2.0-or-later, KDE)",
 }
 
 
@@ -94,6 +103,8 @@ class Edition:
     ansi: list[tuple[str, str]]     # (normal, bright) x 8
     ansi_faint: list[str | None]
     raw: dict = field(default_factory=dict)     # the edition's table as written, for later parts
+    text: dict = field(default_factory=dict)
+    template: str = ""                          # which template edition its artwork starts from
 
 
 @dataclass
@@ -115,8 +126,11 @@ class Pack:
     raw: dict = field(default_factory=dict)
 
     def file_name(self, kind: str, edition: Edition) -> str:
-        return self.names[kind].format(Name=self.name, Slug=self.name.replace(" ", "-"),
-                                       Compact=self.name.replace(" ", ""), Edition=edition.name)
+        return self.names[kind].format(Name=self.name, Slug=self.name.replace(" ", "-"), id=self.id,
+                                       Compact=self.name.replace(" ", ""), Edition=edition.name, edition=edition.id)
+
+    def describe(self, kind: str, edition: Edition) -> str:
+        return edition.text[kind].format(Name=self.name, Edition=edition.name)
 
     def display(self, edition: Edition) -> str:
         return f"{self.name} {edition.name}"
@@ -225,9 +239,20 @@ def load(path: str | Path) -> Pack:
         if ed is None or e not in roles_by_ed:
             continue
         r = roles_by_ed[e]
+        for k in ed:
+            if k not in EDITION_KEYS:
+                problems.append(f"[edition.{e}] {k}: not a known table ({', '.join(sorted(EDITION_KEYS))})")
+        text = dict(TEXT_DEFAULTS)
+        for k, v in ed.get("text", {}).items():
+            if k not in TEXT_DEFAULTS:
+                problems.append(f"[edition.{e}.text] {k}: not a known text ({', '.join(TEXT_DEFAULTS)})")
+            text[k] = v
+        template = ed.get("template", e if e in ("dark", "light") else "dark")
+        if template not in ("dark", "light"):
+            problems.append(f"[edition.{e}] template = {template!r}: needs \"dark\" or \"light\"")
         kde = _kde(ed.get("kde", {}), r, e, edition_ids, colour, problems)
         term, ansi, faint = _terminal(ed.get("terminal", {}), e, colour, problems)
-        pack.editions[e] = Edition(e, ed.get("name", e.title()), r, kde, term, ansi, faint, ed)
+        pack.editions[e] = Edition(e, ed.get("name", e.title()), r, kde, term, ansi, faint, ed, text, template)
 
     # Complementary comes from another edition's roles: resolve now that all are loaded
     for ed in pack.editions.values():

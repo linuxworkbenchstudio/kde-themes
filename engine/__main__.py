@@ -6,13 +6,14 @@ import sys
 from pathlib import Path
 
 from .colour import contrast
+from .files import Link
 from .pack import PackError, load
 from .parts import PARTS
 
 
 def build(pack, parts=None) -> dict[str, str]:
     out = {}
-    for name, part in PARTS.items():
+    for name, part in PARTS.items():  # noqa: B007
         if name not in pack.parts or (parts and name not in parts):
             continue
         for path, text in part.build(pack).items():
@@ -47,17 +48,20 @@ def main(argv=None) -> int:
             print(f"No reference at {ref}: import one with tools/import_reference.py", file=sys.stderr)
             return 1
         r = compare(build(pack), ref)
-        print(f"{pack.name}: the engine makes {len(r.exact) + len(r.same) + len(r.adds) + len(r.different) + len(r.new)} files "
-              f"(parts: {', '.join(pack.parts) or 'none yet'})")
+        made = r.covered + len(r.different) + len(r.new) + len(r.new_ok)
+        print(f"{pack.name}: the engine makes {made} files (parts: {', '.join(pack.parts) or 'none yet'})")
         print(f"  exact {len(r.exact)}, same settings {len(r.same)}, engine adds settings {len(r.adds)}, "
-              f"different {len(r.different)}, new {len(r.new)}")
+              f"changed on purpose {len(r.accepted)}, different {len(r.different)}, "
+              f"new {len(r.new)} (+{len(r.new_ok)} expected)")
+        for rel, why in r.accepted[:5]:
+            print(f"  on purpose: {rel}: {why}")
         for rel, extra in r.adds[:10]:
             print(f"  adds: {rel}: {', '.join(extra[:6])}{' ...' if len(extra) > 6 else ''}")
         for rel, why in r.different[:20]:
             print(f"  different: {rel}\n      {why}")
         for rel in r.new[:10]:
             print(f"  new: {rel}")
-        print(f"  coverage: {len(r.exact) + len(r.same) + len(r.adds)} of {r.total} released theme files ({r.coverage:.1%})")
+        print(f"  coverage: {r.covered} of {r.total} released theme files ({r.coverage:.1%})")
         return 1 if r.different else 0
     if a.cmd == "check":
         print(f"{pack.name} {pack.version} ({pack.brand}), command '{pack.command}', Global Theme {pack.lookandfeel_id}.dark/.light")
@@ -66,20 +70,28 @@ def main(argv=None) -> int:
         print(f"  parts made by the engine: {', '.join(pack.parts) or 'none yet'}")
         for ed in pack.editions.values():
             print(f"\n{pack.display(ed)}")
-            for k, v in ed.palette.items():
-                print(f"  {k:14} {v}")
-            k = ed.kde
-            for label, fg, bg in (("text on window", k["text"], k["window"]), ("muted on window", k["muted"], k["window"]),
-                                  ("link on view", k["link"], k["view"]), ("text on accent", k["on_accent"], k["accent"])):
+            r_ = ed.roles
+            for k in ("window_bg", "view_bg", "header_bg", "button_bg", "border", "text", "text_muted", "accent",
+                      "selection_bg", "selection_fg", "link", "negative", "neutral", "positive"):
+                print(f"  {k:14} {r_[k]}")
+            for label, fg, bg in (("text on window", r_["text"], r_["window_bg"]), ("muted on window", r_["text_muted"], r_["window_bg"]),
+                                  ("link on view", r_["link"], r_["view_bg"]), ("selection text", r_["selection_fg"], r_["selection_bg"])):
                 r = contrast(fg, bg)
                 print(f"  contrast {label:16} {r:5.2f}:1{'   below 4.5:1' if r < 4.5 else ''}")
         return 0
     root = Path(a.out) / pack.id
     files = build(pack, a.part)
-    for rel, text in files.items():
+    for rel, value in files.items():
         p = root / rel
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(text, encoding="utf-8")
+        if isinstance(value, Link):
+            if p.is_symlink() or p.exists():
+                p.unlink()
+            p.symlink_to(value.target)
+        elif isinstance(value, bytes):
+            p.write_bytes(value)
+        else:
+            p.write_text(value, encoding="utf-8")
     print(f"{len(files)} files written to {root}")
     return 0
 

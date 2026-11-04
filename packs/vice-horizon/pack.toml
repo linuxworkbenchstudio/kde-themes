@@ -12,7 +12,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.vicehorizon"
 previous_ids = ["org.digitalcohesion.vicehorizon"]
-parts = ["kde-colors", "konsole"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors"]
 
 [colours]
 sunset_mauve = "#C48FBA"    # Sunset Mauve
@@ -67,6 +67,11 @@ rose_deep = "#B04A6E"
 # ----------------------------------------------------------------------------- Dark
 [edition.dark]
 name = "Dark"
+
+[edition.dark.text]
+plasma = "{Name} {Edition} - tropical-dusk Plasma style with flat task buttons and adaptive transparency"
+decoration = "{Name} {Edition} window decoration (from Waypoint by The Linux Workbench)"
+cursors = "Breeze cursors recoloured for {Name} {Edition} (via Waypoint; GPL-2.0-or-later, KDE)"
 
 [edition.dark.roles]
 window_bg = "midnight"
@@ -127,9 +132,27 @@ normal = ["#252239", "#EA5148", "#93D3AB", "#F9C8B2", "#857DB5", "#C48FBA", "#8C
 bright = ["#4B4670", "#F0776F", "#B4E3C6", "#FCDCCD", "#ABA5D6", "#DDB6D5", "#B2DCE3", "#FEFCFC"]
 faint = ["#201D34", "#A03C3E", "#68907E", "#AA8982", "#5E5984", "#876488", "#638997", "#9794A9"]
 
+# Waypoint's artwork (Plasma Style, window borders, cursors) in Vice Horizon's colours
+# (Vice Horizon's port-waypoint.py, as it made 1.8.2)
+[edition.dark.recolour]
+ramp_ends = ["#0B0A16", "#FEFCFC"]
+highlight = "horizon_pink"
+accent = [[0.70, "#F6D6D6"], [0.52, "horizon_pink"], [0.42, "rose_deep"], [0.0, "#8A3A57"]]
+map = { "#0f1217" = "#121022", "#161b22" = "#17152A", "#191e26" = "#1A1830", "#1c222a" = "#1D1A2E", "#212730" = "#221F36", "#272e37" = "#252239", "#2a313b" = "#29263F", "#2c343e" = "#2B2843", "#313945" = "#302C49", "#333b47" = "#332F4D", "#3a434f" = "#3B3657", "#46515d" = "#4B4670", "#566170" = "#5E5888", "#9aa6b2" = "#CEC9EA", "#e6edf3" = "#FEFCFC" }
+cursors = { "#1c222a" = "midnight_raised", "#e6edf3" = "soft_white", "#d69a50" = "horizon_pink", "#9aa6b2" = "lilac_mist" }
+
+[edition.dark.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "coral_red", "#b68344" = "coral_deep" }
+"aurorae/decoration.svg" = { "#d69a50" = "horizon_pink" }
+
 # ----------------------------------------------------------------------------- Light
 [edition.light]
 name = "Light"
+
+[edition.light.text]
+plasma = "{Name} {Edition} - tropical-dusk Plasma style with flat task buttons and adaptive transparency"
+decoration = "{Name} {Edition} window decoration (from Waypoint by The Linux Workbench)"
+cursors = "Breeze cursors recoloured for {Name} {Edition} (via Waypoint; GPL-2.0-or-later, KDE)"
 
 [edition.light.roles]
 window_bg = "shell_blush"
@@ -189,3 +212,14 @@ foreground_intense = "deep_plum"
 normal = ["#2F1F2B", "#B8352D", "#2F7D51", "#9A5320", "#5A529A", "#8C4C7E", "#2F7E8C", "#D9C4D3"]
 bright = ["#6B5165", "#C93B32", "#3B9564", "#B4682F", "#6C64A3", "#A77091", "#3A93A3", "#A0899A"]
 faint = ["#776C74", "#D07B75", "#77A98D", "#BD8E6D", "#938EBC", "#B48AAA", "#77AAB3", "#E6D8E1"]
+
+[edition.light.recolour]
+ramp_ends = ["#1E141B", "#FEFCFC"]
+highlight = "palm_violet"
+accent = [[0.70, "violet_haze"], [0.52, "palm_violet"], [0.42, "palm_violet_deep"], [0.0, "#5A529A"]]
+map = { "#0f1217" = "#1E141B", "#2b2f36" = "#2F1F2B", "#667085" = "#6B5165", "#b8bec6" = "#E2CCD7", "#bcbec1" = "#E2CCD7", "#c8cbd0" = "#F2E4E8", "#c9ced4" = "#EEDDE2", "#d1d3d6" = "#F4E8EA", "#e6e6e6" = "#FBF5F4", "#1c222a" = "#2F1F2B", "#e6edf3" = "#FEFCFC", "#9aa6b2" = "#A0899A" }
+cursors = { "#2b2f36" = "#3A2836", "#ffffff" = "#FFFFFF", "#d69a50" = "coral_red", "#667085" = "rose_shadow" }
+
+[edition.light.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "coral_red", "#b68344" = "coral_deep" }
+"aurorae/decoration.svg" = { "#d69a50" = "rose_shadow" }
