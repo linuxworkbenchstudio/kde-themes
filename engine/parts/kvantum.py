@@ -28,6 +28,8 @@ is moved onto the pack's palette by the rules in [edition.<id>.kvantum]:
   general   = {"window.color" = "window_bg", "inactive.highlight.color" = {mix = [a, b, 0.35]}}
   settings  = {...}           [%General] values;  hacks = {...}  [Hacks] values
 
+A pack without [edition.<id>.kvantum] gets defaults() - rules built from its colour roles.
+
 Vice Horizon's kvantum.py (lightness ramp, colour steps) and Waypoint's build_kvantum.py
 (luminance anchors, accent family) are both these rules, so both releases come out as they were.
 """
@@ -291,13 +293,46 @@ def _general(v, resolve) -> str:
     return resolve(v)
 
 
+OPAQUE = ("kaffeine,kmplayer,subtitlecomposer,kdenlive,vlc,avidemux,avidemux2_qt4,avidemux3_qt4,avidemux3_qt5,"
+          "kamoso,QtCreator,VirtualBox,VirtualBoxVM,trojita,dragon,digikam,lyx,krita,obs,libreoffice,soffice.bin,"
+          "blender,freecad,qgis")
+
+
+def defaults(dark: bool) -> dict:
+    """Rules for a pack without its own: Arc's neutrals onto the pack's roles by luminance, Arc's
+    blues to the accent family, its reds to the negative family; translucent windows and menus."""
+    anchors = ([["#000000", "#000000"], ["#2F343F", "base_bg"], ["#383C4A", "window_bg"], ["#404552", "button_bg"],
+                ["#5A616E", "border"], ["#92959D", "text_muted"], ["#D3DAE3", "text"], ["#FFFFFF", "#FFFFFF"]]
+               if dark else
+               [["#000000", "#000000"], ["#323232", "text"], ["#7B7B7B", "text_muted"], ["#CFD6E6", "border"],
+                ["#F5F6F7", "window_bg"], ["#FFFFFF", "view_bg"]])
+    return {
+        "neutral": "luminance", "anchors": anchors, "lightness": [0.12, 0.92],
+        "hues": [{"from": 185, "to": 300, "kind": "accent", "family": "accent", "reference": "#5294E2"},
+                 {"from": 340, "to": 20, "family": "negative", "reference": "#F04A50"}],
+        "short_hex": True, "alpha_hex": True, "on_accent": "selection_fg", "focus": "border_strong",
+        "disabled_buttons": 0.45, "text": "text",
+        "general": {"window.color": "window_bg", "base.color": "view_bg", "alt.base.color": "view_alt_bg",
+                    "button.color": "button_bg", "light.color": "border" if dark else "#FFFFFF",
+                    "mid.light.color": "button_bg", "dark.color": "#000000" if dark else "border_strong",
+                    "mid.color": "base_bg" if dark else "border", "highlight.color": "selection_bg",
+                    "inactive.highlight.color": {"mix": ["selection_bg", "window_bg", 0.35]},
+                    "text.color": "text", "window.text.color": "text", "button.text.color": "text",
+                    "disabled.text.color": "text_disabled", "tooltip.text.color": "tooltip_fg",
+                    "highlight.text.color": "selection_fg", "link.color": "link", "link.visited.color": "visited",
+                    "progress.indicator.text.color": "selection_fg"},
+        "settings": {"translucent_windows": True, "blurring": True, "popup_blurring": True,
+                     "reduce_window_opacity": 30, "reduce_menu_opacity": 30, "no_inactiveness": True,
+                     "splitter_width": 1, "menu_blur_radius": 6, "tooltip_blur_radius": 6, "opaque": OPAQUE},
+        "hacks": {"blur_translucent": True, "transparent_dolphin_view": True, "respect_darkness": True},
+    }
+
+
 def build(pack: Pack) -> dict:
     out = {}
     licence = (TEMPLATES / "licences" / "GPL-3.0-or-later.txt").read_text(encoding="utf-8")
     for ed in pack.editions.values():
-        spec = ed.raw.get("kvantum")
-        if not spec:
-            raise ValueError(f"[edition.{ed.id}.kvantum] is needed for the kvantum part")
+        spec = ed.raw.get("kvantum") or defaults(ed.template == "dark")
         resolve = resolver(pack, ed)
         rules = Rules(spec, resolve)
         name = pack.file_name("kvantum", ed)
