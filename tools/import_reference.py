@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Copy a theme's released files into references/<pack>/, for `python3 -m engine compare`.
+
+    python3 tools/import_reference.py vice-horizon  VICE_HORIZON_SOURCE_DIR_OR_ZIP
+    python3 tools/import_reference.py waypoint      WAYPOINT_RELEASE_DIR_OR_ZIP
+
+references/ is not part of the repository (it holds tens of megabytes of icons). Each reference
+gets a reference.json with where it came from and how its folders map onto the engine's layout,
+which is the layout Waypoint's releases already use (color-schemes/, konsole/, plasma/ ...).
+"""
+import json
+import shutil
+import sys
+import tempfile
+import zipfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
+# engine folder -> folder in the theme's own tree (longest prefix wins)
+LAYOUTS = {
+    "vice-horizon": {
+        "color-schemes/": "kde/colors/",
+        "konsole/": "kde/konsole/",
+        "plasma/desktoptheme/": "kde/plasma/desktoptheme/",
+        "look-and-feel/": "kde/plasma/look-and-feel/",
+        "wallpapers/": "kde/plasma/wallpapers/",
+        "aurorae/themes/": "kde/aurorae/",
+        "Kvantum/": "kde/kvantum/",
+        "cursors/": "kde/cursors/",
+        "icons/": "assets/icons/",
+        "gtk/": "kde/gtk/",
+        "panel-colorizer/": "kde/panel/panel-colorizer/",
+        "panel/": "kde/panel/",
+        "fastfetch/": "kde/fastfetch/",
+        "bin/": "kde/bin/",
+        "widgets/": "kde/widgets/",
+        "sddm/": "kde/optional-components/sddm/",
+    },
+    "waypoint": {},                     # already the engine's layout
+}
+# what to copy from each kind of tree
+KEEP = {
+    "vice-horizon": ["kde", "assets/icons", "assets/wallpapers", "assets/brand", "VERSION", "LICENSE", "LICENSES"],
+    "waypoint": None,                   # everything in the release
+}
+
+
+def unpack(src: Path) -> tuple[Path, tempfile.TemporaryDirectory | None]:
+    if src.is_dir():
+        return src, None
+    tmp = tempfile.TemporaryDirectory()
+    with zipfile.ZipFile(src) as z:
+        z.extractall(tmp.name)
+    top = [p for p in Path(tmp.name).iterdir()]
+    return (top[0] if len(top) == 1 and top[0].is_dir() else Path(tmp.name)), tmp
+
+
+def main(argv):
+    if len(argv) != 3 or argv[1] not in LAYOUTS:
+        print(__doc__)
+        return 2
+    pack, src = argv[1], Path(argv[2])
+    tree, tmp = unpack(src)
+    # a source archive may wrap the tree one level deeper
+    if pack == "vice-horizon" and not (tree / "kde").is_dir():
+        inner = [p for p in tree.iterdir() if (p / "kde").is_dir()]
+        if inner:
+            tree = inner[0]
+    if pack == "waypoint" and not (tree / "color-schemes").is_dir():
+        inner = [p for p in tree.rglob("color-schemes") if p.is_dir()]
+        if inner:
+            tree = inner[0].parent
+    dest = ROOT / "references" / pack
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir(parents=True)
+    keep = KEEP[pack]
+    if keep is None:
+        shutil.copytree(tree, dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git", "__pycache__"))
+    else:
+        for k in keep:
+            p = tree / k
+            if p.is_dir():
+                shutil.copytree(p, dest / k, ignore=shutil.ignore_patterns("__pycache__"))
+            elif p.is_file():
+                (dest / k).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(p, dest / k)
+    version = (dest / "VERSION").read_text().strip() if (dest / "VERSION").is_file() else ""
+    (dest / "reference.json").write_text(json.dumps(
+        {"pack": pack, "origin": str(src), "version": version, "map": LAYOUTS[pack]}, indent=1) + "\n")
+    n = sum(1 for p in dest.rglob("*") if p.is_file())
+    print(f"{n} files from {src} in {dest}")
+    if tmp:
+        tmp.cleanup()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

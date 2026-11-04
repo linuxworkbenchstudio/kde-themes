@@ -1,0 +1,94 @@
+# Waypoint - graphite surfaces, machined-amber accent. The Linux Workbench.
+# The approved palette is frozen: change it only with Kahlil's say-so.
+
+[theme]
+id = "waypoint"
+name = "Waypoint"
+command = "waypoint"
+brand = "The Linux Workbench"
+version = "0.1.0"                     # first release on the engine (was Waypoint KDE 0.5.0)
+license = "GPL-3.0-or-later"
+editions = ["dark", "light"]
+lookandfeel_id = "org.thelinuxworkbench.waypoint"
+previous_ids = ["org.waypoint"]       # the installer moves people off these
+parts = ["kde-colors", "konsole"]     # grows as parts move over
+
+[theme.names]
+# as released; installed systems refer to these, so they stay
+color_scheme = "{Slug}-{Edition}"      # Waypoint-Dark
+konsole = "{Compact}{Edition}"         # WaypointDark
+
+# ----------------------------------------------------------------------------- Dark
+[edition.dark]
+name = "Dark"
+
+[edition.dark.palette]
+base = "#0F1217"            # terminal background, inactive title bar
+window = "#1C222A"
+raised = "#272E37"          # buttons, alternate rows
+line = "#3A434F"
+text = "#E6EDF3"
+muted = "#9AA6B2"
+disabled = "#5C6672"
+accent = "#D69A50"          # machined amber
+accent_bright = "#FFB357"
+on_accent = "#0F1217"
+negative = "#BE2D2D"
+neutral = "#AA6900"
+positive = "#237D4B"
+
+[edition.dark.terminal]
+opacity = 0.88
+blur = true
+ansi = [
+  ["raised", "#4A5562"],     # black
+  ["#D0686B", "#E58A8C"],    # red
+  ["#8DB277", "#A9CB94"],    # green
+  ["accent", "#E8B572"],     # yellow: the amber
+  ["#7A9CC6", "#9DB8DB"],    # blue
+  ["#B08BBB", "#C9A9D2"],    # magenta
+  ["#6DADAD", "#8EC6C6"],    # cyan
+  ["muted", "text"],         # white
+]
+
+# ----------------------------------------------------------------------------- Light
+[edition.light]
+name = "Light"
+
+[edition.light.palette]
+window = "#E6E6E6"
+raised = "#D1D3D6"
+control = "#C8CBD0"
+line = "#B8BEC6"
+text = "#2B2F36"
+muted = "#667085"
+disabled = "#9AA6B2"
+accent = "#D69A50"
+accent_bright = "#FFB357"
+on_accent = "#0F1217"
+link = "#7C511D"            # amber is too light for text on light grey
+negative = "#BE2D2D"
+neutral = "#AA6900"
+positive = "#237D4B"
+
+[edition.light.kde]
+button_alt = "raised"
+tooltip = "raised"
+titlebar = "raised"
+# panels and OSDs keep Waypoint Dark's surfaces (complementary = "dark", the default)
+
+[edition.light.terminal]
+background_intense = "raised"
+foreground_intense = "dark.base"
+opacity = 0.92
+blur = true
+ansi = [
+  ["text", "#4A5260"],
+  ["#A63A3E", "#8E2E32"],
+  ["#456B31", "#3D612B"],
+  ["#875818", "#704812"],
+  ["#3A5F95", "#2E4E7D"],
+  ["#7A4C88", "#663E73"],
+  ["#2C6E6E", "#225B5B"],
+  ["muted", "line"],
+]
