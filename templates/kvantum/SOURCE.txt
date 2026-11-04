@@ -1,0 +1,2 @@
+110aff8b97a221531ef55acc4faeacfd719cdfea Tue Oct 6 21:30:31 2026 +0330
+Upstream: https://github.com/tsujan/Kvantum (Kvantum/themes/kvthemes/KvArc, KvArcDark), GPL-3.0

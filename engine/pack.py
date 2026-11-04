@@ -78,12 +78,16 @@ NAME_DEFAULTS = {
     "plasma_style": "{Slug}-{Edition}",
     "aurorae": "{Slug}-{Edition}",
     "cursors": "{Slug}-Cursors-{Edition}",
+    "kvantum": "{Slug}-{Edition}",
 }
-EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template"}
+EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum"}
 TEXT_DEFAULTS = {   # descriptions in the theme's metadata; {Name} and {Edition} are filled in
     "plasma": "{Name} {Edition} Plasma style",
     "decoration": "{Name} {Edition} window decoration",
     "cursors": "Breeze cursors recoloured for {Name} {Edition} (GPL-2.0-or-later, KDE)",
+    "kvantum_author": "{Brand} (derived from Kvantum KvArc by Tsu Jan, GPL-3.0)",
+    "kvantum_comment": "{Name} {Edition} Kvantum theme (based on KvArc)",
+    "kvantum_svg": "",                 # a comment at the top of the Kvantum SVG; empty for none
 }
 
 
@@ -130,7 +134,7 @@ class Pack:
                                        Compact=self.name.replace(" ", ""), Edition=edition.name, edition=edition.id)
 
     def describe(self, kind: str, edition: Edition) -> str:
-        return edition.text[kind].format(Name=self.name, Edition=edition.name)
+        return edition.text[kind].format(Name=self.name, Edition=edition.name, Brand=self.brand, Version=self.version)
 
     def display(self, edition: Edition) -> str:
         return f"{self.name} {edition.name}"

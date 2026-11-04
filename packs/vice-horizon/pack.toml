@@ -12,7 +12,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.vicehorizon"
 previous_ids = ["org.digitalcohesion.vicehorizon"]
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum"]
 
 [colours]
 sunset_mauve = "#C48FBA"    # Sunset Mauve
@@ -69,6 +69,9 @@ rose_deep = "#B04A6E"
 name = "Dark"
 
 [edition.dark.text]
+kvantum_author = "Tsu Jan (KvArc); {Name} recolour by {Brand}"
+kvantum_comment = "{Name} {Edition} - tropical-dusk Kvantum theme (based on KvArc)"
+kvantum_svg = "{Name} {Version} {Edition} Kvantum theme: KvArcDark by Tsu Jan (GPL-3.0-or-later), recoloured. Generated."
 plasma = "{Name} {Edition} - tropical-dusk Plasma style with flat task buttons and adaptive transparency"
 decoration = "{Name} {Edition} window decoration (from Waypoint by The Linux Workbench)"
 cursors = "Breeze cursors recoloured for {Name} {Edition} (via Waypoint; GPL-2.0-or-later, KDE)"
@@ -150,6 +153,9 @@ cursors = { "#1c222a" = "midnight_raised", "#e6edf3" = "soft_white", "#d69a50" =
 name = "Light"
 
 [edition.light.text]
+kvantum_author = "Tsu Jan (KvArc); {Name} recolour by {Brand}"
+kvantum_comment = "{Name} {Edition} - tropical-dusk Kvantum theme (based on KvArc)"
+kvantum_svg = "{Name} {Version} {Edition} Kvantum theme: KvArc by Tsu Jan (GPL-3.0-or-later), recoloured. Generated."
 plasma = "{Name} {Edition} - tropical-dusk Plasma style with flat task buttons and adaptive transparency"
 decoration = "{Name} {Edition} window decoration (from Waypoint by The Linux Workbench)"
 cursors = "Breeze cursors recoloured for {Name} {Edition} (via Waypoint; GPL-2.0-or-later, KDE)"
@@ -223,3 +229,122 @@ cursors = { "#2b2f36" = "#3A2836", "#ffffff" = "#FFFFFF", "#d69a50" = "coral_red
 [edition.light.recolour.files]
 "aurorae/close.svg" = { "#d69a50" = "coral_red", "#b68344" = "coral_deep" }
 "aurorae/decoration.svg" = { "#d69a50" = "rose_shadow" }
+
+# ----------------------------------------------------------------------------- Kvantum
+# Vice Horizon's kvantum.py as rules: Arc neutrals onto a tinted lightness ramp, Arc blues to the
+# accent family in lightness steps, the other hues to fixed palette colours.
+[edition.dark.kvantum]
+ramp = [[0.00, "#000000"], [0.08, "#0B0A16"], [0.16, "#121022"], [0.22, "#17152A"], [0.25, "#1D1A2E"],
+        [0.29, "#252239"], [0.32, "#2B2843"], [0.36, "#363052"], [0.44, "#4B4670"], [0.50, "#5E5888"],
+        [0.59, "#8D87B3"], [0.71, "#AEA8D2"], [0.84, "#CEC9EA"], [1.00, "#FEFCFC"]]
+hues = [{from = 180, to = 235, kind = "accent", steps = [[0.40, "#8A3A57"], [0.50, "#9C4262"], [0.62, "rose_deep"], [0.80, "horizon_pink"], [9, "#F6D6D6"]]},
+        {from = 235, to = 300, colour = "sunset_mauve"},
+        {from = 340, to = 20, colour = "coral_red"},
+        {from = 20, to = 70, colour = "peach_glow"},
+        {from = 0, to = 360, colour = "palm_mint"}]
+alpha_hex = true
+text = "opaque"
+
+[edition.dark.kvantum.special]
+"#5294e2" = "selection_bg"
+"#eefcff" = "tooltip_fg"
+"#009dff" = "link"
+"#0057ae" = "link"
+"#9e4fff" = "visited"
+"#452886" = "visited"
+"#f04a50" = "coral_red"
+
+[edition.dark.kvantum.general]
+"window.color" = "window_bg"
+"base.color" = "view_bg"
+"alt.base.color" = "view_alt_bg"
+"button.color" = "button_bg"
+"light.color" = "#3B3657"
+"mid.light.color" = "header_bg"
+"dark.color" = "#0B0A16"
+"mid.color" = "#121022"
+"highlight.color" = "selection_bg"
+"inactive.highlight.color" = {mix = ["selection_bg", "window_bg", 0.35]}
+"text.color" = "text"
+"window.text.color" = "text"
+"button.text.color" = "text"
+"disabled.text.color" = "text_disabled"
+"tooltip.text.color" = "soft_white"
+"highlight.text.color" = "selection_fg"
+"link.color" = "link"
+"link.visited.color" = "visited"
+"progress.indicator.text.color" = "selection_fg"
+
+[edition.dark.kvantum.settings]
+translucent_windows = true
+blurring = true
+popup_blurring = true
+reduce_window_opacity = 30          # windows and menus 30 % see-through; the blur keeps text readable
+reduce_menu_opacity = 30
+no_inactiveness = true
+splitter_width = 1                  # KvArc's 4 px cut Dolphin's floating status bar text short
+menu_blur_radius = 6
+tooltip_blur_radius = 6
+opaque = "kaffeine,kmplayer,subtitlecomposer,kdenlive,vlc,avidemux,avidemux2_qt4,avidemux3_qt4,avidemux3_qt5,kamoso,QtCreator,VirtualBox,VirtualBoxVM,trojita,dragon,digikam,lyx,krita,obs,libreoffice,soffice.bin,blender,freecad,qgis"
+
+[edition.dark.kvantum.hacks]
+transparent_dolphin_view = true
+blur_translucent = true
+
+[edition.light.kvantum]
+ramp = [[0.00, "#2F1F2B"], [0.20, "#3E2B3A"], [0.35, "#6B5165"], [0.48, "#8E7788"], [0.63, "#A0899A"],
+        [0.75, "#C9B3C2"], [0.82, "#E2CCD7"], [0.90, "#EEDDE2"], [0.94, "#F4E8EA"], [0.97, "#F8EFF0"],
+        [0.99, "#FBF5F4"], [1.00, "#FEFCFC"]]
+hues = [{from = 180, to = 235, kind = "accent", steps = [[0.40, "#4A437F"], [0.50, "#5A529A"], [0.62, "palm_violet_deep"], [0.80, "palm_violet"], [9, "#DCD8EE"]]},
+        {from = 235, to = 300, colour = "rose_ink"},
+        {from = 340, to = 20, colour = "coral_red"},
+        {from = 20, to = 70, colour = "peach_glow"},
+        {from = 0, to = 360, colour = "palm_green"}]
+alpha_hex = true
+text = "opaque"
+
+[edition.light.kvantum.special]
+"#5294e2" = "selection_bg"
+"#eefcff" = "soft_white"
+"#009dff" = "link"
+"#0057ae" = "link"
+"#9e4fff" = "visited"
+"#452886" = "visited"
+"#f04a50" = "coral_red"
+
+[edition.light.kvantum.general]
+"window.color" = "window_bg"
+"base.color" = "view_bg"
+"alt.base.color" = "view_alt_bg"
+"button.color" = "button_bg"
+"light.color" = "#FFFFFF"
+"mid.light.color" = "#EEDDE2"
+"dark.color" = "#A0899A"
+"mid.color" = "#C9B3C2"
+"highlight.color" = "selection_bg"
+"inactive.highlight.color" = {mix = ["selection_bg", "window_bg", 0.35]}
+"text.color" = "text"
+"window.text.color" = "text"
+"button.text.color" = "text"
+"disabled.text.color" = "text_disabled"
+"tooltip.text.color" = "soft_white"
+"highlight.text.color" = "selection_fg"
+"link.color" = "link"
+"link.visited.color" = "visited"
+"progress.indicator.text.color" = "selection_fg"
+
+[edition.light.kvantum.settings]
+translucent_windows = true
+blurring = true
+popup_blurring = true
+reduce_window_opacity = 30          # windows and menus 30 % see-through; the blur keeps text readable
+reduce_menu_opacity = 30
+no_inactiveness = true
+splitter_width = 1                  # KvArc's 4 px cut Dolphin's floating status bar text short
+menu_blur_radius = 6
+tooltip_blur_radius = 6
+opaque = "kaffeine,kmplayer,subtitlecomposer,kdenlive,vlc,avidemux,avidemux2_qt4,avidemux3_qt4,avidemux3_qt5,kamoso,QtCreator,VirtualBox,VirtualBoxVM,trojita,dragon,digikam,lyx,krita,obs,libreoffice,soffice.bin,blender,freecad,qgis"
+
+[edition.light.kvantum.hacks]
+transparent_dolphin_view = true
+blur_translucent = true

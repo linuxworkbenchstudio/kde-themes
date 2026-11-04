@@ -11,13 +11,14 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.waypoint"
 previous_ids = ["org.waypoint"]       # the installer moves people off these
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum"]
 
 [theme.names]
 # as released; installed systems refer to these, so they stay
 color_scheme = "{Slug}-{Edition}"      # Waypoint-Dark
 konsole = "{Compact}{Edition}"         # WaypointDark
 plasma_style = "{id}-{edition}"        # waypoint-dark
+kvantum = "{Compact}{Edition}"         # WaypointDark
 
 [colours]
 graphite_black = "#0F1217"
@@ -47,6 +48,8 @@ name = "Dark"
 [edition.dark.text]
 plasma = "Waypoint dark Plasma theme with restrained amber highlights."
 decoration = "Machined graphite window decoration (dark)."
+kvantum_author = "{Brand} (derived from Kvantum KvArc by Pedram Pourang, GPL-3.0)"
+kvantum_comment = "{Name} {Edition}: graphite/amber, translucent windows and menus"
 
 [edition.dark.roles]
 base_bg = "graphite_black"      # terminal background, inactive title bar
@@ -112,6 +115,8 @@ name = "Light"
 [edition.light.text]
 plasma = "Waypoint light Plasma theme with restrained amber highlights."
 decoration = "Machined graphite window decoration (light)."
+kvantum_author = "{Brand} (derived from Kvantum KvArc by Pedram Pourang, GPL-3.0)"
+kvantum_comment = "{Name} {Edition}: graphite/amber, translucent windows and menus"
 
 [edition.light.roles]
 window_bg = "light_grey"
@@ -170,3 +175,109 @@ opacity = 0.92
 blur = true
 normal = ["ink",     "#A63A3E", "#456B31", "#875818", "#3A5F95", "#7A4C88", "#2C6E6E", "slate"]
 bright = ["#4A5260", "#8E2E32", "#3D612B", "#704812", "#2E4E7D", "#663E73", "#225B5B", "light_line"]
+
+# ----------------------------------------------------------------------------- Kvantum
+# Waypoint's build_kvantum.py as rules: Arc neutrals by luminance onto the graphite scale, Arc blues
+# to the amber family (keeping each shade's offset from Arc's #5294E2), Arc reds to the negative red.
+[edition.dark.kvantum]
+neutral = "luminance"
+anchors = [["#000000", "#000000"], ["#111217", "#08090C"], ["#22252E", "#0F1217"], ["#2F343F", "#161B22"],
+           ["#383C4A", "#1C222A"], ["#404552", "#272E37"], ["#4D5367", "#313945"], ["#5A616E", "#3A434F"],
+           ["#92959D", "#9AA6B2"], ["#D3DAE3", "#E6EDF3"], ["#FFFFFF", "#FFFFFF"]]
+lightness = [0.12, 0.92]
+hues = [{from = 185, to = 300, kind = "accent", family = "accent", reference = "#5294E2"},
+        {from = 340, to = 20, family = "red", reference = "#F04A50"}]
+short_hex = true
+on_accent = "selection_fg"
+focus = "#566170"
+disabled_buttons = 0.45
+text = "text"
+
+[edition.dark.kvantum.general]
+"window.color" = "graphite"
+"base.color" = "graphite_raised"
+"alt.base.color" = "graphite"
+"button.color" = "graphite_raised"
+"light.color" = "steel_line"
+"mid.light.color" = "graphite_raised"
+"dark.color" = "#000000"
+"mid.color" = "graphite_black"
+"highlight.color" = "accent"
+"inactive.highlight.color" = "accent"
+"text.color" = "text"
+"window.text.color" = "text"
+"button.text.color" = "text"
+"disabled.text.color" = "steel_dim"
+"tooltip.text.color" = "text"
+"highlight.text.color" = "selection_fg"
+"link.color" = "accent"
+"link.visited.color" = "text_muted"
+"progress.indicator.text.color" = "selection_fg"
+
+[edition.dark.kvantum.settings]
+translucent_windows = true
+blurring = true
+popup_blurring = true
+reduce_window_opacity = 30          # windows and menus 30 % see-through; the blur keeps text readable
+reduce_menu_opacity = 30
+no_inactiveness = true              # unfocused windows look the same; KWin dims them instead
+splitter_width = 1                  # KvArc's 4 px cut Dolphin's floating status bar text short
+menu_blur_radius = 6
+tooltip_blur_radius = 6
+opaque = "kaffeine,kmplayer,subtitlecomposer,kdenlive,vlc,avidemux,avidemux2_qt4,avidemux3_qt4,avidemux3_qt5,kamoso,QtCreator,VirtualBox,VirtualBoxVM,trojita,dragon,digikam,lyx,krita,obs,libreoffice,soffice.bin,blender,freecad,qgis"
+
+[edition.dark.kvantum.hacks]
+blur_translucent = true
+transparent_dolphin_view = true
+respect_darkness = true
+
+[edition.light.kvantum]
+neutral = "luminance"
+anchors = [["#000000", "#000000"], ["#323232", "#2B2F36"], ["#7B7B7B", "#667085"], ["#A5AFC3", "#8E97A3"],
+           ["#CFD6E6", "#B8BEC6"], ["#E1E4EB", "#C4C8CD"], ["#F5F6F7", "#D1D3D6"], ["#FFFFFF", "#E6E6E6"]]
+lightness = [0.12, 0.92]
+hues = [{from = 185, to = 300, kind = "accent", family = "accent", reference = "#5294E2"},
+        {from = 340, to = 20, family = "red", reference = "#F04A50"}]
+short_hex = true
+on_accent = "selection_fg"
+focus = "#8E97A3"
+disabled_buttons = 0.45
+text = "text"
+
+[edition.light.kvantum.general]
+"window.color" = "light_surface"
+"base.color" = "light_grey"
+"alt.base.color" = "light_surface"
+"button.color" = "light_grey"
+"light.color" = "#FFFFFF"
+"mid.light.color" = "light_grey"
+"dark.color" = "#8E97A3"
+"mid.color" = "light_line"
+"highlight.color" = "accent"
+"inactive.highlight.color" = "accent"
+"text.color" = "text"
+"window.text.color" = "text"
+"button.text.color" = "text"
+"disabled.text.color" = "#9CA3AD"
+"tooltip.text.color" = "text"
+"highlight.text.color" = "selection_fg"
+"link.color" = "link"
+"link.visited.color" = "text_muted"
+"progress.indicator.text.color" = "selection_fg"
+
+[edition.light.kvantum.settings]
+translucent_windows = true
+blurring = true
+popup_blurring = true
+reduce_window_opacity = 30          # windows and menus 30 % see-through; the blur keeps text readable
+reduce_menu_opacity = 30
+no_inactiveness = true              # unfocused windows look the same; KWin dims them instead
+splitter_width = 1                  # KvArc's 4 px cut Dolphin's floating status bar text short
+menu_blur_radius = 6
+tooltip_blur_radius = 6
+opaque = "kaffeine,kmplayer,subtitlecomposer,kdenlive,vlc,avidemux,avidemux2_qt4,avidemux3_qt4,avidemux3_qt5,kamoso,QtCreator,VirtualBox,VirtualBoxVM,trojita,dragon,digikam,lyx,krita,obs,libreoffice,soffice.bin,blender,freecad,qgis"
+
+[edition.light.kvantum.hacks]
+blur_translucent = true
+transparent_dolphin_view = true
+respect_darkness = true
