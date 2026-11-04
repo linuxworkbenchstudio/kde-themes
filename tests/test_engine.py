@@ -43,6 +43,7 @@ brand = "The Linux Workbench"
 version = "0.1.0"
 lookandfeel_id = "org.thelinuxworkbench.test"
 editions = ["dark"]
+parts = ["kde-colors", "konsole"]
 [colours]
 blue = "#3080F0"
 [edition.dark.roles]
@@ -126,11 +127,18 @@ class Packs(unittest.TestCase):
         msg = "\n".join(cm.exception.problems)
         self.assertIn("lookandfeel_id = 'Org.Test'", msg)
         self.assertIn("parts: 'nope' is not a part", msg)
-        p = load(write_pack(MINIMAL.replace('editions = ["dark"]', 'editions = ["dark"]\nparts = ["konsole"]')))
+        p = load(write_pack(MINIMAL.replace('parts = ["kde-colors", "konsole"]', 'parts = ["konsole"]')))
         self.assertEqual(sorted(build(p)), ["konsole/Test-Theme-Dark.colorscheme", "konsole/Test-Theme-Dark.profile"])
         w = load(ROOT / "packs" / "waypoint")
         self.assertEqual((w.brand, w.version, w.lookandfeel_id, w.previous_ids),
                          ("The Linux Workbench", "0.1.0", "org.thelinuxworkbench.waypoint", ["org.waypoint"]))
+
+    def test_every_part_by_default(self):
+        p = load(write_pack(MINIMAL.replace('parts = ["kde-colors", "konsole"]\n', "")))
+        files = build(p)
+        for prefix in ("plasma/desktoptheme/Test-Theme-Dark/", "aurorae/themes/Test-Theme-Dark/", "cursors/Test-Theme-Cursors-Dark/"):
+            self.assertTrue(any(f.startswith(prefix) for f in files), prefix)
+        self.assertIn("Name=Test Theme Dark", files["aurorae/themes/Test-Theme-Dark/metadata.desktop"])
 
     def test_cross_edition_reference(self):
         p = load(ROOT / "packs" / "waypoint")
