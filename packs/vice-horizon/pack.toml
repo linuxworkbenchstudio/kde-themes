@@ -12,7 +12,15 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.vicehorizon"
 previous_ids = ["org.digitalcohesion.vicehorizon"]
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk"]
+
+[theme.gtk.replace]
+# GTK 4 paints suggested-action with the selection colour; Vice Horizon keeps coral for primary actions
+"gtk-4.0/_common.scss" = [["(suggested-action, $selected_bg_color)", "(suggested-action, $suggested_bg_color)"]]
+
+[theme.fastfetch]
+# the launcher tile's sunset gradient, peach (top right) to violet (bottom left)
+logo_colours = ["#FCB377", "#FC8376", "#FA5C93", "#E249BE", "#9A47E1", "#7449E9"]
 
 [colours]
 sunset_mauve = "#C48FBA"    # Sunset Mauve
@@ -69,6 +77,8 @@ rose_deep = "#B04A6E"
 name = "Dark"
 
 [edition.dark.text]
+gtk3_header = "/* {Name} {Version} {Theme} - {version}/{file}\n * Compiled from gnome/src/{version} (GTK theme SCSS, LGPL-2.1-or-later,\n * recoloured with {Name} tokens). Do not edit; regenerate. */\n"
+gtk4_header = "/* {Name} {Version} {Theme} - {version}/{file}\n * Compiled from gnome/src/{version} (GTK theme SCSS, LGPL-2.1-or-later,\n * recoloured with {Name} tokens). Do not edit; regenerate. */\n"
 kvantum_author = "Tsu Jan (KvArc); {Name} recolour by {Brand}"
 kvantum_comment = "{Name} {Edition} - tropical-dusk Kvantum theme (based on KvArc)"
 kvantum_svg = "{Name} {Version} {Edition} Kvantum theme: KvArcDark by Tsu Jan (GPL-3.0-or-later), recoloured. Generated."
@@ -153,6 +163,8 @@ cursors = { "#1c222a" = "midnight_raised", "#e6edf3" = "soft_white", "#d69a50" =
 name = "Light"
 
 [edition.light.text]
+gtk3_header = "/* {Name} {Version} {Theme} - {version}/{file}\n * Compiled from gnome/src/{version} (GTK theme SCSS, LGPL-2.1-or-later,\n * recoloured with {Name} tokens). Do not edit; regenerate. */\n"
+gtk4_header = "/* {Name} {Version} {Theme} - {version}/{file}\n * Compiled from gnome/src/{version} (GTK theme SCSS, LGPL-2.1-or-later,\n * recoloured with {Name} tokens). Do not edit; regenerate. */\n"
 kvantum_author = "Tsu Jan (KvArc); {Name} recolour by {Brand}"
 kvantum_comment = "{Name} {Edition} - tropical-dusk Kvantum theme (based on KvArc)"
 kvantum_svg = "{Name} {Version} {Edition} Kvantum theme: KvArc by Tsu Jan (GPL-3.0-or-later), recoloured. Generated."
@@ -348,3 +360,76 @@ opaque = "kaffeine,kmplayer,subtitlecomposer,kdenlive,vlc,avidemux,avidemux2_qt4
 [edition.light.kvantum.hacks]
 transparent_dolphin_view = true
 blur_translucent = true
+
+# ----------------------------------------------------------------------------- GTK
+# GTK's own themes compiled with Vice Horizon's roles; the identity touches (gradient progress,
+# coral primary actions, sunset tab underline) are in gtk/gtk-3.0.scss and gtk/gtk-4.0.scss.
+[edition.dark.gtk.vars]
+base_color = "view_bg"
+text_color = "text"
+bg_color = "window_bg"
+fg_color = "text"
+selected_fg_color = "selection_fg"
+selected_bg_color = "selection_bg"
+selected_borders_color = "darken($selected_bg_color, 12%)"
+borders_color = "border"
+alt_borders_color = "if($variant == 'light', darken($role_border, 8%), lighten($role_border, 6%))"
+link_color = "link"
+link_visited_color = "visited"
+headerbar_color = "header_bg"
+headerbar_bg_color = "header_bg"
+menu_color = "surface_raised"
+popover_bg_color = "surface_raised"
+popover_hover_color = "hover_bg"
+menu_selected_color = "hover_bg"
+scrollbar_slider_active_color = "accent"
+warning_color = "neutral"
+error_color = "negative"
+success_color = "positive"
+destructive_color = "destructive_bg"
+osd_fg_color = "#FEFCFC"
+osd_text_color = "#FEFCFC"
+osd_bg_color = "transparentize($role_osd_bg, 0.1)"
+sidebar_bg_color = "sidebar_bg"
+drop_target_color = "accent"
+insensitive_fg_color = "text_disabled"
+suggested_bg_color = "suggested_bg"
+suggested_border_color = "darken($role_suggested_bg, 10%)"
+checkradio_bg_color = "$selected_bg_color"
+checkradio_borders_color = "darken($checkradio_bg_color, 15%)"
+focus_border_color = "transparentize($role_accent, 0.35)"
+
+[edition.light.gtk.vars]
+base_color = "view_bg"
+text_color = "text"
+bg_color = "window_bg"
+fg_color = "text"
+selected_fg_color = "selection_fg"
+selected_bg_color = "selection_bg"
+selected_borders_color = "darken($selected_bg_color, 12%)"
+borders_color = "border"
+alt_borders_color = "if($variant == 'light', darken($role_border, 8%), lighten($role_border, 6%))"
+link_color = "link"
+link_visited_color = "visited"
+headerbar_color = "header_bg"
+headerbar_bg_color = "header_bg"
+menu_color = "surface_raised"
+popover_bg_color = "surface_raised"
+popover_hover_color = "hover_bg"
+menu_selected_color = "hover_bg"
+scrollbar_slider_active_color = "accent"
+warning_color = "neutral"
+error_color = "negative"
+success_color = "positive"
+destructive_color = "destructive_bg"
+osd_fg_color = "#FEFCFC"
+osd_text_color = "#FEFCFC"
+osd_bg_color = "transparentize($role_osd_bg, 0.1)"
+sidebar_bg_color = "sidebar_bg"
+drop_target_color = "accent"
+insensitive_fg_color = "text_disabled"
+suggested_bg_color = "suggested_bg"
+suggested_border_color = "darken($role_suggested_bg, 10%)"
+checkradio_bg_color = "$selected_bg_color"
+checkradio_borders_color = "darken($checkradio_bg_color, 15%)"
+focus_border_color = "transparentize($role_accent, 0.35)"

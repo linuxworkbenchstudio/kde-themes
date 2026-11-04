@@ -1,0 +1,2 @@
+GTK 3.24.52 gtk/theme/Adwaita (commit 6e559833fc074ce0b3a69656b2431d1e9b314984)
+Upstream: https://gitlab.gnome.org/GNOME/gtk (mirror https://github.com/GNOME/gtk), LGPL-2.1-or-later

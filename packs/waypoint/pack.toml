@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.waypoint"
 previous_ids = ["org.waypoint"]       # the installer moves people off these
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk"]
 
 [theme.names]
 # as released; installed systems refer to these, so they stay
@@ -19,6 +19,13 @@ color_scheme = "{Slug}-{Edition}"      # Waypoint-Dark
 konsole = "{Compact}{Edition}"         # WaypointDark
 plasma_style = "{id}-{edition}"        # waypoint-dark
 kvantum = "{Compact}{Edition}"         # WaypointDark
+
+[theme.gtk]
+# GTK 3's pre-rendered slider knobs and text handles: Adwaita blue -> amber, greys -> steel greys
+png = {accent_hue = 33, accent_saturation = 0.62, neutral_hue = 214, neutral_saturation = 0.17}
+
+[theme.fastfetch]
+logo_colours = ["amber", "text"]              # amber chevron, W in the terminal's text colour
 
 [colours]
 graphite_black = "#0F1217"
@@ -50,6 +57,8 @@ plasma = "Waypoint dark Plasma theme with restrained amber highlights."
 decoration = "Machined graphite window decoration (dark)."
 kvantum_author = "{Brand} (derived from Kvantum KvArc by Pedram Pourang, GPL-3.0)"
 kvantum_comment = "{Name} {Edition}: graphite/amber, translucent windows and menus"
+gtk3_header = "/* {Name} {Edition} — GTK 3 ({Brand}). GTK 3's own Adwaita theme (LGPL-2.1-or-later),\n   compiled with the {Name} palette. */\n\n"
+gtk4_header = "/* {Name} {Edition} — GTK 4 ({Brand}). GTK's own theme (LGPL-2.1-or-later),\n   compiled with the {Name} palette. Needs GTK 4.16+. */\n\n"
 
 [edition.dark.roles]
 base_bg = "graphite_black"      # terminal background, inactive title bar
@@ -117,6 +126,8 @@ plasma = "Waypoint light Plasma theme with restrained amber highlights."
 decoration = "Machined graphite window decoration (light)."
 kvantum_author = "{Brand} (derived from Kvantum KvArc by Pedram Pourang, GPL-3.0)"
 kvantum_comment = "{Name} {Edition}: graphite/amber, translucent windows and menus"
+gtk3_header = "/* {Name} {Edition} — GTK 3 ({Brand}). GTK 3's own Adwaita theme (LGPL-2.1-or-later),\n   compiled with the {Name} palette. */\n\n"
+gtk4_header = "/* {Name} {Edition} — GTK 4 ({Brand}). GTK's own theme (LGPL-2.1-or-later),\n   compiled with the {Name} palette. Needs GTK 4.16+. */\n\n"
 
 [edition.light.roles]
 window_bg = "light_grey"
@@ -281,3 +292,60 @@ opaque = "kaffeine,kmplayer,subtitlecomposer,kdenlive,vlc,avidemux,avidemux2_qt4
 blur_translucent = true
 transparent_dolphin_view = true
 respect_darkness = true
+
+# ----------------------------------------------------------------------------- GTK
+# GTK's own themes compiled with Waypoint's colours; the house details (raised controls, outlined
+# suggested buttons, soft amber selection) are in gtk/gtk-3.0-<edition>.css.
+[edition.dark.gtk.vars]
+base_color = "graphite_black"
+text_color = "frost"
+bg_color = "graphite_black"
+fg_color = "frost"
+selected_fg_color = "graphite_black"
+selected_bg_color = "amber"
+borders_color = "steel_line"
+link_color = "amber"
+link_visited_color = "amber"
+warning_color = "orange"
+error_color = "red"
+success_color = "green"
+destructive_color = "red"
+drop_target_color = "green"
+insensitive_fg_color = "steel"
+insensitive_bg_color = "graphite"
+osd_bg_color = "rgba(15, 18, 23, 0.85)"
+
+[edition.dark.gtk."gtk-3.0"]
+headerbar_color = "graphite"
+menu_color = "graphite_raised"
+popover_bg_color = "graphite_raised"
+
+[edition.dark.gtk."gtk-4.0"]
+headerbar_bg_color = "graphite"
+
+[edition.light.gtk.vars]
+base_color = "light_grey"
+text_color = "ink"
+bg_color = "light_grey"
+fg_color = "ink"
+selected_fg_color = "ink"
+selected_bg_color = "amber"
+borders_color = "light_line"
+link_color = "amber_ink"
+link_visited_color = "amber_ink"
+warning_color = "orange"
+error_color = "red"
+success_color = "green"
+destructive_color = "red"
+drop_target_color = "green"
+insensitive_fg_color = "slate"
+insensitive_bg_color = "light_surface"
+osd_bg_color = "rgba(28, 34, 42, 0.85)"
+
+[edition.light.gtk."gtk-3.0"]
+headerbar_color = "light_surface"
+menu_color = "light_grey"
+popover_bg_color = "light_grey"
+
+[edition.light.gtk."gtk-4.0"]
+headerbar_bg_color = "light_surface"

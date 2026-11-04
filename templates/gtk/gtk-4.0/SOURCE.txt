@@ -1,0 +1,2 @@
+GTK 4.16.13 gtk/theme/Default (commit 925a44a563bb825682403b027768e3a19210fb07)
+Upstream: https://gitlab.gnome.org/GNOME/gtk (mirror https://github.com/GNOME/gtk), LGPL-2.1-or-later

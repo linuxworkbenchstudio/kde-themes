@@ -66,7 +66,7 @@ TERMINAL_SETTINGS = {
 }
 
 THEME_KEYS = {"id", "name", "command", "brand", "version", "license", "editions", "names",
-              "lookandfeel_id", "previous_ids", "parts", "website"}
+              "lookandfeel_id", "previous_ids", "parts", "website", "fastfetch", "gtk"}
 LNF_ID = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){2,}$")      # org.thelinuxworkbench.waypoint
 OLD_ID = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$")         # older ids can be shorter
 NAME_DEFAULTS = {
@@ -79,8 +79,10 @@ NAME_DEFAULTS = {
     "aurorae": "{Slug}-{Edition}",
     "cursors": "{Slug}-Cursors-{Edition}",
     "kvantum": "{Slug}-{Edition}",
+    "gtk": "{Slug}-{Edition}",
+    "icons": "{Slug}-{Edition}",
 }
-EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum"}
+EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum", "gtk"}
 TEXT_DEFAULTS = {   # descriptions in the theme's metadata; {Name} and {Edition} are filled in
     "plasma": "{Name} {Edition} Plasma style",
     "decoration": "{Name} {Edition} window decoration",
@@ -88,6 +90,12 @@ TEXT_DEFAULTS = {   # descriptions in the theme's metadata; {Name} and {Edition}
     "kvantum_author": "{Brand} (derived from Kvantum KvArc by Tsu Jan, GPL-3.0)",
     "kvantum_comment": "{Name} {Edition} Kvantum theme (based on KvArc)",
     "kvantum_svg": "",                 # a comment at the top of the Kvantum SVG; empty for none
+    # GTK stylesheets: {Edition} the compiled edition (Dark in gtk-dark.css), {Theme} the folder's
+    # edition, {version} gtk-3.0 / gtk-4.0, {file} gtk.css / gtk-dark.css
+    "gtk3_header": "/* {Name} {Edition} - GTK 3 ({Brand}). GTK 3's own Adwaita theme (LGPL-2.1-or-later),\n"
+                   "   compiled with the {Name} palette. */\n\n",
+    "gtk4_header": "/* {Name} {Edition} - GTK 4 ({Brand}). GTK's own theme (LGPL-2.1-or-later),\n"
+                   "   compiled with the {Name} palette. Needs GTK 4.16+. */\n\n",
 }
 
 

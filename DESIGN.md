@@ -67,12 +67,9 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 |---|---|
 | `[art]` | launcher icon, logo, wallpaper (Dark/Light), Fastfetch logo, splash |
 | `[plasma]` | Plasma Style details (corner radius, panel background opacity) |
-| `[kvantum]` | window and menu opacity (30 % in both themes now), blur, base theme |
 | `[panel]` | default look (Fancy), height (36 px), launcher, widgets; the six looks' tuning |
 | `[icons]` | folder colour, tile gradient, glyph colour, accent bar; which glyph sets |
 | `[cursors]` | fill and outline colours |
-| `[gtk]` | slot overrides for the GTK 3/4 themes |
-| `[fastfetch]` | colours and design |
 | `[sddm]` | optional login screen |
 | `[store]` | KDE Store texts, screenshots, credits |
 
@@ -82,17 +79,17 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 |---|---|---|---|---|
 | 1 | KDE colour schemes | ✓ | ✓ | **done**, byte-identical to Waypoint 0.2.0 |
 | 2 | Konsole colour schemes and profiles | ✓ | ✓ | **done**, byte-identical to Waypoint 0.2.0 |
-| 3 | Plasma Style (desktoptheme) | ✓ | ✓ | |
+| 3 | Plasma Style (desktoptheme) | ✓ | ✓ | **done**, from Waypoint templates, recoloured per pack |
 | 4 | Global Theme (look-and-feel: defaults, layout, splash, previews) | ✓ | ✓ | |
-| 5 | Window decoration (Aurorae) | ✓ | ✓ | |
-| 6 | Kvantum (from KvArc/KvArcDark, splitter_width=1, 30 %) | ✓ | ✓ | |
-| 7 | Cursors (recoloured Breeze) | ✓ | ✓ | |
+| 5 | Window decoration (Aurorae) | ✓ | ✓ | **done** |
+| 6 | Kvantum (from KvArc/KvArcDark, splitter_width=1, 30 %) | ✓ | ✓ | **done**: one rule set (`[edition.*.kvantum]`) reproduces both generators; defaults from roles |
+| 7 | Cursors (recoloured Breeze) | ✓ | ✓ | **done** |
 | 8 | Icons: ~145 folder types, ~600 apps, ~260 file types, launcher in hicolor | ✓ | ✓ | |
 | 9 | Wallpapers (Dark/Light) | ✓ | ✓ | |
-| 10 | GTK 3/4 for GTK apps on Plasma | ✓ | ✓ | |
+| 10 | GTK 3/4 for GTK apps on Plasma | ✓ | ✓ | **done**: GTK 3.24.52 / 4.16.13 SCSS compiled with Dart Sass 1.78.0 (`tools/get_sass.py`); GTK 4 now ships its images and gtk-dark.css in every theme |
 | 11 | Top panel layout (36 px, KVitals, centred clock) | ✓ | ✓ | |
 | 12 | Panel Colorizer: Normal, Transparent, Invisible, Cards, Pills, Fancy × Dark/Light | ✓ | ✓ | |
-| 13 | Fastfetch colours and design | ✓ | ✓ | |
+| 13 | Fastfetch colours and design | ✓ | ✓ | design config **done**; logo with the artwork, recolouring program with the programs |
 | 14 | SDDM login screen (optional) | | ✓ | |
 | 15 | The theme command: dark/light, panel, dim, gtk, sync, watch, settings, uninstall | ✓ | ✓ | |
 | 16 | Settings app (terminal) with Add-ons and About | ✓ | ✓ (no About yet?) | |
@@ -106,6 +103,9 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 
 The command, Settings, Setup and installer (15-19) are mostly the same program with the theme's
 name in it; in the engine they become templates filled from the pack.
+
+Coverage now (both with 0 different): Waypoint 1141 of 3867 released files (29.5 %), Vice Horizon
+1145 of 5856 (19.6 %). The rest is mostly icons, artwork, panel looks and the programs.
 
 ## How each part moves over
 
@@ -123,12 +123,11 @@ Natura is the first pack that never had its own copy: it starts on the engine.
 ## Decisions (4 Nov 2026)
 
 1. Settings > About with Uninstall: **in every theme.**
-2. Licence texts: **open**; proposed: keep them in each installed part, as Waypoint does (parts are
-   installed into separate folders, away from LICENSE).
+2. Licence texts: **kept in each installed part** (Kvantum GPL-3.0, GTK LGPL-2.1, Plasma Style LGPL-2.0).
 3. Installer option: **`--panel-look`**; `--panel-style` stays as an alias.
 4. Global Theme ids: **`org.thelinuxworkbench.<theme>.<edition>`**.
 5. Brand: **The Linux Workbench** for every theme; DigitalCohesion and Desktop Foundry are dropped.
-6. **One repository** for the engine and all packs (account and public/private still open).
+6. **One repository**, `thelinuxworkbench`, for the engine and all packs (public/private still open).
 7. **KDE only** for now.
 
 Natura: all artwork designed here, from the wallpaper Kahlil supplied (Dark and Light).

@@ -1,0 +1,34 @@
+
+/* ---- Waypoint details (on top of the compiled theme) ---- */
+.sidebar, placessidebar, stacksidebar, .navigation-sidebar { background-color: #1C222A; }
+.view:selected, treeview.view:selected, iconview:selected, row:selected,
+flowboxchild:selected { background-color: rgba(214, 154, 80, 0.35); color: #E6EDF3; }
+.view:selected:focus, treeview.view:selected:focus, row:selected:focus { background-color: rgba(214, 154, 80, 0.45); }
+button.suggested-action {
+  background-image: none; background-color: #272E37; color: #D69A50;
+  border-color: #D69A50; box-shadow: none; text-shadow: none; -gtk-icon-shadow: none;
+}
+button.suggested-action:hover { background-image: none; background-color: rgba(154, 166, 178, 0.16); }
+button.suggested-action:active, button.suggested-action:checked { background-image: none; background-color: rgba(214, 154, 80, 0.25); color: #E6EDF3; }
+button.suggested-action:disabled { background-image: none; background-color: #1C222A; color: #9AA6B2; border-color: #3A434F; }
+notebook > header tab:checked { box-shadow: inset 0 -2px #D69A50; }
+*:link:visited { color: #9AA6B2; }
+
+button:not(.flat):not(.suggested-action):not(.destructive-action):not(.titlebutton):not(:disabled),
+headerbar button:not(.flat):not(.suggested-action):not(.destructive-action):not(.titlebutton):not(:disabled) {
+  background-image: none; background-color: #272E37; border-color: #3A434F; box-shadow: none;
+}
+button:not(.flat):not(.suggested-action):not(.destructive-action):not(.titlebutton):hover {
+  background-image: none; background-color: #303844; }
+button:not(.flat):not(.suggested-action):not(.destructive-action):not(.titlebutton):active,
+button:not(.flat):not(.suggested-action):not(.destructive-action):not(.titlebutton):checked {
+  background-image: none; background-color: #3A434F; }
+button:not(.flat):not(.suggested-action):not(.destructive-action):not(.titlebutton):backdrop {
+  background-image: none; background-color: #1C222A; }
+check:not(:checked):not(:indeterminate), radio:not(:checked):not(:indeterminate) {
+  background-image: none; background-color: #272E37; border-color: #4A5462; }
+switch { background-image: none; background-color: #3A434F; border-color: #3A434F; }
+switch:checked { background-color: #D69A50; border-color: #D69A50; }
+switch slider { background-image: none; background-color: #E6EDF3; border-color: #3A434F; }
+switch:disabled slider { background-color: #9AA6B2; }
+scale slider { background-image: none; background-color: #E6EDF3; border-color: #3A434F; }

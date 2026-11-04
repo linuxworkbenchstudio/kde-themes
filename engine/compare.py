@@ -3,7 +3,8 @@
 Each file the engine makes is looked up in the reference (references/<pack>/ by default) and
 counted as:
   exact          byte for byte the same
-  same settings  an INI or JSON file with the same sections, keys and values in another order
+  same settings  an INI or JSON file with the same sections, keys and values in another order,
+                 or a PNG image with the same pixels
   engine adds    an INI file where every released setting is the same and the engine adds more
                  (the engine may add settings; it must never change or drop a released one)
   changed on purpose   differs, and reference.json "accept" says why (e.g. Plasma 6 metadata keys)
@@ -23,6 +24,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import png
 from .files import Link
 
 INI_SUFFIXES = {".colors", ".colorscheme", ".profile", ".kvconfig", ".desktop", ".theme", ""}
@@ -158,6 +160,9 @@ def compare(files: dict, ref: Path) -> Report:
         why = next((a["why"] for a in accept if fnmatch.fnmatch(rel, a["path"])), None)
         if released == mine:
             r.exact.append(rel)
+        elif rel.endswith(".png") and isinstance(mine, bytes) and isinstance(released, bytes) \
+                and png.same_pixels(mine, released):
+            r.same.append(rel)
         elif isinstance(mine, bytes) or isinstance(released, bytes):
             (r.accepted.append((rel, why)) if why else r.different.append((rel, "binary content differs")))
         elif Path(rel).suffix in INI_SUFFIXES and ini(mine) is not None and ini(released) is not None:

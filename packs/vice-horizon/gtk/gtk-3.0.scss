@@ -1,0 +1,38 @@
+// Vice Horizon overlay for GTK 3 - small identity touches on top of the
+// recoloured Adwaita structure. Keep this restrained.
+progressbar progress,
+scale trough highlight {
+  background-image: linear-gradient(to right, $role_accent, $role_selection_alt_bg);
+}
+progressbar.vertical progress,
+scale.vertical trough highlight {
+  background-image: linear-gradient(to top, $role_accent, $role_selection_alt_bg);
+}
+// primary actions carry the coral identity; destructive stays crimson
+button.suggested-action, .suggested-action {
+  color: $role_suggested_fg;
+}
+// toggled buttons in the dark edition: violet tint instead of near-black
+@if $variant == 'dark' {
+  button:checked:not(.flat):not(.suggested-action):not(.destructive-action):not(:backdrop) {
+    background-image: image(mix($role_selection_bg, $role_button_bg, 45%));
+    border-color: darken(mix($role_selection_bg, $role_button_bg, 45%), 12%);
+    color: $role_text;
+    text-shadow: none;
+    box-shadow: none;
+  }
+  button:checked:hover:not(.flat):not(.suggested-action):not(.destructive-action):not(:backdrop) {
+    background-image: image(mix($role_selection_bg, $role_button_bg, 60%));
+  }
+}
+// notebook tabs: sunset underline on the active tab
+notebook > header.top > tabs > tab:checked {
+  box-shadow: inset 0 -3px $role_highlight;
+}
+notebook > header.bottom > tabs > tab:checked { box-shadow: inset 0 3px $role_highlight; }
+notebook > header.left > tabs > tab:checked { box-shadow: inset -3px 0 $role_highlight; }
+notebook > header.right > tabs > tab:checked { box-shadow: inset 3px 0 $role_highlight; }
+// file chooser / Nautilus 3 places sidebar: soft mauve hover
+placessidebar row:hover:not(:selected), .sidebar row:hover:not(:selected) {
+  background-color: transparentize($role_selection_alt_bg, 0.82);
+}

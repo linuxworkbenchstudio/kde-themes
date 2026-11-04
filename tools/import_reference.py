@@ -50,12 +50,17 @@ ACCEPT = {
     "waypoint": [{"path": "plasma/desktoptheme/*/metadata.json",
                   "why": "Plasma 6 metadata: X-Plasma-API-Minimum-Version 6.0 replaces X-Plasma-API 5.0"},
                  {"path": "plasma/desktoptheme/*/widgets/tabbar.svgz",
-                  "why": "the open-widget line's corner pieces are hidden too (Vice Horizon 1.8's fix, now in every theme)"}],
+                  "why": "the open-widget line's corner pieces are hidden too (Vice Horizon 1.8's fix, now in every theme)"},
+                 {"path": "gtk/*/CREDITS",
+                  "why": "GTK 4 now ships its widget images too, so CREDITS names both assets folders"}],
 }
 # files the engine adds that the release didn't have
 NEW_OK = {
     "vice-horizon": ["*/COPYING", "*/CREDITS", "cursors/*/cursors_scalable/*"],
-    "waypoint": ["cursors/*/aliases.txt"],
+    "waypoint": ["cursors/*/aliases.txt",
+                 # GTK 4's stylesheet used widget images the release didn't ship (no check marks in plain
+                 # GTK 4 apps), and apps asking for dark got Light; GTK themes get an index.theme
+                 "gtk/*/gtk-4.0/assets/*", "gtk/*/gtk-4.0/gtk-dark.css", "gtk/*/index.theme"],
 }
 # what to copy from each kind of tree
 KEEP = {
