@@ -47,14 +47,17 @@ def main(argv=None) -> int:
             print(f"No reference at {ref}: import one with tools/import_reference.py", file=sys.stderr)
             return 1
         r = compare(build(pack), ref)
-        print(f"{pack.name}: the engine makes {len(r.exact) + len(r.same) + len(r.different) + len(r.new)} files "
+        print(f"{pack.name}: the engine makes {len(r.exact) + len(r.same) + len(r.adds) + len(r.different) + len(r.new)} files "
               f"(parts: {', '.join(pack.parts) or 'none yet'})")
-        print(f"  exact {len(r.exact)}, same settings {len(r.same)}, different {len(r.different)}, new {len(r.new)}")
+        print(f"  exact {len(r.exact)}, same settings {len(r.same)}, engine adds settings {len(r.adds)}, "
+              f"different {len(r.different)}, new {len(r.new)}")
+        for rel, extra in r.adds[:10]:
+            print(f"  adds: {rel}: {', '.join(extra[:6])}{' ...' if len(extra) > 6 else ''}")
         for rel, why in r.different[:20]:
             print(f"  different: {rel}\n      {why}")
         for rel in r.new[:10]:
             print(f"  new: {rel}")
-        print(f"  coverage: {len(r.exact) + len(r.same)} of {r.total} released theme files ({r.coverage:.1%})")
+        print(f"  coverage: {len(r.exact) + len(r.same) + len(r.adds)} of {r.total} released theme files ({r.coverage:.1%})")
         return 1 if r.different else 0
     if a.cmd == "check":
         print(f"{pack.name} {pack.version} ({pack.brand}), command '{pack.command}', Global Theme {pack.lookandfeel_id}.dark/.light")

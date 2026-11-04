@@ -4,6 +4,8 @@ Each file the engine makes is looked up in the reference (references/<pack>/ by 
 counted as:
   exact          byte for byte the same
   same settings  an INI or JSON file with the same sections, keys and values in another order
+  engine adds    an INI file where every released setting is the same and the engine adds more
+                 (the engine may add settings; it must never change or drop a released one)
   different      exists in the reference but differs (the first few lines of difference are shown)
   new            the reference has no such file
 Coverage is the share of the reference's theme files that the engine already makes exactly or
@@ -42,12 +44,13 @@ class Report:
     total: int = 0
     exact: list = field(default_factory=list)
     same: list = field(default_factory=list)
+    adds: list = field(default_factory=list)            # (path, keys the engine adds)
     different: list = field(default_factory=list)       # (path, first difference)
     new: list = field(default_factory=list)
 
     @property
     def coverage(self) -> float:
-        return (len(self.exact) + len(self.same)) / self.total if self.total else 0.0
+        return (len(self.exact) + len(self.same) + len(self.adds)) / self.total if self.total else 0.0
 
 
 def reference_path(rel: str, mapping: dict) -> str:
@@ -87,8 +90,15 @@ def compare(files: dict[str, str], ref: Path) -> Report:
         released = target.read_text(encoding="utf-8", errors="replace")
         if released == text:
             r.exact.append(rel)
-        elif Path(rel).suffix in INI_SUFFIXES and ini(text) is not None and ini(text) == ini(released):
-            r.same.append(rel)
+        elif Path(rel).suffix in INI_SUFFIXES and ini(text) is not None and ini(released) is not None:
+            mine, theirs = ini(text), ini(released)
+            if mine == theirs:
+                r.same.append(rel)
+            elif all(sec in mine and all(mine[sec].get(k) == v for k, v in kv.items()) for sec, kv in theirs.items()):
+                extra = [f"{sec}{k}" for sec, kv in mine.items() for k in kv if k not in theirs.get(sec, {})]
+                r.adds.append((rel, extra))
+            else:
+                r.different.append((rel, first_difference(text, released)))
         elif Path(rel).suffix == ".json" and _json_equal(text, released):
             r.same.append(rel)
         else:

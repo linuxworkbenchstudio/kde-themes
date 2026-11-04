@@ -1,0 +1,191 @@
+# Vice Horizon - Miami-sunset palette: Midnight Violet (Dark) and Shell Blush (Light).
+# The Linux Workbench. Converted from Vice Horizon 1.8.2's config/tokens.json by
+# tools/convert_vice_horizon.py; edit this file from now on.
+
+[theme]
+id = "vice-horizon"
+name = "Vice Horizon"
+command = "vice-horizon"
+brand = "The Linux Workbench"
+version = "0.1.0"                     # first release on the engine (was 1.8.2)
+license = "GPL-3.0-or-later"
+editions = ["dark", "light"]
+lookandfeel_id = "org.thelinuxworkbench.vicehorizon"
+previous_ids = ["org.digitalcohesion.vicehorizon"]
+parts = ["kde-colors", "konsole"]
+
+[colours]
+sunset_mauve = "#C48FBA"    # Sunset Mauve
+horizon_pink = "#EFA1A1"    # Horizon Pink
+peach_glow = "#F9C8B2"    # Peach Glow
+palm_violet = "#857DB5"    # Palm Violet
+coral_red = "#EA5148"    # Coral Red
+deep_plum = "#2F1F2B"    # Deep Plum
+rose_shadow = "#A77091"    # Rose Shadow
+soft_white = "#FEFCFC"    # Soft White
+plum_abyss = "#271A24"
+plum_alt = "#33222F"
+plum_raised = "#3A2836"
+plum_button = "#432F3F"
+plum_hover = "#4F3949"
+plum_border = "#5B4357"
+mauve_mist = "#D9C4D3"
+mauve_dim = "#9C8496"
+violet_haze = "#B6B0E3"
+palm_violet_deep = "#6C64A3"
+coral_glow = "#F0776F"
+coral_deep = "#C93B32"
+crimson_dusk = "#A8283E"
+palm_mint = "#93D3AB"
+lagoon = "#8CC7D1"
+shell_blush = "#FBF5F4"
+blush_alt = "#F8EFF0"
+blush_header = "#F4E8EA"
+blush_button = "#F2E4E8"
+blush_hover = "#EFD9E3"
+rose_mist = "#E2CCD7"
+plum_muted = "#6B5165"
+plum_dim = "#A0899A"
+violet_ink = "#5A529A"
+rose_ink = "#8C4C7E"
+coral_ink = "#B8352D"
+palm_green = "#2F7D51"
+amber_ink = "#9A5320"
+lagoon_ink = "#2F7E8C"
+midnight = "#1D1A2E"
+midnight_abyss = "#17152A"
+midnight_alt = "#221F36"
+midnight_raised = "#252239"
+midnight_button = "#2B2843"
+midnight_hover = "#363052"
+midnight_border = "#3B3657"
+midnight_black = "#121022"
+lilac_mist = "#CEC9EA"
+lilac_dim = "#8D87B3"
+rose_deep = "#B04A6E"
+
+# ----------------------------------------------------------------------------- Dark
+[edition.dark]
+name = "Dark"
+
+[edition.dark.roles]
+window_bg = "midnight"
+view_bg = "midnight_abyss"
+view_alt_bg = "midnight_alt"
+header_bg = "midnight_raised"
+header_inactive_bg = "midnight"
+button_bg = "midnight_button"
+button_alt_bg = "midnight_hover"
+surface_raised = "midnight_raised"
+hover_bg = "midnight_hover"
+sidebar_bg = "midnight"
+border = "midnight_border"
+border_strong = "rose_shadow"
+text = "soft_white"
+text_muted = "lilac_mist"
+text_disabled = "lilac_dim"
+accent = "horizon_pink"
+selection_bg = "rose_deep"
+selection_fg = "soft_white"
+selection_alt_bg = "horizon_pink"
+hover_decoration = "horizon_pink"
+highlight = "horizon_pink"
+warm = "peach_glow"
+link = "peach_glow"
+visited = "horizon_pink"
+active_text = "peach_glow"
+negative = "coral_glow"
+neutral = "peach_glow"
+positive = "palm_mint"
+suggested_bg = "coral_deep"
+suggested_fg = "soft_white"
+destructive_bg = "crimson_dusk"
+destructive_fg = "soft_white"
+notification = "coral_red"
+tooltip_bg = "midnight_raised"
+tooltip_fg = "soft_white"
+complementary_bg = "midnight"
+complementary_fg = "soft_white"
+osd_bg = "midnight_abyss"
+
+[edition.dark.kde.Selection]          # Vice Horizon's text colours on a selection
+ForegroundInactive = "#EAD0D8"
+ForegroundActive = "peach_glow"
+ForegroundLink = "peach_glow"
+ForegroundVisited = "horizon_pink"
+ForegroundNegative = "peach_glow"
+ForegroundNeutral = "peach_glow"
+ForegroundPositive = "palm_mint"
+
+[edition.dark.terminal]
+background = "midnight_abyss"
+background_intense = "#201D35"
+foreground = "soft_white"
+foreground_faint = "#ADABB2"
+foreground_intense = "peach_glow"
+normal = ["#252239", "#EA5148", "#93D3AB", "#F9C8B2", "#857DB5", "#C48FBA", "#8CC7D1", "#DCD8EE"]
+bright = ["#4B4670", "#F0776F", "#B4E3C6", "#FCDCCD", "#ABA5D6", "#DDB6D5", "#B2DCE3", "#FEFCFC"]
+faint = ["#201D34", "#A03C3E", "#68907E", "#AA8982", "#5E5984", "#876488", "#638997", "#9794A9"]
+
+# ----------------------------------------------------------------------------- Light
+[edition.light]
+name = "Light"
+
+[edition.light.roles]
+window_bg = "shell_blush"
+view_bg = "soft_white"
+view_alt_bg = "blush_alt"
+header_bg = "blush_header"
+header_inactive_bg = "shell_blush"
+button_bg = "blush_button"
+button_alt_bg = "blush_hover"
+surface_raised = "soft_white"
+hover_bg = "blush_hover"
+sidebar_bg = "blush_alt"
+border = "rose_mist"
+border_strong = "rose_shadow"
+text = "deep_plum"
+text_muted = "plum_muted"
+text_disabled = "plum_dim"
+accent = "palm_violet"
+selection_bg = "palm_violet_deep"
+selection_fg = "soft_white"
+selection_alt_bg = "sunset_mauve"
+hover_decoration = "sunset_mauve"
+highlight = "horizon_pink"
+warm = "peach_glow"
+link = "violet_ink"
+visited = "rose_ink"
+active_text = "rose_ink"
+negative = "coral_ink"
+neutral = "amber_ink"
+positive = "palm_green"
+suggested_bg = "coral_deep"
+suggested_fg = "soft_white"
+destructive_bg = "crimson_dusk"
+destructive_fg = "soft_white"
+notification = "coral_red"
+tooltip_bg = "soft_white"
+tooltip_fg = "deep_plum"
+complementary_bg = "deep_plum"
+complementary_fg = "soft_white"
+osd_bg = "deep_plum"
+
+[edition.light.kde.Selection]          # Vice Horizon's text colours on a selection
+ForegroundInactive = "#DAD6E6"
+ForegroundActive = "peach_glow"
+ForegroundLink = "peach_glow"
+ForegroundVisited = "horizon_pink"
+ForegroundNegative = "peach_glow"
+ForegroundNeutral = "peach_glow"
+ForegroundPositive = "palm_mint"
+
+[edition.light.terminal]
+background = "soft_white"
+background_intense = "#F4F2F6"
+foreground = "deep_plum"
+foreground_faint = "#776C74"
+foreground_intense = "deep_plum"
+normal = ["#2F1F2B", "#B8352D", "#2F7D51", "#9A5320", "#5A529A", "#8C4C7E", "#2F7E8C", "#D9C4D3"]
+bright = ["#6B5165", "#C93B32", "#3B9564", "#B4682F", "#6C64A3", "#A77091", "#3A93A3", "#A0899A"]
+faint = ["#776C74", "#D07B75", "#77A98D", "#BD8E6D", "#938EBC", "#B48AAA", "#77AAB3", "#E6D8E1"]

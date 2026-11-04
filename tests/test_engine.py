@@ -43,23 +43,44 @@ brand = "The Linux Workbench"
 version = "0.1.0"
 lookandfeel_id = "org.thelinuxworkbench.test"
 editions = ["dark"]
-[edition.dark.palette]
-window = "#202020"
-raised = "#303030"
-line = "#404040"
+[colours]
+blue = "#3080F0"
+[edition.dark.roles]
+window_bg = "#202020"
+view_bg = "#1A1A1A"
+border = "#404040"
 text = "#F0F0F0"
-muted = "#A0A0A0"
-disabled = "#606060"
-accent = "#3080F0"
-accent_bright = "#60A0FF"
-on_accent = "#FFFFFF"
+text_muted = "#A0A0A0"
+text_disabled = "#606060"
+accent = "blue"
+selection_bg = "accent"
+selection_fg = "#FFFFFF"
 negative = "#E04040"
 neutral = "#E0A000"
 positive = "#40C060"
 [edition.dark.terminal]
-ansi = [["raised", "#505050"], ["negative", "#FF6060"], ["positive", "#60E080"], ["neutral", "#FFC040"],
-        ["accent", "accent_bright"], ["#A060C0", "#C080E0"], ["#40A0A0", "#60C0C0"], ["muted", "text"]]
+normal = ["#303030", "negative", "positive", "neutral", "accent", "#A060C0", "#40A0A0", "text_muted"]
+bright = ["#505050", "#FF6060", "#60E080", "#FFC040", "#60A0FF", "#C080E0", "#60C0C0", "text"]
 """
+
+
+REFS = ROOT / "references"
+
+
+@unittest.skipUnless((REFS / "waypoint" / "reference.json").is_file() and (REFS / "vice-horizon" / "reference.json").is_file(),
+                     "references not imported (tools/import_reference.py)")
+class AgainstReleases(unittest.TestCase):
+    """Every file the engine makes must match the theme's last release (exactly, with the same
+    settings, or with settings only added)."""
+
+    def test_both_themes(self):
+        from engine.compare import compare
+        for pid in ("waypoint", "vice-horizon"):
+            with self.subTest(pack=pid):
+                r = compare(build(load(ROOT / "packs" / pid)), REFS / pid)
+                self.assertEqual(r.different, [])
+                self.assertEqual(r.new, [])
+                self.assertGreater(len(r.exact) + len(r.same) + len(r.adds), 0)
 
 
 class Packs(unittest.TestCase):
@@ -68,25 +89,28 @@ class Packs(unittest.TestCase):
         ed = p.editions["dark"]
         self.assertEqual(p.file_name("color_scheme", ed), "Test-Theme-Dark")
         self.assertEqual(p.file_name("konsole", ed), "Test-Theme-Dark")
-        self.assertEqual(ed.palette["base"], "#202020")          # optional names fall back
-        self.assertEqual(ed.kde["link"], "#3080F0")
-        self.assertEqual(ed.kde["complementary"], "dark")
+        self.assertEqual(ed.roles["base_bg"], "#1A1A1A")          # optional roles fall back
+        self.assertEqual(ed.roles["link"], "#3080F0")
+        self.assertEqual(ed.roles["selection_bg"], "#3080F0")      # a role can name an earlier role
+        self.assertEqual(ed.kde["settings"]["complementary"], "dark")
+        self.assertEqual(ed.kde["groups"]["Window"]["BackgroundNormal"], "#202020")
         files = build(p)
         self.assertEqual(sorted(files), ["color-schemes/Test-Theme-Dark.colors", "konsole/Test-Theme-Dark.colorscheme",
                                          "konsole/Test-Theme-Dark.profile"])
         self.assertIn("Name=Test Theme Dark", files["color-schemes/Test-Theme-Dark.colors"])
 
     def test_problems_are_reported_together(self):
-        bad = (MINIMAL.replace('accent = "#3080F0"', 'accent = "#3080F"')
-               .replace('line = "#404040"\n', "")
-               .replace("[edition.dark.terminal]", '[edition.dark.kde]\nbuton = "window"\nview = "nonesuch"\n[edition.dark.terminal]')
-               .replace('["muted", "text"]]', ']'))
+        bad = (MINIMAL.replace('accent = "blue"', 'accent = "#3080F"')
+               .replace('border = "#404040"\n', "")
+               .replace("[edition.dark.terminal]", '[edition.dark.kde]\nbuton = "x"\n[edition.dark.kde.View]\nBackgroundNormal = "nonesuch"\n'
+                        'Frob = "text"\n[edition.dark.terminal]')
+               .replace('"#40A0A0", "text_muted"]', '"#40A0A0"]'))
         with self.assertRaises(PackError) as cm:
             load(write_pack(bad))
         msg = "\n".join(cm.exception.problems)
-        for expected in ("accent = '#3080F': needs a #RRGGBB colour", "palette] line: missing",
-                         "kde] buton: not a KDE colour slot", "view = 'nonesuch': not a palette name",
-                         "ansi: needs 8 [normal, intense] pairs, has 7"):
+        for expected in ("accent = '#3080F': not a colour name", "roles] border: missing",
+                         "kde] buton: not a KDE colour group", "BackgroundNormal = 'nonesuch': not a role",
+                         "kde.View] Frob: not a key", "need 8 colours each (have 7 and 8)"):
             self.assertIn(expected, msg)
 
     def test_unknown_theme_setting(self):
@@ -110,13 +134,13 @@ class Packs(unittest.TestCase):
 
     def test_cross_edition_reference(self):
         p = load(ROOT / "packs" / "waypoint")
-        self.assertEqual(p.editions["light"].terminal["foreground_intense"], p.editions["dark"].palette["base"])
+        self.assertEqual(p.editions["light"].terminal["foreground_intense"], p.editions["dark"].roles["base_bg"])
 
     def test_cli(self):
         out = Path(tempfile.mkdtemp())
         self.assertEqual(main(["build", str(ROOT / "packs" / "waypoint"), "--out", str(out)]), 0)
         self.assertTrue((out / "waypoint" / "konsole" / "WaypointLight.profile").is_file())
-        self.assertEqual(main(["build", str(write_pack(MINIMAL.replace('window = "#202020"', 'window = "x"'))), "--out", str(out)]), 1)
+        self.assertEqual(main(["build", str(write_pack(MINIMAL.replace('window_bg = "#202020"', 'window_bg = "x"'))), "--out", str(out)]), 1)
 
 
 class Colours(unittest.TestCase):
