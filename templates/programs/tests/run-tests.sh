@@ -355,7 +355,7 @@ cat > "$C/fastfetch/config.jsonc" <<'JSON'
 }
 JSON
 orig_ffw="$(sha "$C/fastfetch/config.jsonc")"
-t "another theme's Fastfetch design is switched to the @@NAME@@ logo" 'run_inst --components fastfetch --variant light --yes && grep -q "~/.config/fastfetch/@@COMMAND@@-logo.txt" "$C/fastfetch/config.jsonc" && grep -q "38;2;116;73;233" "$C/fastfetch/config.jsonc" && [[ -f "$C/fastfetch/@@COMMAND@@-logo.txt" ]]'
+t "another theme's Fastfetch design is switched to the @@NAME@@ logo" 'run_inst --components fastfetch --variant light --yes && grep -q "~/.config/fastfetch/@@COMMAND@@-logo.txt" "$C/fastfetch/config.jsonc" && grep -q "@@FF_LOGO_1@@" "$C/fastfetch/config.jsonc" && [[ -f "$C/fastfetch/@@COMMAND@@-logo.txt" ]]'
 t "  uninstall brings that design back" 'run_uninst --yes && [[ "$(sha "$C/fastfetch/config.jsonc")" == "$orig_ffw" ]]'
 new_home ffd
 t "--fastfetch-design (no config yet)" 'run_inst --components icons --fastfetch-design --variant light --yes'

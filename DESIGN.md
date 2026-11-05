@@ -122,7 +122,8 @@ For every theme:
   goes, files you edited stay;
 - the Konsole profile and Fastfetch logo switch over from any of the other themes;
 - `tests/run-tests.sh` (Vice Horizon's suite: installs, switches and uninstalls in a throw-away
-  home with stand-in KDE tools) runs in every theme's build.
+  home with stand-in KDE tools) runs in every theme's build: Vice Horizon 215, Waypoint 215,
+  Natura 209 checks, all passing (5 Nov 2026). It takes about 40 minutes per theme here.
 
 ## How each part moves over
 
