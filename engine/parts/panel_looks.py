@@ -17,6 +17,7 @@ presets; their three theme colours are swapped for the pack's from [theme.panel]
   light  = "#FEFCFC"       light text and the Light twins' sections       (Soft White)
   ink    = "#2F1F2B"       the Light twins' text                          (Deep Plum)
   light_shadow = "#A77091" the Light twins' shadows                      (Rose Shadow)
+  height = 40              the top panel's height in px (every theme: 40 since 5 Nov 2026; was 36)
   light_bar = 0.5          how solid the Light twins' bar is (Natura: 0.82, its semi-translucent rice)
 
 The Light twins never use Panel Colorizer's "Complementary" colour set (it stays dark in both
@@ -31,7 +32,7 @@ from ..pack import Pack
 from . import TEMPLATES
 
 LOOKS = ("Normal", "Transparent", "Invisible", "Cards", "Pills", "Fancy")
-THICKNESS = 36   # the panel's height; a radius of half of it gives a pill its round ends
+HEIGHT = 40      # the top panel's height (px); a radius of half of it gives a pill its round ends
 VH = {"shadow": "#121022", "accent": "#857DB5", "light": "#FEFCFC", "ink": "#2F1F2B", "light_shadow": "#A77091"}
 
 
@@ -43,6 +44,7 @@ class Looks:
         self.key = spec.get("key", pack.id.split("-")[0] + "".join(w.title() for w in pack.id.split("-")[1:]))
         self.name = pack.name
         self.light_bar = float(spec.get("light_bar", 0.5))
+        self.height = int(spec.get("height", HEIGHT))
 
     def tpl(self, name):
         text = (TEMPLATES / "panel-colorizer" / f"{name}.json").read_text(encoding="utf-8")
@@ -147,7 +149,7 @@ class Looks:
         d = self.tpl("islands"); g = d["globalSettings"]
         self.no_bar(g); self.hide_plasma_bar(g)
         w = g["widgets"]["normal"]
-        w["radius"] = {"enabled": True, "corner": {k: THICKNESS // 2 for k in ("topLeft", "topRight", "bottomRight", "bottomLeft")}}
+        w["radius"] = {"enabled": True, "corner": {k: self.height // 2 for k in ("topLeft", "topRight", "bottomRight", "bottomLeft")}}
         w["shadow"]["background"]["enabled"] = False
         d[self.key] = {"islands": True}
         return d

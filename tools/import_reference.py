@@ -48,7 +48,9 @@ RENAME = {
 }
 # changes made on purpose, with the reason
 ACCEPT = {
-    "vice-horizon": [{"path": "wallpapers/*/metadata.json",
+    "vice-horizon": [{"path": "panel-colorizer/* Pills*/settings.json",
+                      "why": "the top panel is 40 px now (was 36), so the pills' round ends are 20 px (Kahlil, 5 Nov 2026)"},
+                     {"path": "wallpapers/*/metadata.json",
                       "why": "the wallpaper package says what it is (Description) and its Version, as Waypoint's does"}],
     "waypoint": [{"path": "plasma/desktoptheme/*/metadata.json",
                   "why": "Plasma 6 metadata: X-Plasma-API-Minimum-Version 6.0 replaces X-Plasma-API 5.0"},
