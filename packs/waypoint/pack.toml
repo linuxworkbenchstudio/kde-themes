@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.waypoint"
 previous_ids = ["org.waypoint"]       # the installer moves people off these
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets"]
 
 [theme.names]
 # as released; installed systems refer to these, so they stay
@@ -24,6 +24,14 @@ icons = "{Name}"                       # one icon theme for both editions, as re
 [theme.gtk]
 # GTK 3's pre-rendered slider knobs and text handles: Adwaita blue -> amber, greys -> steel greys
 png = {accent_hue = 33, accent_saturation = 0.62, neutral_hue = 214, neutral_saturation = 0.17}
+
+[theme.panel]
+# the shared panel looks in Waypoint's colours
+shadow = "graphite_black"       # shadows and dark sections
+accent = "amber"                # hover, open and attention outlines
+light = "frost"                 # light text; the Light twins' sections
+ink = "ink"                     # the Light twins' text
+light_shadow = "slate"          # the Light twins' shadows
 
 [theme.icons]
 # The shared icon set in Waypoint's colours: steel-grey folders and tiles, frost glyphs, amber where

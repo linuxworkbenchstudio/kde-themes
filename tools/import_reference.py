@@ -48,27 +48,72 @@ RENAME = {
 }
 # changes made on purpose, with the reason
 ACCEPT = {
-    "vice-horizon": [{"path": "panel-colorizer/* Pills*/settings.json",
-                      "why": "the top panel is 40 px now (was 36), so the pills' round ends are 20 px (Kahlil, 5 Nov 2026)"},
-                     {"path": "wallpapers/*/metadata.json",
-                      "why": "the wallpaper package says what it is (Description) and its Version, as Waypoint's does"}],
-    "waypoint": [{"path": "plasma/desktoptheme/*/metadata.json",
-                  "why": "Plasma 6 metadata: X-Plasma-API-Minimum-Version 6.0 replaces X-Plasma-API 5.0"},
-                 {"path": "plasma/desktoptheme/*/widgets/tabbar.svgz",
-                  "why": "the open-widget line's corner pieces are hidden too (Vice Horizon 1.8's fix, now in every theme)"},
-                 {"path": "icons/*",
-                  "why": "icons redrawn by the shared icon generator in Waypoint's style (Kahlil's choice A, 4 Nov 2026)"},
-                 {"path": "gtk/*/CREDITS",
-                  "why": "GTK 4 now ships its widget images too, so CREDITS names both assets folders"}],
+    "vice-horizon": [
+        {
+            "path": "panel-colorizer/* Pills*/settings.json",
+            "why": "the top panel is 40 px now (was 36), so the pills' round ends are 20 px (Kahlil, 5 Nov 2026)"
+        },
+        {
+            "path": "wallpapers/*/metadata.json",
+            "why": "the wallpaper package says what it is (Description) and its Version, as Waypoint's does"
+        },
+        {
+            "path": "panel/*-panel.js",
+            "why": "one panel script for every theme (Vice Horizon's, plus Waypoint's record of the look; 40 px; replaces any The Linux Workbench theme's panel)"
+        },
+        {
+            "path": "widgets/README.md",
+            "why": "the bundled widgets are shared by every theme now"
+        }
+    ],
+    "waypoint": [
+        {
+            "path": "plasma/desktoptheme/*/metadata.json",
+            "why": "Plasma 6 metadata: X-Plasma-API-Minimum-Version 6.0 replaces X-Plasma-API 5.0"
+        },
+        {
+            "path": "plasma/desktoptheme/*/widgets/tabbar.svgz",
+            "why": "the open-widget line's corner pieces are hidden too (Vice Horizon 1.8's fix, now in every theme)"
+        },
+        {
+            "path": "icons/*",
+            "why": "icons redrawn by the shared icon generator in Waypoint's style (Kahlil's choice A, 4 Nov 2026)"
+        },
+        {
+            "path": "gtk/*/CREDITS",
+            "why": "GTK 4 now ships its widget images too, so CREDITS names both assets folders"
+        },
+        {
+            "path": "panel-colorizer/*",
+            "why": "the shared panel looks in Waypoint's colours (Kahlil, 5 Nov 2026)"
+        },
+        {
+            "path": "panel/*-panel.js",
+            "why": "one panel script for every theme (Vice Horizon's, plus Waypoint's record of the look; 40 px)"
+        },
+        {
+            "path": "widgets/*",
+            "why": "one copy of the bundled widgets for every theme (Vice Horizon's; same versions, a few more files)"
+        }
+    ]
 }
+
 # files the engine adds that the release didn't have
 NEW_OK = {
-    "vice-horizon": ["*/COPYING", "*/COPYING.LGPL-3", "*/CREDITS", "cursors/*/cursors_scalable/*"],
-    "waypoint": ["cursors/*/aliases.txt",
-                 # GTK 4's stylesheet used widget images the release didn't ship (no check marks in plain
-                 # GTK 4 apps), and apps asking for dark got Light; GTK themes get an index.theme
-                 "gtk/*/gtk-4.0/assets/*", "gtk/*/gtk-4.0/gtk-dark.css", "gtk/*/index.theme",
-                 "icons/*"],
+    "vice-horizon": [
+        "*/COPYING",
+        "*/COPYING.LGPL-3",
+        "*/CREDITS",
+        "cursors/*/cursors_scalable/*"
+    ],
+    "waypoint": [
+        "cursors/*/aliases.txt",
+        "gtk/*/gtk-4.0/assets/*",
+        "gtk/*/gtk-4.0/gtk-dark.css",
+        "gtk/*/index.theme",
+        "icons/*",
+        "widgets/*"
+    ]
 }
 # what to copy from each kind of tree
 KEEP = {

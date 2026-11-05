@@ -66,7 +66,6 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | Section | For |
 |---|---|
 | `[plasma]` | Plasma Style details (corner radius, panel background opacity) |
-| `[panel]` | default look (Fancy), height (36 px), launcher, widgets; the six looks' tuning |
 | `[cursors]` | fill and outline colours |
 | `[sddm]` | optional login screen |
 | `[store]` | KDE Store texts, screenshots, credits |
@@ -85,8 +84,8 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | 8 | Icons: ~145 folder types, ~600 apps, ~260 file types, launcher in hicolor | ✓ | ✓ | **done**: Vice Horizon's generator, colours and style (tile, folder, pages, accent bar) per pack; Waypoint redrawn in its style (choice A, approved) |
 | 9 | Wallpapers (Dark/Light) | ✓ | ✓ | **done** (brand part: wallpapers, launcher, splash images, previews, Fastfetch logo from `packs/<pack>/art/`) |
 | 10 | GTK 3/4 for GTK apps on Plasma | ✓ | ✓ | **done**: GTK 3.24.52 / 4.16.13 SCSS compiled with Dart Sass 1.78.0 (`tools/get_sass.py`); GTK 4 now ships its images and gtk-dark.css in every theme |
-| 11 | Top panel layout (40 px since 5 Nov 2026, was 36; KVitals, centred clock) | ✓ | ✓ | |
-| 12 | Panel Colorizer: Normal, Transparent, Invisible, Cards, Pills, Fancy × Dark/Light | ✓ | ✓ | |
+| 11 | Top panel layout (40 px since 5 Nov 2026, was 36; KVitals, centred clock) | ✓ | ✓ | **done**: one script for every theme (Vice Horizon's, with Waypoint's look record); replaces any of the themes' panels |
+| 12 | Panel Colorizer: Normal, Transparent, Invisible, Cards, Pills, Fancy × Dark/Light | ✓ | ✓ | **done**: Vice Horizon's look rules, colours per pack; Waypoint moved to them (5 Nov 2026) |
 | 13 | Fastfetch colours and design | ✓ | ✓ | design config **done**; logo with the artwork, recolouring program with the programs |
 | 14 | SDDM login screen (optional) | | ✓ | |
 | 15 | The theme command: dark/light, panel, dim, gtk, sync, watch, settings, uninstall | ✓ | ✓ | |
@@ -94,7 +93,7 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | 17 | Setup (guided installer) | ✓ | ✓ | |
 | 18 | Installer and uninstaller: manifest with fingerprints, keeps edited files, restores your look | ✓ | ✓ | |
 | 19 | Login sync helper (autostart) | ✓ | ✓ | |
-| 20 | Bundled widgets (KVitals, Panel Colorizer) | ✓ | ✓ | |
+| 20 | Bundled widgets (KVitals, Panel Colorizer) | ✓ | ✓ | **done**: one shared copy (Vice Horizon's) |
 | 21 | Licences and credits in each installed part | ✓ | LICENSE only | |
 | 22 | Release zip and KDE Store bundle | ✓ | ✓ | |
 | 23 | Tests: one suite run against every pack | 167 | 205 | started |
@@ -102,8 +101,8 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 The command, Settings, Setup and installer (15-19) are mostly the same program with the theme's
 name in it; in the engine they become templates filled from the pack.
 
-Coverage now (both with 0 different): Waypoint 1141 of 3867 released files (29.5 %), Vice Horizon
-1145 of 5856 (19.6 %). The rest is mostly icons, artwork, panel looks and the programs.
+Coverage now (both with 0 different): Vice Horizon 99.5 % of its released files; Waypoint 71.7 %
+(the rest is mostly its programs). Waypoint's icons, panel looks and panel script are redrawn on purpose.
 
 ## How each part moves over
 

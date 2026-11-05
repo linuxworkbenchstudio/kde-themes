@@ -6,7 +6,7 @@ from pathlib import Path
 
 TEMPLATES = Path(__file__).resolve().parent.parent.parent / "templates"
 
-from . import aurorae, brand, cursors, fastfetch, gtk, icons, kde_colors, konsole, kvantum, panel_looks, plasma_style  # noqa: E402
+from . import aurorae, brand, cursors, fastfetch, gtk, icons, kde_colors, konsole, kvantum, panel_layout, panel_looks, plasma_style, widgets  # noqa: E402
 
 PARTS = {
     "kde-colors": kde_colors,
@@ -20,4 +20,6 @@ PARTS = {
     "icons": icons,
     "brand": brand,
     "panel-looks": panel_looks,
+    "panel-layout": panel_layout,
+    "widgets": widgets,
 }

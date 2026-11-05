@@ -61,6 +61,7 @@ class Report:
     different: list = field(default_factory=list)       # (path, first difference)
     new: list = field(default_factory=list)
     new_ok: list = field(default_factory=list)
+    listed: int = 0                                     # links the reference only lists (aliases.txt)
 
     @property
     def coverage(self) -> float:
@@ -68,7 +69,7 @@ class Report:
 
     @property
     def covered(self) -> int:
-        return len(self.exact) + len(self.same) + len(self.adds) + len(self.accepted)
+        return len(self.exact) + len(self.same) + len(self.adds) + len(self.accepted) - self.listed
 
 
 def reference_path(rel: str, mapping: dict) -> str:
@@ -146,6 +147,7 @@ def compare(files: dict, ref: Path) -> Report:
         target = ref / reference_path(rel, mapping)
         if isinstance(value, Link) and not (target.is_file() or target.is_symlink()) and target.as_posix() in listed:
             ok = listed[target.as_posix()] == value.target
+            r.listed += ok
             (r.exact if ok else r.different).append(rel if ok else (rel, f"aliases.txt has {listed[target.as_posix()]}"))
             continue
         if not (target.is_file() or target.is_symlink()):
