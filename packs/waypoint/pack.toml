@@ -34,8 +34,41 @@ comment = "{Name} folders, app, device and file-type icons (glyphs partly from K
 tile = ["graphite_raised", "graphite"]      # Waypoint's graphite app tile
 tile_edge = 0.14
 folder = ["#8A95A1", "#7F8A96", "#566170"]  # Waypoint's grey folder, every type
-page = ["#9AA6B2", "#7F8A96"]               # plain steel pages
+page = ["#9AA6B2", "#7F8A96"]               # steel pages: text, documents, fonts, keys ...
 bar = "amber"                               # Waypoint's amber bar under the glyph
+
+[theme.icons.style.pages]
+# file families keep a colour each (muted, from Waypoint's terminal colours); amber is the bar only
+code = ["steel_line", "graphite_raised"]
+script = ["steel_line", "graphite_raised"]
+log = ["steel_line", "graphite_raised"]
+config = ["steel_line", "graphite_raised"]
+patch = ["steel_line", "graphite_raised"]
+executable = ["steel_line", "graphite_raised"]
+html = ["#4A5562", "graphite_raised"]
+web = ["#4A5562", "graphite_raised"]
+pdf = ["#C9544E", "#9E2F2B"]
+presentation = ["#C9544E", "#9E2F2B"]
+calendar = ["#C9544E", "#9E2F2B"]
+mail = ["#C9544E", "#9E2F2B"]
+image = ["#7A9CC6", "#56739A"]
+drawing = ["#7A9CC6", "#56739A"]
+vector = ["#7A9CC6", "#56739A"]
+audio = ["#6DADAD", "#447F7F"]
+playlist = ["#6DADAD", "#447F7F"]
+video = ["#A58AB1", "#765F84"]
+subtitle = ["#A58AB1", "#765F84"]
+archive = ["#A8916F", "#7D6748"]
+package = ["#A8916F", "#7D6748"]
+disc = ["#A8916F", "#7D6748"]
+torrent = ["#A8916F", "#7D6748"]
+spreadsheet = ["#7FA86B", "#4E7A3C"]
+csv = ["#7FA86B", "#4E7A3C"]
+data = ["#7FA86B", "#4E7A3C"]
+database = ["#7FA86B", "#4E7A3C"]
+cad = ["#6F7F94", "#4F5D70"]
+model = ["#6F7F94", "#4F5D70"]
+model3d = ["#6F7F94", "#4F5D70"]
 
 [theme.icons.map]
 "#FAD3C0" = "#A7B1BC"

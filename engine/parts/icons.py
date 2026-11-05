@@ -14,6 +14,7 @@ shades all come from the pack's colours. Colours a pack doesn't map stay as they
   tile_edge = 0.16               opacity of the tile's light edge (Vice Horizon: only its dark tiles)
   folder = [top, bottom, back]   every folder (front gradient, back flap)
   page = [top, bottom]           every file-type page
+  pages = {pdf = [top, bottom], ...}   pages of one family (text, code, pdf, image, audio ...)
   bar = "accent"                 a short bar in this colour under the glyph on app tiles and file
                                  pages (Waypoint's amber bar); the glyph moves up to make room
 [theme.icons] also takes `comment` (index.theme) and `inherits_dark` / `inherits_light`.
@@ -124,13 +125,17 @@ def build_edition(pack: Pack, ed) -> dict:
         for d in (X.FAM, MO.TILE):
             for k in d:
                 d[k] = t
-    if "page" in style:
-        pg = tuple(resolve(c) for c in style["page"])
-        for k, (_, names) in X.FILES.items():
-            X.FILES[k] = (pg, names)
+    if "page" in style or "pages" in style:
+        fixed = tuple(resolve(c) for c in style["page"]) if "page" in style else None
+        per = {k: tuple(resolve(c) for c in v) for k, v in style.get("pages", {}).items()}
+
+        def pg(k, was):
+            return per.get(k, fixed or was)
+        for k, (was, names) in X.FILES.items():
+            X.FILES[k] = (pg(k, was), names)
         for d in (MO.MORE_FILES, S.FILE_FAMILIES):
-            for k, (_, sym, names) in d.items():
-                d[k] = (pg, sym, names)
+            for k, (was, sym, names) in d.items():
+                d[k] = (pg(k, was), sym, names)
     if "folder" in style:
         f = tuple(resolve(c) for c in style["folder"])
         for d in (MO.FAM, S.FAM):
