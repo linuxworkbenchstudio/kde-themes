@@ -13,6 +13,9 @@ shades all come from the pack's colours. Colours a pack doesn't map stay as they
   tile = [top, bottom]           every app and category tile
   tile_edge = 0.16               opacity of the tile's light edge (Vice Horizon: only its dark tiles)
   folder = [top, bottom, back]   every folder (front gradient, back flap)
+  page = [top, bottom]           every file-type page
+  bar = "accent"                 a short bar in this colour under the glyph on app tiles and file
+                                 pages (Waypoint's amber bar); the glyph moves up to make room
 [theme.icons] also takes `comment` (index.theme) and `inherits_dark` / `inherits_light`.
 The theme's own brand icons (launcher, app icon) come from packs/<pack>/art/hicolor/.
 """
@@ -59,6 +62,24 @@ def load(colours: dict, name: str) -> dict:
     return mods
 
 
+GLYPH = re.compile(r'\n<g(?: fill="[^"]*")? opacity="\.95">')
+# (glyph centre before, glyph centre after, scale, bar y) for app tiles and file pages
+BAR = {"app icon": (24, 21, 0.86, 36.6), "file-type icon": (30, 27.6, 0.86, 37)}
+
+
+def _bar(text: str, colour: str) -> str:
+    """Move the glyph up and put a short bar under it (app tiles and file pages only)."""
+    kind = next((k for k in BAR if k in text[:400]), None)
+    m = GLYPH.search(text)
+    end = text.rfind("\n</svg>")
+    if not kind or not m or end < m.start():
+        return text
+    c0, c1, sc, y = BAR[kind]
+    body = text[m.start() + 1:end]
+    return (text[:m.start()] + f'\n<g transform="translate(24 {c1}) scale({sc}) translate(-24 -{c0})">{body}</g>'
+            f'\n<rect x="19" y="{y}" width="10" height="2.4" rx="1" fill="{colour}"/>' + text[end:])
+
+
 def _map(pack: Pack, ed) -> dict:
     resolve = resolver(pack, ed)
     spec = dict(pack.raw.get("theme", {}).get("icons", {}).get("map", {}))
@@ -103,6 +124,13 @@ def build_edition(pack: Pack, ed) -> dict:
         for d in (X.FAM, MO.TILE):
             for k in d:
                 d[k] = t
+    if "page" in style:
+        pg = tuple(resolve(c) for c in style["page"])
+        for k, (_, names) in X.FILES.items():
+            X.FILES[k] = (pg, names)
+        for d in (MO.MORE_FILES, S.FILE_FAMILIES):
+            for k, (_, sym, names) in d.items():
+                d[k] = (pg, sym, names)
     if "folder" in style:
         f = tuple(resolve(c) for c in style["folder"])
         for d in (MO.FAM, S.FAM):
@@ -146,11 +174,14 @@ def build_edition(pack: Pack, ed) -> dict:
         MO.write_all(write, base, pack.version, lambda *a: B.folder_svg(*a, pack.version), variant)
         S.write_all(write, base, pack.version, variant)
         edge = style.get("tile_edge")
+        bar = resolve(style["bar"]) if "bar" in style else None
         for p in sorted(root.rglob("*")):
             if p.is_file():
                 text = p.read_text(encoding="utf-8")
                 if edge is not None and "app icon" in text[:400]:
                     text = text.replace('stroke="#FFFFFF" stroke-opacity="0"', f'stroke="#FFFFFF" stroke-opacity="{edge}"')
+                if bar:
+                    text = _bar(text, bar)
                 out[f"icons/{p.relative_to(root).as_posix()}"] = text
     licences = TEMPLATES / "licences"
     out[f"icons/{name}/COPYING"] = (licences / "CC-BY-SA-4.0.txt").read_text(encoding="utf-8")

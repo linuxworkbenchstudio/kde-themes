@@ -34,6 +34,8 @@ comment = "{Name} folders, app, device and file-type icons (glyphs partly from K
 tile = ["graphite_raised", "graphite"]      # Waypoint's graphite app tile
 tile_edge = 0.14
 folder = ["#8A95A1", "#7F8A96", "#566170"]  # Waypoint's grey folder, every type
+page = ["#9AA6B2", "#7F8A96"]               # plain steel pages
+bar = "amber"                               # Waypoint's amber bar under the glyph
 
 [theme.icons.map]
 "#FAD3C0" = "#A7B1BC"
