@@ -11,10 +11,18 @@ version = "0.1.0"
 license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.natura"
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks"]
 
 [theme.fastfetch]
 logo_colours = ["vermillion", "sage"]        # $1 the sun, $2 the hills and water
+
+[theme.panel]
+shadow = "ink_deep"             # shadows and dark sections
+accent = "vermillion"           # hover, open and attention outlines
+light = "rice"                  # light text; the Light twins' sections
+ink = "ink"                     # the Light twins' text
+light_shadow = "slate"          # the Light twins' shadows
+light_bar = 0.82                # Light: the semi-translucent rice top panel (approved palette)
 
 [theme.icons]
 comment = "{Name} folders, app, device and file-type icons (glyphs partly from KDE Breeze, LGPL-3.0-or-later); everything else inherits from Papirus, Breeze or Adwaita"
