@@ -30,6 +30,11 @@ light_hint = "Soft White surfaces with a see-through white top bar."
 bar = ["peach_glow", "horizon_pink", "sunset_mauve", "palm_violet"]   # Peach Glow -> Horizon Pink -> Sunset Mauve -> Palm Violet
 
 [theme.fastfetch]
+# the Fastfetch tool's colours for your own config (accent and muted text, per edition)
+accent_dark = "horizon_pink"
+muted_dark = "violet_haze"
+accent_light = "rose_ink"
+muted_light = "plum_muted"
 # the launcher tile's sunset gradient, peach (top right) to violet (bottom left)
 logo_colours = ["#FCB377", "#FC8376", "#FA5C93", "#E249BE", "#9A47E1", "#7449E9"]
 

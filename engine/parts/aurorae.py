@@ -25,6 +25,7 @@ def build(pack: Pack) -> dict:
             text = f.read_text(encoding="utf-8")
             target = f"{name}rc" if f.name == "decorationrc" else f.name
             out[base + target] = rc.text(text, f"aurorae/{f.name}")
+        out[base + "COPYING"] = (TEMPLATES / "licences" / "GPL-3.0-or-later.txt").read_text(encoding="utf-8")
         out[base + "metadata.desktop"] = META.format(display=pack.display(ed), comment=pack.describe("decoration", ed),
                                                       brand=pack.brand, name=name, version=pack.version)
     return out

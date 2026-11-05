@@ -25,6 +25,8 @@ def build(pack: Pack) -> dict:
     wall = art / "wallpaper"
     if wall.is_dir():
         out.update(_files(wall, f"wallpapers/{slug}/contents/"))
+        from . import TEMPLATES
+        out[f"wallpapers/{slug}/COPYING"] = (TEMPLATES / "licences" / "CC-BY-SA-4.0.txt").read_text(encoding="utf-8")
         out[f"wallpapers/{slug}/metadata.json"] = json.dumps({"KPlugin": {
             "Id": slug, "Name": pack.name, "Description": "Dark and Light versions follow the colour scheme",
             "Authors": [{"Name": pack.brand}], "License": "CC-BY-SA-4.0", "Version": pack.version}},

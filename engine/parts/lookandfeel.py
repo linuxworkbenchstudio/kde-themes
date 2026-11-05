@@ -23,6 +23,7 @@ def build(pack: Pack) -> dict:
     for ed in pack.editions.values():
         lid = f"{pack.lookandfeel_id}.{ed.id}"
         base = f"look-and-feel/{lid}/"
+        out[base + "COPYING"] = (TEMPLATES / "licences" / "GPL-3.0-or-later.txt").read_text(encoding="utf-8")
         out[base + "metadata.json"] = json.dumps({
             "KPackageStructure": "Plasma/LookAndFeel",
             "KPlugin": {"Authors": [{"Name": pack.brand}], "Category": "",

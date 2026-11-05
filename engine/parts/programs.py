@@ -10,6 +10,7 @@ Vice Horizon 1.8.2, see tools/port_programs.py) filled in for each pack.
 The terminal colours come from the Dark edition's roles (accent, warm, link, muted ...).
 """
 import json
+import re
 
 from ..colour import rgb
 from ..pack import Pack
@@ -22,7 +23,9 @@ FILES = {"install.sh": "install.sh", "uninstall.sh": "uninstall.sh", "setup.sh":
          "bin/THEME-setup": "bin/{c}-setup", "bin/THEME-settings.desktop": "bin/{c}-settings.desktop",
          "bin/THEME-sync.desktop": "bin/{c}-sync.desktop", "fastfetch/THEME-fastfetch.py": "fastfetch/{c}-fastfetch.py",
          "fastfetch/install-fastfetch-colours.sh": "fastfetch/install-fastfetch-colours.sh",
-         "sddm/apply-sddm-background.sh": "sddm/apply-sddm-background.sh", "sddm/README.md": "sddm/README.md"}
+         "sddm/apply-sddm-background.sh": "sddm/apply-sddm-background.sh", "sddm/README.md": "sddm/README.md",
+         "tests/run-tests.sh": "tests/run-tests.sh", "tests/validate.sh": "tests/validate.sh",
+         "tests/tui-test.py": "tests/tui-test.py", "tests/vtscreen.py": "tests/vtscreen.py"}
 
 
 def xterm256(h: str) -> int:
@@ -76,6 +79,10 @@ def build(pack: Pack) -> dict:
     ff = pack.raw.get("theme", {}).get("fastfetch", {})
     from .fastfetch import ansi
     logo = {str(i): ansi(pack, c) for i, c in enumerate(ff.get("logo_colours", [r["accent"], "text"]), 1)}
+    def pick(v, ed):
+        return rgb(v if v.startswith("#") else (ed.roles.get(v) or pack.colours[v]))
+    palette = {"dark": {"accent": pick(ff.get("accent_dark", "accent"), dark), "muted": pick(ff.get("muted_dark", "text_muted"), dark)},
+               "light": {"accent": pick(ff.get("accent_light", "link"), light), "muted": pick(ff.get("muted_light", "text_muted"), light)}}
     bar = spec.get("bar", [r["warm"], r["accent"], r["highlight"], r["link"]])
     bar = [rgb(c if c.startswith("#") else (r.get(c) or pack.colours[c])) for c in bar]
     trip = lambda h: "%d;%d;%d" % rgb(h)   # noqa: E731
@@ -85,8 +92,14 @@ def build(pack: Pack) -> dict:
         "@@PROFILES@@": "|".join(profiles),
         "@@OLD_LNF@@": " ".join(pack.previous_ids),
         "@@SIBLINGS@@": json.dumps(sorted(p.command for p in others)),
-        "@@FF_PALETTE@@": json.dumps({"dark": {"accent": rgb(dark.roles["accent"]), "muted": rgb(dark.roles["text_muted"])},
-                                      "light": {"accent": rgb(light.roles["link"]), "muted": rgb(light.roles["text_muted"])}}),
+        "@@FF_PALETTE@@": json.dumps(palette),
+        "@@FF_LIGHT_ACCENT@@": "%d;%d;%d" % palette["light"]["accent"],
+        "@@FF_LOGO_1@@": logo["1"],
+        "@@FIND_OURS@@": " -o ".join(f"-iname '*{w}*'" for w in sorted({pack.command, pack.name.replace(' ', '-'), pack.name.lower(),
+                                                                           pack.lookandfeel_id.rsplit('.', 1)[-1]})),
+        "@@SIBLING_COMMAND@@": (others[0].command if others else "another-theme"),
+        "@@SIBLING_PROFILE@@": (f"{others[0].file_name('konsole', next(iter(others[0].editions.values())))}.profile"
+                                if others else "Other.profile"),
         "@@FF_LOGO@@": json.dumps({"dark": logo, "light": logo}),
         "@@BAR_R@@": " ".join(str(c[0]) for c in bar), "@@BAR_G@@": " ".join(str(c[1]) for c in bar),
         "@@BAR_B@@": " ".join(str(c[2]) for c in bar),
@@ -109,6 +122,8 @@ def build(pack: Pack) -> dict:
     root = TEMPLATES / "programs"
     for src, dst in FILES.items():
         text = (root / src).read_text(encoding="utf-8")
+        text = re.sub(r"@@N:(\w+):(Dark|Light)@@",
+                      lambda m: pack.file_name(m.group(1), next(e for e in eds if e.name == m.group(2))), text)
         for k in sorted(values, key=len, reverse=True):
             text = text.replace(k, values[k])
         if "@@" in text:

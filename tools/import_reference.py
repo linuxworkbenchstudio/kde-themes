@@ -134,6 +134,10 @@ ACCEPT = {
         {
             "path": "uninstall.sh",
             "why": "the shared uninstaller"
+        },
+        {
+            "path": "tests/*",
+            "why": "one test suite for every theme (Vice Horizon's, run against each pack)"
         }
     ]
 }
@@ -147,7 +151,8 @@ NEW_OK = {
         "*/COPYING",
         "*/COPYING.LGPL-3",
         "*/CREDITS",
-        "cursors/*/cursors_scalable/*"
+        "cursors/*/cursors_scalable/*",
+        "tests/*"
     ],
     "waypoint": [
         "cursors/*/aliases.txt",
@@ -161,7 +166,9 @@ NEW_OK = {
         "sddm/*",
         "gtk/gtk-2.0.gtkrc.in",
         "bin/*",
-        "VERSION"
+        "VERSION",
+        "*/COPYING",
+        "tests/*"
     ]
 }
 # what to copy from each kind of tree

@@ -64,13 +64,15 @@ Extras:
                                    otherwise the copy bundled with @@NAME@@, for your user)
       --panel-colorizer            install Panel Colorizer if missing, the same way - it
                                    styles the panel; without the flag the installer checks and asks
-      --panel-style NAME           panel look: Normal, Transparent, Invisible, Cards, Pills, Fancy
-                                   (default) or Standard (no Panel Colorizer); also --panel-look.
+      --panel-look NAME            panel look: Normal, Transparent, Invisible, Cards, Pills, Fancy
+                                   (default) or Standard (no Panel Colorizer); --panel-style also works.
                                    Older names work: Base = Transparent, Islands = Pills, Plain = Normal
       --widgets LIST               install the bundled copies now: kvitals, panel-colorizer (or all)
       --plain-panel                build the panel without Panel Colorizer
       --only-panel                 make it the only panel on the main screen (removes Plasma's
                                    default bottom panel; backed up, @@COMMAND@@ panel --restore)
+      --migrate / --no-migrate     an earlier @@NAME@@ under its old ids: move it over without asking /
+                                   leave it as it is (asked otherwise)
       --no-autosync                don't add the login helper that keeps Kvantum/Konsole/Fastfetch in step
       --fastfetch                  recolour your Fastfetch config (same as --with fastfetch)
       --fastfetch-design           use the @@NAME@@ Fastfetch design (its logo) instead
@@ -380,6 +382,111 @@ activate_kde() {
   component_selected kde-command || vh_info "Konsole: Settings > Manage Profiles > '@@NAME@@ $T' > Set as Default (not changed automatically)."
 }
 
+# ------------------------------------------------------------------ an earlier install, under its old ids
+# Waypoint 0.5.0 and older (org.waypoint.*, its install-manifest.tsv) and Vice Horizon 1.8 and older
+# (org.digitalcohesion.vicehorizon.*): their Global Themes would sit next to the new ones and keep
+# your desktop on the old copy. Found ones are moved over - only with your yes (--yes counts):
+# your choices carry over, your desktop moves to the new id, the old copy goes (files you edited stay).
+OLD_MANIFEST="$VH_STATE_DIR/install-manifest.tsv"
+old_found() {
+  local p e
+  [[ -f "$OLD_MANIFEST" ]] && return 0
+  for p in "${OLD_LNF_PREFIXES[@]}"; do for e in dark light; do
+    [[ -d "$VH_DATA/plasma/look-and-feel/$p.$e" ]] && return 0
+  done; done
+  return 1
+}
+migrate_old() {
+  [[ "$MIGRATE" == 0 ]] && return 0
+  old_found || return 0
+  local cur p e found="" look ff
+  for p in "${OLD_LNF_PREFIXES[@]}"; do for e in dark light; do
+    [[ -d "$VH_DATA/plasma/look-and-feel/$p.$e" ]] && found+="${found:+, }$p.$e"
+  done; done
+  [[ -f "$OLD_MANIFEST" ]] && found+="${found:+, }its install record"
+  vh_step "An earlier @@NAME@@ is installed"
+  vh_row "Found" "$found"
+  vh_info "Moving it over keeps your choices (edition, panel look, Fastfetch, sync), switches your"
+  vh_info "desktop to the new @@NAME@@ and removes the old copy. Files you edited are kept."
+  if [[ "$MIGRATE" != 1 ]] && ! { [[ "$VH_ASSUME_YES" == 1 ]] || { can_ask && vh_confirm "Move it over?" y; }; }; then
+    vh_dim "$G_SKIP left as it is - the new @@NAME@@ installs next to it"; return 0
+  fi
+  # 1. your choices
+  cur="$(kreadconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage 2>/dev/null || true)"
+  for p in "${OLD_LNF_PREFIXES[@]}"; do
+    case "$cur" in "$p.dark"|"$p.light") [[ -z "$ACTIVATE" ]] && ACTIVATE=1; [[ -z "$AV_WANT" ]] && AV_WANT="${cur##*.}" ;; esac
+  done
+  look="$(sed -n 's/^\(waypointLook\|@@KEY@@Look\|@@KEY@@Style\)=//p' "$VH_CONFIG/plasma-org.kde.plasma.desktop-appletsrc" 2>/dev/null | head -n1)"
+  look="${look#@@NAME@@ }"; look="${look% Light}"
+  [[ -n "$look" && "$PANEL_STYLE_SET" != 1 ]] && PANEL_STYLE="$look"
+  for ff in "$VH_CONFIG/fastfetch/config.jsonc.@@COMMAND@@-original" "$VH_CONFIG/fastfetch/config.json5.@@COMMAND@@-original"; do
+    [[ -f "$ff" ]] && { select_add fastfetch; break; }
+  done
+  # 2. your look from before the old version (so uninstall still puts it back)
+  if [[ -f "$OLD_MANIFEST" ]]; then
+    awk -F'\t' '$1=="setting" {print $2"\t"$3"\t"$4"\t"$5}' "$OLD_MANIFEST" | while IFS=$'\t' read -r f g k v; do
+      [[ "$v" == "<unset>" ]] && v=""
+      case "$f|$g|$k" in
+        kdeglobals\|KDE\|LookAndFeelPackage) record_setting kde lookandfeel - "$v" ;;
+        kdeglobals\|General\|ColorScheme) record_setting kde colorscheme - "$v" ;;
+        plasmarc\|Theme\|name) record_setting kde desktoptheme - "$v" ;;
+        kdeglobals\|Icons\|Theme) record_setting kde icons - "$v" ;;
+        kcminputrc\|Mouse\|cursorTheme) record_setting kde cursor - "$v" ;;
+        kdeglobals\|KDE\|widgetStyle) record_setting kde widgetstyle - "$v" ;;
+        ksplashrc\|KSplash\|Theme) record_setting kde splash - "$v" ;;
+        *kvantum.kvconfig\|General\|theme) record_setting kde kvantum - "$v" ;;
+      esac
+    done
+  fi
+  # 3. the old copy: the Global Themes under the old ids, and (Waypoint 0.5) every file its install
+  #    record lists with its fingerprint - removed when unchanged, kept when you edited it
+  for p in "${OLD_LNF_PREFIXES[@]}"; do for e in dark light; do
+    [[ -d "$VH_DATA/plasma/look-and-feel/$p.$e" ]] || continue
+    vh_retire_tree "$VH_DATA/plasma/look-and-feel/$p.$e"   # recorded by this installer (Vice Horizon 1.8)
+  done; done
+  if [[ -f "$OLD_MANIFEST" ]] && vh_have python3; then
+    if [[ "$VH_DRY_RUN" == 1 ]]; then vh_dim "would remove the old copy's unchanged files"
+    else python3 -I - "$OLD_MANIFEST" "$HOME" <<'PY' || vh_warn "the old copy could not be removed completely - see $OLD_MANIFEST"
+import hashlib, os, sys, shutil
+manifest, home = sys.argv[1], sys.argv[2]
+items, sums = [], {}
+for line in open(manifest, encoding="utf-8"):
+    parts = line.rstrip("\n").split("\t")
+    if parts[0] == "file" and len(parts) > 1:
+        items.append(parts[1])
+    elif parts[0] == "sum" and len(parts) > 2:
+        sums[parts[1]] = parts[2]
+def sha(f):
+    if os.path.islink(f):
+        return "link:" + os.readlink(f)
+    with open(f, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+kept = 0
+for p in items:
+    if not p.startswith(home + "/") or not os.path.lexists(p):
+        continue
+    files = [p] if (not os.path.isdir(p) or os.path.islink(p)) else [
+        os.path.join(d, f) for d, ds, fs in os.walk(p) for f in fs + [x for x in ds if os.path.islink(os.path.join(d, x))]]
+    for f in files:
+        if f in sums and sha(f) == sums[f]:
+            os.remove(f)
+        elif f in sums:
+            kept += 1
+    for d, ds, fs in sorted(os.walk(p, topdown=False)) if os.path.isdir(p) and not os.path.islink(p) else []:
+        try:
+            os.rmdir(d)
+        except OSError:
+            pass
+print(f"old copy removed ({kept} file(s) you edited kept)")
+PY
+      mv -f -- "$OLD_MANIFEST" "$OLD_MANIFEST.moved-$(date +%Y%m%d%H%M%S)"
+    fi
+  fi
+  vh_ok "moved over - your desktop switches to the new @@NAME@@ at the end"
+  [[ -z "$ACTIVATE" ]] && ACTIVATE=1
+  return 0
+}
+
 # ------------------------------------------------------------------ selection helpers
 declare -A SELECTED=()
 component_selected() { [[ -n "${SELECTED[$1]+x}" ]]; }
@@ -436,6 +543,7 @@ EOF
 # ------------------------------------------------------------------ main
 DESKTOP=""; VARIANT=""; COMPONENTS=(); WITH=(); WITHOUT=(); ACTIVATE=""; ALLOW_ROOT=0; INTERACTIVE=0; WANT_DEPS=""; FULL=""
 WIDGETS_WANT=(); AV_WANT=""; TEXT=0; DEPS_REPORT=0; LOG_FILE=""; NARGS=0; WANT_PANEL=""; WANT_KVITALS=0; WANT_PC=0; NO_AUTOSYNC=0; FF_DESIGN=0; PANEL_STYLE="Fancy"; PLAIN_PANEL=0; ONLY_PANEL=0
+MIGRATE=""; PANEL_STYLE_SET=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in --allow-root|--text|--log|--log=*) ;; *) NARGS=$((NARGS + 1)) ;; esac   # what counts as "told what to do"
@@ -460,8 +568,15 @@ while [[ $# -gt 0 ]]; do
     --widgets) read -r -a _w <<<"$(split_list "${2:-}")"; WIDGETS_WANT+=("${_w[@]}"); shift ;;
     --widgets=*) read -r -a _w <<<"$(split_list "${1#*=}")"; WIDGETS_WANT+=("${_w[@]}") ;;
     --panel-colorizer) WANT_PC=1 ;;
-    --panel-style|--panel-look) PANEL_STYLE="${2:-}"; shift ;;
-    --panel-style=*|--panel-look=*) PANEL_STYLE="${1#*=}" ;;
+    --panel-look|--panel-style) PANEL_STYLE="${2:-}"; PANEL_STYLE_SET=1; shift ;;
+    --panel-look=*|--panel-style=*) PANEL_STYLE="${1#*=}"; PANEL_STYLE_SET=1 ;;
+    --migrate) MIGRATE=1 ;;
+    --no-migrate) MIGRATE=0 ;;
+    # Waypoint 0.5's options, still understood
+    --no-gtk) WITHOUT+=(kde-gtk) ;;
+    --no-fastfetch) WITHOUT+=(fastfetch) ;;
+    --skip-addons) WANT_DEPS=0 ;;
+    --no-dim|--wallpaper=*|--manual|--preview|--keep-other-panels|--no-color|--no-colour) ;;
     --plain-panel) PLAIN_PANEL=1 ;;
     --only-panel) ONLY_PANEL=1 ;;
     --no-autosync) NO_AUTOSYNC=1 ;;
@@ -471,6 +586,7 @@ while [[ $# -gt 0 ]]; do
     --install-deps) WANT_DEPS=1 ;;
     --no-deps) WANT_DEPS=0 ;;
     --activate) ACTIVATE=1 ;;
+    --activate=later) ACTIVATE=0 ;;
     --activate=*) ACTIVATE=1; AV_WANT="${1#*=}" ;;
     --text) TEXT=1 ;;
     --deps-report) DEPS_REPORT=1 ;;
@@ -709,6 +825,7 @@ check_requirements
 # ---- install
 vh_manifest_load
 trap 'vh_manifest_save' EXIT
+migrate_old
 declare -A RESULT=()
 for c in "${ALL_COMPONENTS[@]}"; do
   component_selected "$c" || continue

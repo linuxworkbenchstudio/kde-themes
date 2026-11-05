@@ -119,6 +119,11 @@ light_hint = "Light grey surfaces, amber accents."
 bar = ["steel", "amber", "amber_bright", "steel"]
 
 [theme.fastfetch]
+# the Fastfetch tool's colours for your own config (accent and muted text, per edition)
+accent_dark = "amber"
+muted_dark = "steel"
+accent_light = "#875818"     # the Light Konsole yellow slot
+muted_light = "slate"
 logo_colours = ["amber", "text"]              # amber chevron, W in the terminal's text colour
 
 [colours]
