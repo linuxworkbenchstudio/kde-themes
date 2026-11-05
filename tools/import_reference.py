@@ -118,6 +118,22 @@ ACCEPT = {
         {
             "path": "look-and-feel/*",
             "why": "one Global Theme template for every theme: new ids, the shared panel script with the Fancy preset, the splash comment"
+        },
+        {
+            "path": "bin/*",
+            "why": "Waypoint now uses the shared programs (Vice Horizon's, filled in with Waypoint's names); see DESIGN.md for the behaviour changes"
+        },
+        {
+            "path": "fastfetch/*",
+            "why": "one Fastfetch tool for every theme"
+        },
+        {
+            "path": "install.sh",
+            "why": "the shared installer"
+        },
+        {
+            "path": "uninstall.sh",
+            "why": "the shared uninstaller"
         }
     ]
 }
@@ -139,7 +155,13 @@ NEW_OK = {
         "gtk/*/gtk-4.0/gtk-dark.css",
         "gtk/*/index.theme",
         "icons/*",
-        "widgets/*"
+        "widgets/*",
+        "setup.sh",
+        "lib/*",
+        "sddm/*",
+        "gtk/gtk-2.0.gtkrc.in",
+        "bin/*",
+        "VERSION"
     ]
 }
 # what to copy from each kind of tree
