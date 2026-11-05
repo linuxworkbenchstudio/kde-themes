@@ -5,7 +5,7 @@ Colorizer widget (luisbocanegra/plasma-panel-colorizer), six looks, each with a 
   Transparent  a see-through, blurred bar
   Invisible    no bar and no backgrounds; Dark: light text with a soft dark shadow,
                Light: dark text with a light halo
-  Cards        each widget on its own card
+  Cards        each widget on its own card, no bar behind them (like Pills; 5 Nov 2026)
   Pills        no bar; each group of widgets is one pill with fully rounded ends
   Fancy        the default
 
@@ -154,6 +154,11 @@ class Looks:
         d[self.key] = {"islands": True}
         return d
 
+    def cards(self):
+        d = self.tpl("cards"); g = d["globalSettings"]
+        self.no_bar(g); self.hide_plasma_bar(g)
+        return d
+
     def lighten(self, d, look):
         light = copy.deepcopy(d)
         self.lighten_preset(light)
@@ -167,7 +172,7 @@ class Looks:
     def all(self):
         for look in LOOKS:
             dark = {"Normal": self.normal, "Transparent": self.transparent, "Invisible": lambda: self.invisible("dark"),
-                    "Cards": lambda: self.tpl("cards"), "Pills": self.pills, "Fancy": lambda: self.tpl("fancy")}[look]()
+                    "Cards": self.cards, "Pills": self.pills, "Fancy": lambda: self.tpl("fancy")}[look]()
             light = self.invisible("light") if look == "Invisible" else self.lighten(dark, look)
             for name, data in ((f"{self.name} {look}", dark), (f"{self.name} {look} Light", light)):
                 if name.endswith("Light"):

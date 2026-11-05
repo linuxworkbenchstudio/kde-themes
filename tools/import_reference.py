@@ -50,6 +50,10 @@ RENAME = {
 ACCEPT = {
     "vice-horizon": [
         {
+            "path": "panel-colorizer/* Cards*/settings.json",
+            "why": "Cards has no panel bar behind the cards now, like Pills (Kahlil, 5 Nov 2026)"
+        },
+        {
             "path": "panel-colorizer/* Pills*/settings.json",
             "why": "the top panel is 40 px now (was 36), so the pills' round ends are 20 px (Kahlil, 5 Nov 2026)"
         },
