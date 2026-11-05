@@ -58,7 +58,7 @@ def names_sh(pack) -> str:
     cases = []
     for kind in KINDS:
         for ed in pack.editions.values():
-            cases.append(f"    {kind}:{ed.name}) echo '{pack.file_name(kind, ed)}' ;;")
+            cases.append(f"    {kind}:{ed.template.title()}) echo '{pack.file_name(kind, ed)}' ;;")
     words = sorted({pack.name.replace(' ', '-'), pack.name.replace(' ', ''), pack.command,
                     pack.lookandfeel_id.rsplit('.', 1)[-1]} | {i.rsplit('.', 1)[-1] for i in pack.previous_ids})
     return ("# ---- names of this theme's files, per edition (filled in by the theme engine)\n"
@@ -88,7 +88,7 @@ def build(pack: Pack) -> dict:
     trip = lambda h: "%d;%d;%d" % rgb(h)   # noqa: E731
     values = {
         "@@NAMES_SH@@": names_sh(pack),
-        "@@NAMES_PY@@": "NAMES = " + json.dumps({k: {e.name: pack.file_name(k, e) for e in eds} for k in KINDS}) + "   # this theme's file names, per edition",
+        "@@NAMES_PY@@": "NAMES = " + json.dumps({k: {e.template.title(): pack.file_name(k, e) for e in eds} for k in KINDS}) + "   # this theme's file names, per edition",
         "@@PROFILES@@": "|".join(profiles),
         "@@OLD_LNF@@": " ".join(pack.previous_ids),
         "@@SIBLINGS@@": json.dumps(sorted(p.command for p in others)),
@@ -123,7 +123,7 @@ def build(pack: Pack) -> dict:
     for src, dst in FILES.items():
         text = (root / src).read_text(encoding="utf-8")
         text = re.sub(r"@@N:(\w+):(Dark|Light)@@",
-                      lambda m: pack.file_name(m.group(1), next(e for e in eds if e.name == m.group(2))), text)
+                      lambda m: pack.file_name(m.group(1), dark if m.group(2) == "Dark" else light), text)
         for k in sorted(values, key=len, reverse=True):
             text = text.replace(k, values[k])
         if "@@" in text:
