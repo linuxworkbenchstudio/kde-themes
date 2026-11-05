@@ -95,8 +95,8 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | 19 | Login sync helper (autostart) | ✓ | ✓ | **done**: Vice Horizon 1.8.2's program as a template (templates/programs/) |
 | 20 | Bundled widgets (KVitals, Panel Colorizer) | ✓ | ✓ | **done**: one shared copy (Vice Horizon's) |
 | 21 | Licences and credits in each installed part | ✓ | LICENSE only | **done** for every installed folder (single files such as colour schemes share KDE's folders) |
-| 22 | Release zip and KDE Store bundle | ✓ | ✓ | |
-| 23 | Tests: one suite run against every pack | 167 | 205 | started |
+| 22 | Release zip and KDE Store bundle | ✓ | ✓ | **done**: `tools/release.py` |
+| 23 | Tests: one suite run against every pack | 167 | 205 | **done**: `tools/test_all.sh [--full]` |
 
 The command, Settings, Setup and installer (15-19) are mostly the same program with the theme's
 name in it; in the engine they become templates filled from the pack.
@@ -123,7 +123,20 @@ For every theme:
 - the Konsole profile and Fastfetch logo switch over from any of the other themes;
 - `tests/run-tests.sh` (Vice Horizon's suite: installs, switches and uninstalls in a throw-away
   home with stand-in KDE tools) runs in every theme's build: Vice Horizon 215, Waypoint 215,
-  Natura 209 checks, all passing (5 Nov 2026). It takes about 40 minutes per theme here.
+  Natura 209 checks, all passing (5 Nov 2026; again for the 0.1.0 releases). It takes about 40 minutes per theme here.
+
+### Releasing (phase 6, 5 Nov 2026)
+
+    tools/test_all.sh [--full]           engine tests, then every pack: build + static checks
+                                         (--full: each pack's whole suite too, in parallel)
+    python3 tools/release.py PACK ...    dist/releases/<Name>-<version>/: the zip, store/ (one
+                                         package per KDE Store category) and CHECKSUMS.sha256
+
+A release is checked first (static checks and the full suite; `--skip-tests` only for trying it
+out) and is reproducible: sorted files, fixed dates (SOURCE_DATE_EPOCH or the build day), the same
+input gives the same zip. The zip has no symbolic links (the installer makes the cursor aliases);
+the Store's cursor packages keep them. README, LICENSE and LICENSES/ come from templates/docs/ and
+templates/licences/, CHANGELOG.md from the pack.
 
 ## How each part moves over
 
