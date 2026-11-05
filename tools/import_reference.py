@@ -43,8 +43,8 @@ LAYOUTS = {
 }
 # old names in each reference, read as the new ones when comparing
 RENAME = {
-    "vice-horizon": {"DigitalCohesion": "The Linux Workbench", "1.8.2": "0.1.0", "1.4.5": "0.1.0"},
-    "waypoint": {"DigitalCohesion": "The Linux Workbench", "0.5.0": "0.1.0"},
+    "vice-horizon": {"org.digitalcohesion.vicehorizon": "org.thelinuxworkbench.vicehorizon", "DigitalCohesion": "The Linux Workbench", "1.8.2": "0.1.0", "1.4.5": "0.1.0"},
+    "waypoint": {"org.waypoint.": "org.thelinuxworkbench.waypoint.", "DigitalCohesion": "The Linux Workbench", "0.5.0": "0.1.0"},
 }
 # changes made on purpose, with the reason
 ACCEPT = {
@@ -68,6 +68,10 @@ ACCEPT = {
         {
             "path": "widgets/README.md",
             "why": "the bundled widgets are shared by every theme now"
+        },
+        {
+            "path": "look-and-feel/*",
+            "why": "one Global Theme template for every theme: new ids, the shared panel script with the Fancy preset, the splash comment"
         }
     ],
     "waypoint": [
@@ -98,10 +102,13 @@ ACCEPT = {
         {
             "path": "widgets/*",
             "why": "one copy of the bundled widgets for every theme (Vice Horizon's; same versions, a few more files)"
+        },
+        {
+            "path": "look-and-feel/*",
+            "why": "one Global Theme template for every theme: new ids, the shared panel script with the Fancy preset, the splash comment"
         }
     ]
 }
-
 # files the engine adds that the release didn't have
 NEW_OK = {
     "vice-horizon": [

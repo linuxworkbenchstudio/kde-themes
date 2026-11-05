@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.waypoint"
 previous_ids = ["org.waypoint"]       # the installer moves people off these
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel"]
 
 [theme.names]
 # as released; installed systems refer to these, so they stay
@@ -32,6 +32,9 @@ accent = "amber"                # hover, open and attention outlines
 light = "frost"                 # light text; the Light twins' sections
 ink = "ink"                     # the Light twins' text
 light_shadow = "slate"          # the Light twins' shadows
+
+[theme.lookandfeel]
+widget_style = "kvantum"        # Waypoint's Global Theme switches Qt apps to its Kvantum style
 
 [theme.icons]
 # The shared icon set in Waypoint's colours: steel-grey folders and tiles, frost glyphs, amber where
@@ -138,6 +141,7 @@ name = "Dark"
 [edition.dark.text]
 plasma = "Waypoint dark Plasma theme with restrained amber highlights."
 decoration = "Machined graphite window decoration (dark)."
+lookandfeel = "Graphite and machined amber, dark variant: Plasma Style, colours, title bars, icons, cursors, splash and wallpaper."
 kvantum_author = "{Brand} (derived from Kvantum KvArc by Pedram Pourang, GPL-3.0)"
 kvantum_comment = "{Name} {Edition}: graphite/amber, translucent windows and menus"
 gtk3_header = "/* {Name} {Edition} — GTK 3 ({Brand}). GTK 3's own Adwaita theme (LGPL-2.1-or-later),\n   compiled with the {Name} palette. */\n\n"
@@ -207,6 +211,7 @@ name = "Light"
 [edition.light.text]
 plasma = "Waypoint light Plasma theme with restrained amber highlights."
 decoration = "Machined graphite window decoration (light)."
+lookandfeel = "Graphite and machined amber, light variant: Plasma Style, colours, title bars, icons, cursors, splash and wallpaper."
 kvantum_author = "{Brand} (derived from Kvantum KvArc by Pedram Pourang, GPL-3.0)"
 kvantum_comment = "{Name} {Edition}: graphite/amber, translucent windows and menus"
 gtk3_header = "/* {Name} {Edition} — GTK 3 ({Brand}). GTK 3's own Adwaita theme (LGPL-2.1-or-later),\n   compiled with the {Name} palette. */\n\n"

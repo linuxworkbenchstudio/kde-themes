@@ -66,7 +66,7 @@ TERMINAL_SETTINGS = {
 }
 
 THEME_KEYS = {"id", "name", "command", "brand", "version", "license", "editions", "names",
-              "lookandfeel_id", "previous_ids", "parts", "website", "fastfetch", "gtk", "icons", "panel"}
+              "lookandfeel_id", "previous_ids", "parts", "website", "fastfetch", "gtk", "icons", "panel", "lookandfeel"}
 LNF_ID = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){2,}$")      # org.thelinuxworkbench.waypoint
 OLD_ID = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$")         # older ids can be shorter
 NAME_DEFAULTS = {
@@ -89,6 +89,7 @@ TEXT_DEFAULTS = {   # descriptions in the theme's metadata; {Name} and {Edition}
     "cursors": "Breeze cursors recoloured for {Name} {Edition} (GPL-2.0-or-later, KDE)",
     "kvantum_author": "{Brand} (derived from Kvantum KvArc by Tsu Jan, GPL-3.0)",
     "kvantum_comment": "{Name} {Edition} Kvantum theme (based on KvArc)",
+    "lookandfeel": "{Name} {Edition}: colours, Plasma style, window decoration, icons, cursors, wallpaper and splash. Optional top panel layout.",
     "kvantum_svg": "",                 # a comment at the top of the Kvantum SVG; empty for none
     # GTK stylesheets: {Edition} the compiled edition (Dark in gtk-dark.css), {Theme} the folder's
     # edition, {version} gtk-3.0 / gtk-4.0, {file} gtk.css / gtk-dark.css
