@@ -158,7 +158,7 @@ Natura is the first pack that never had its own copy: it starts on the engine.
 3. Installer option: **`--panel-look`**; `--panel-style` stays as an alias.
 4. Global Theme ids: **`org.thelinuxworkbench.<theme>.<edition>`**.
 5. Brand: **The Linux Workbench** for every theme; DigitalCohesion and Desktop Foundry are dropped.
-6. **One repository**, `thelinuxworkbench`, for the engine and all packs (public/private still open).
+6. **One repository**, `github.com/linuxworkbenchstudio/kde-themes` (public), for the engine and all packs; each theme gets its own page, releases and KDE Store entries (5 Nov 2026).
 7. **KDE only** for now.
 
 Natura: all artwork designed here, from the wallpaper Kahlil supplied (Dark and Light).
