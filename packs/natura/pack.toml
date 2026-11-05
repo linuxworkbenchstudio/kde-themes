@@ -11,10 +11,82 @@ version = "0.1.0"
 license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.natura"
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand"]
 
 [theme.fastfetch]
-logo_colours = ["vermillion", "text", "sage_mist"]
+logo_colours = ["vermillion", "sage"]        # $1 the sun, $2 the hills and water
+
+[theme.icons]
+comment = "{Name} folders, app, device and file-type icons (glyphs partly from KDE Breeze, LGPL-3.0-or-later); everything else inherits from Papirus, Breeze or Adwaita"
+
+[theme.icons.style]
+tile = ["ink_button", "ink"]                # ink app tiles
+tile_edge = 0.12
+folder = ["#B8CCB0", "#93B38A", "#6E8F66"]  # sage folders, every type
+page = ["stone", "#8C8A84"]                 # warm stone pages: text, documents, fonts, keys ...
+bar = "vermillion"                          # a vermillion bar under the glyph
+
+[theme.icons.style.pages]
+code = ["ink_border", "ink_header"]
+script = ["ink_border", "ink_header"]
+log = ["ink_border", "ink_header"]
+config = ["ink_border", "ink_header"]
+patch = ["ink_border", "ink_header"]
+executable = ["ink_border", "ink_header"]
+html = ["#4A4A47", "ink_button"]
+web = ["#4A4A47", "ink_button"]
+pdf = ["#D06A55", "kiln"]
+presentation = ["#D06A55", "kiln"]
+calendar = ["#D06A55", "kiln"]
+mail = ["#D06A55", "kiln"]
+image = ["#8FA8B8", "#6A8598"]
+drawing = ["#8FA8B8", "#6A8598"]
+vector = ["#8FA8B8", "#6A8598"]
+audio = ["#8DBFB3", "#5F9488"]
+playlist = ["#8DBFB3", "#5F9488"]
+video = ["#C08A9B", "#946474"]
+subtitle = ["#C08A9B", "#946474"]
+archive = ["#C2AE8A", "#937E5C"]
+package = ["#C2AE8A", "#937E5C"]
+disc = ["#C2AE8A", "#937E5C"]
+torrent = ["#C2AE8A", "#937E5C"]
+spreadsheet = ["sage", "#6E8F66"]
+csv = ["sage", "#6E8F66"]
+data = ["sage", "#6E8F66"]
+database = ["sage", "#6E8F66"]
+cad = ["#8C8A84", "ink_line"]
+model = ["#8C8A84", "ink_line"]
+model3d = ["#8C8A84", "ink_line"]
+
+[theme.icons.map]
+# what is left (devices, the bin, small details) in Natura's colours
+"#FAD3C0" = "#C9C6BD"
+"#F9C8B2" = "#C4C1B8"
+"#F5B3A8" = "stone"
+"#DDB6D5" = "#B4B1A9"
+"#D7AACD" = "#ADAAA2"
+"#CEC9EA" = "#D3D0C8"
+"#C3B8E6" = "#A8A59D"
+"#B9B2E3" = "#A29F97"
+"#B9A9DA" = "#9D9A92"
+"#A79FD4" = "#97948C"
+"#EFA1A1" = "#93B38A"
+"#F2A98F" = "#9A978F"
+"#C48FBA" = "#86837C"
+"#A77091" = "#7C7972"
+"#857DB5" = "#716E68"
+"#6C64A3" = "ink_line"
+"#4B4670" = "ink_border"
+"#302C49" = "ink_header"
+"#252239" = "ink"
+"#F4A79A" = "#EE8A78"
+"#EA5148" = "vermillion"
+"#E58C8C" = "#D06A55"
+"#C93B32" = "kiln"
+"#A9D8B8" = "sage_mist"
+"#3B9564" = "#6E8F66"
+"#FEFCFC" = "rice"
+"#2F1F2B" = "ink"
 
 [colours]
 ink = "#1C1C1C"                 # Ink Black
