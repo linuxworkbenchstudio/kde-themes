@@ -23,7 +23,9 @@ LAYOUTS = {
         "color-schemes/": "kde/colors/",
         "konsole/": "kde/konsole/",
         "plasma/desktoptheme/": "kde/plasma/desktoptheme/",
+        "look-and-feel/org.thelinuxworkbench.vicehorizon.": "kde/plasma/look-and-feel/org.digitalcohesion.vicehorizon.",
         "look-and-feel/": "kde/plasma/look-and-feel/",
+        "hicolor/": "assets/brand/hicolor/",
         "wallpapers/": "kde/plasma/wallpapers/",
         "aurorae/themes/": "kde/aurorae/",
         "Kvantum/": "kde/kvantum/",
@@ -37,7 +39,7 @@ LAYOUTS = {
         "widgets/": "kde/widgets/",
         "sddm/": "kde/optional-components/sddm/",
     },
-    "waypoint": {},                     # already the engine's layout
+    "waypoint": {"look-and-feel/org.thelinuxworkbench.waypoint.": "look-and-feel/org.waypoint."},   # else the same
 }
 # old names in each reference, read as the new ones when comparing
 RENAME = {
@@ -46,7 +48,8 @@ RENAME = {
 }
 # changes made on purpose, with the reason
 ACCEPT = {
-    "vice-horizon": [],
+    "vice-horizon": [{"path": "wallpapers/*/metadata.json",
+                      "why": "the wallpaper package says what it is (Description) and its Version, as Waypoint's does"}],
     "waypoint": [{"path": "plasma/desktoptheme/*/metadata.json",
                   "why": "Plasma 6 metadata: X-Plasma-API-Minimum-Version 6.0 replaces X-Plasma-API 5.0"},
                  {"path": "plasma/desktoptheme/*/widgets/tabbar.svgz",
