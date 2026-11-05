@@ -3,7 +3,7 @@
 GTK's own themes (GTK 3.24 Adwaita, GTK 4.16 Default; templates/gtk/, LGPL-2.1-or-later) are
 compiled with the pack's colours, so every widget, state and shade comes from GTK's own rules:
 
-  [edition.<id>.gtk.vars]       GTK colour variables for both versions ($base_color, $bg_color,
+  [edition.<id>.gtk.vars]       (default: DEFAULT_VARS, from the roles) GTK colour variables for both versions ($base_color, $bg_color,
                                 $selected_bg_color ...); a variable a version doesn't have is skipped
   [edition.<id>.gtk."gtk-3.0"]  more variables for one version only (also "gtk-4.0")
       values: a role or colour name, #RRGGBB, or SCSS ("darken($role_border, 8%)"); every role is
@@ -89,10 +89,29 @@ def _recolour_png(data: bytes, spec: dict) -> bytes:
     return png.write(w, h, out)
 
 
+# GTK variables for a pack without its own [edition.<id>.gtk.vars]: from its roles
+DEFAULT_VARS = {
+    "base_color": "view_bg", "text_color": "text", "bg_color": "window_bg", "fg_color": "text",
+    "selected_fg_color": "selection_fg", "selected_bg_color": "selection_bg",
+    "selected_borders_color": "darken($selected_bg_color, 12%)", "borders_color": "border",
+    "alt_borders_color": "if($variant == 'light', darken($role_border, 8%), lighten($role_border, 6%))",
+    "link_color": "link", "link_visited_color": "visited", "headerbar_color": "header_bg",
+    "headerbar_bg_color": "header_bg", "menu_color": "surface_raised", "popover_bg_color": "surface_raised",
+    "popover_hover_color": "hover_bg", "menu_selected_color": "hover_bg", "scrollbar_slider_active_color": "accent",
+    "warning_color": "neutral", "error_color": "negative", "success_color": "positive",
+    "destructive_color": "destructive_bg", "osd_fg_color": "complementary_fg", "osd_text_color": "complementary_fg",
+    "osd_bg_color": "transparentize($role_osd_bg, 0.1)", "sidebar_bg_color": "sidebar_bg",
+    "drop_target_color": "accent", "insensitive_fg_color": "text_disabled", "suggested_bg_color": "suggested_bg",
+    "suggested_border_color": "darken($role_suggested_bg, 10%)", "checkradio_bg_color": "$selected_bg_color",
+    "checkradio_borders_color": "darken($checkradio_bg_color, 15%)",
+    "focus_border_color": "transparentize($role_accent, 0.35)",
+}
+
+
 def _compile(pack: Pack, ed, version: str, binary: str) -> str:
     spec = ed.raw.get("gtk", {})
     resolve = resolver(pack, ed)
-    values = {k: _value(v, resolve) for k, v in spec.get("vars", {}).items()}
+    values = {k: _value(v, resolve) for k, v in spec.get("vars", DEFAULT_VARS).items()}
     values.update({k: _value(v, resolve) for k, v in spec.get(version, {}).items()})
     replace = pack.raw.get("theme", {}).get("gtk", {}).get("replace", {})
     layer = pack.root / "gtk" / f"{version}.scss"

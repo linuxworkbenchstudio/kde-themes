@@ -1,0 +1,135 @@
+# Natura - ink base, sage and vermillion. The Linux Workbench.
+# Palette approved 4 Nov 2026 (PALETTE.md); disabled, error, success, the Light warning colour
+# and the terminal colours approved with this pack.
+
+[theme]
+id = "natura"
+name = "Natura"
+command = "natura"
+brand = "The Linux Workbench"
+version = "0.1.0"
+license = "GPL-3.0-or-later"
+editions = ["dark", "light"]
+lookandfeel_id = "org.thelinuxworkbench.natura"
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk"]
+
+[theme.fastfetch]
+logo_colours = ["vermillion", "text", "sage_mist"]
+
+[colours]
+ink = "#1C1C1C"                 # Ink Black
+ink_deep = "#121212"
+ink_view = "#161616"
+ink_alt = "#1F1F1E"
+ink_header = "#242424"
+ink_button = "#2C2C2B"
+ink_hover = "#363634"
+ink_border = "#3A3A38"
+ink_line = "#5E5C57"
+rice = "#F4F3EF"                # Soft Rice White
+rice_view = "#FBFAF7"
+rice_alt = "#F0EDE6"
+sand_header = "#EAE2D2"         # from Warm Sand
+sand_button = "#EBE6DC"
+sand_hover = "#DED6C6"
+sand_border = "#D3C9B6"
+stone = "#B9B7B0"               # muted text (Dark)
+stone_dim = "#6E6C66"           # disabled text (Dark)
+slate = "#5C5A54"               # muted text (Light)
+slate_dim = "#9A968D"           # disabled text (Light)
+kiln = "#B8432F"                # Kiln, deep vermillion: selection
+vermillion = "#E05A47"          # Muted Vermillion: accent, focus
+vermillion_glow = "#EF6F6C"     # error (Dark): lighter and pinker than the accent
+vermillion_ink = "#A8322A"      # error (Light)
+sage_mist = "#C9D6C3"           # links (Dark), folders
+sage = "#9DBF94"                # success (Dark)
+sage_deep = "#4E6347"           # links and success (Light), icons
+warm_sand = "#E7DCC7"           # warning (Dark)
+sand_ink = "#8A5A12"            # warning (Light)
+
+# ----------------------------------------------------------------------------- Dark
+[edition.dark]
+name = "Dark"
+
+[edition.dark.roles]
+window_bg = "ink"
+view_bg = "ink_view"
+view_alt_bg = "ink_alt"
+header_bg = "ink_header"
+button_bg = "ink_button"
+hover_bg = "ink_hover"
+surface_raised = "ink_header"
+border = "ink_border"
+border_strong = "ink_line"
+text = "rice"
+text_muted = "stone"
+text_disabled = "stone_dim"
+accent = "vermillion"
+selection_bg = "kiln"
+selection_fg = "rice"
+link = "sage_mist"
+negative = "vermillion_glow"
+neutral = "warm_sand"
+positive = "sage"
+osd_bg = "ink_view"
+
+[edition.dark.terminal]
+#          black       red         green      yellow     blue       magenta    cyan       white
+normal = ["ink_header", "vermillion", "sage",    "warm_sand", "#8FA8B8", "#C08A9B", "#8DBFB3", "stone"]
+bright = ["ink_line",   "#F07C6A",   "#B8D4AF", "#F2EAD9",   "#AEC3D0", "#D6A9B7", "#AAD4CA", "rice"]
+
+# Waypoint's artwork (Plasma Style, window borders, cursors) in Natura's colours
+[edition.dark.recolour]
+ramp_ends = ["#0A0A0A", "rice"]
+highlight = "vermillion"
+accent = [[0.70, "#F2B3A8"], [0.52, "vermillion"], [0.42, "kiln"], [0.0, "#8A2F21"]]
+map = { "#0f1217" = "#121212", "#161b22" = "#161616", "#191e26" = "#191919", "#1c222a" = "#1C1C1C", "#212730" = "#202020", "#272e37" = "#242424", "#2a313b" = "#282828", "#2c343e" = "#2C2C2B", "#313945" = "#313130", "#333b47" = "#363634", "#3a434f" = "#3A3A38", "#46515d" = "#4A4A47", "#566170" = "#5E5C57", "#9aa6b2" = "#B9B7B0", "#e6edf3" = "#F4F3EF" }
+cursors = { "#1c222a" = "ink_header", "#e6edf3" = "rice", "#d69a50" = "vermillion", "#9aa6b2" = "stone" }
+
+[edition.dark.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "vermillion", "#b68344" = "kiln" }
+"aurorae/decoration.svg" = { "#d69a50" = "vermillion" }
+
+# ----------------------------------------------------------------------------- Light
+[edition.light]
+name = "Light"
+
+[edition.light.roles]
+window_bg = "rice"
+view_bg = "rice_view"
+view_alt_bg = "rice_alt"
+header_bg = "sand_header"
+button_bg = "sand_button"
+hover_bg = "sand_hover"
+surface_raised = "rice_view"
+border = "sand_border"
+border_strong = "slate_dim"
+text = "ink"
+text_muted = "slate"
+text_disabled = "slate_dim"
+accent = "vermillion"
+selection_bg = "kiln"
+selection_fg = "rice"
+link = "sage_deep"
+negative = "vermillion_ink"
+neutral = "sand_ink"
+positive = "sage_deep"
+osd_bg = "sand_header"
+
+[edition.light.kde]
+complementary = "light"         # the top panel is semi-translucent rice, not Dark's ink
+
+[edition.light.terminal]
+normal = ["ink",     "vermillion_ink", "sage_deep", "sand_ink", "#3D5A75", "#8A4A5E", "#2F6B63", "slate"]
+bright = ["#4A4844", "kiln",           "#3F5239",   "#6F480E",  "#2F4860", "#723C4D", "#255750", "slate_dim"]
+
+[edition.light.recolour]
+ramp_ends = ["#121212", "rice_view"]
+highlight = "vermillion"
+accent = [[0.70, "#F2B3A8"], [0.52, "vermillion"], [0.42, "kiln"], [0.0, "#8A2F21"]]
+map = { "#0f1217" = "#121212", "#2b2f36" = "#1C1C1C", "#667085" = "#5C5A54", "#b8bec6" = "#D3C9B6", "#bcbec1" = "#D3C9B6", "#c8cbd0" = "#EBE6DC", "#c9ced4" = "#DED6C6", "#d1d3d6" = "#EAE2D2", "#e6e6e6" = "#F4F3EF", "#1c222a" = "#1C1C1C", "#e6edf3" = "#FBFAF7", "#9aa6b2" = "#9A968D" }
+cursors = { "#2b2f36" = "ink", "#ffffff" = "#FFFFFF", "#d69a50" = "vermillion", "#667085" = "slate" }
+
+[edition.light.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "vermillion", "#b68344" = "kiln" }
+"aurorae/decoration.svg" = { "#d69a50" = "vermillion" }

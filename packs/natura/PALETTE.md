@@ -1,6 +1,6 @@
 # Natura palette (approved, from the Natura chat, 4 Nov 2026)
 
-Ink base, sage and vermillion. The pack (`pack.toml`) is written from these in phase 7.
+Ink base, sage and vermillion. The pack (`pack.toml`) is written from these.
 
 | Role | Dark | Light |
 |---|---|---|
@@ -18,5 +18,13 @@ Ink base, sage and vermillion. The pack (`pack.toml`) is written from these in p
 | Links | `#C9D6C3` Sage Mist (also folders) | `#4E6347` deep sage (icons); folders `#C9D6C3` |
 | Neutral / warning | `#E7DCC7` Warm Sand | (not given) |
 
-Not in the approved set yet: disabled text, error and success colours, the Light warning colour,
-and the terminal colours. These get proposed with the pack, for approval.
+Approved 4 Nov 2026 with the pack:
+
+| Role | Dark | Light |
+|---|---|---|
+| Disabled text | `#6E6C66` | `#9A968D` |
+| Error | `#EF6F6C` | `#A8322A` |
+| Success | `#9DBF94` | `#4E6347` |
+| Warning | `#E7DCC7` Warm Sand | `#8A5A12` |
+
+The terminal colours are in `pack.toml` (still to be seen on a real desktop).
