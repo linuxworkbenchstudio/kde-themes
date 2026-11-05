@@ -84,6 +84,22 @@ ACCEPT = {
         {
             "path": "sddm/README.md",
             "why": "generic wording (every theme has the SDDM helper now)"
+        },
+        {
+            "path": "LICENSE",
+            "why": "one LICENSE for every theme, naming the release layout's folders"
+        },
+        {
+            "path": "LICENSES/*",
+            "why": "the same licences, the texts as shipped with the parts they come from"
+        },
+        {
+            "path": "README.md",
+            "why": "one README for every theme"
+        },
+        {
+            "path": "CHANGELOG.md",
+            "why": "the 0.1.0 entry"
         }
     ],
     "waypoint": [
@@ -138,6 +154,22 @@ ACCEPT = {
         {
             "path": "tests/*",
             "why": "one test suite for every theme (Vice Horizon's, run against each pack)"
+        },
+        {
+            "path": "LICENSE",
+            "why": "one LICENSE for every theme, naming the release layout's folders"
+        },
+        {
+            "path": "LICENSES/*",
+            "why": "the same licences, the texts as shipped with the parts they come from"
+        },
+        {
+            "path": "README.md",
+            "why": "one README for every theme"
+        },
+        {
+            "path": "CHANGELOG.md",
+            "why": "the 0.1.0 entry"
         }
     ]
 }
@@ -152,7 +184,10 @@ NEW_OK = {
         "*/COPYING.LGPL-3",
         "*/CREDITS",
         "cursors/*/cursors_scalable/*",
-        "tests/*"
+        "tests/*",
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSES/*"
     ],
     "waypoint": [
         "cursors/*/aliases.txt",
@@ -168,7 +203,10 @@ NEW_OK = {
         "bin/*",
         "VERSION",
         "*/COPYING",
-        "tests/*"
+        "tests/*",
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSES/*"
     ]
 }
 # what to copy from each kind of tree

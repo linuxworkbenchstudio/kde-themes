@@ -1,0 +1,39 @@
+@@NAME@@ for KDE Plasma 6
+Copyright (C) 2026 @@BRAND@@
+
+@@NAME@@ is made of several parts. Each part keeps the licence of the work it is based on; full
+texts are in LICENSES/, and each installed folder carries its own copy (COPYING).
+
+1. GPL-3.0-or-later  (LICENSES/GPL-3.0-or-later.txt)
+   install.sh, uninstall.sh, setup.sh, lib/, bin/, fastfetch/, panel/, sddm/, tests/, the colour
+   schemes (color-schemes/), Konsole (konsole/), window decorations (aurorae/), the Global Themes
+   (look-and-feel/), the Panel Colorizer presets (panel-colorizer/) and the documentation.
+   Kvantum/ is derived from the KvArc and KvArcDark themes shipped with Kvantum
+   (https://github.com/tsujan/Kvantum), Copyright Tsu Jan, GPL-3.0-or-later; colours changed.
+   widgets/: KVitals (Yassine Amjad) and Panel Colorizer (Luis Bocanegra), unchanged copies,
+   GPL-3.0 (see their own LICENSE files).
+
+   This program is free software: you can redistribute it and/or modify it under the terms of the
+   GNU General Public License as published by the Free Software Foundation, either version 3 of
+   the License, or (at your option) any later version. It is distributed WITHOUT ANY WARRANTY;
+   without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+2. LGPL-2.0-or-later  (LICENSES/LGPL-2.0-or-later.txt)
+   plasma/desktoptheme/: SVG artwork derived from KDE Breeze, recoloured.
+
+3. LGPL-2.1-or-later  (LICENSES/LGPL-2.1-or-later.txt)
+   gtk/: compiled from the theme sources of the GTK project (https://gitlab.gnome.org/GNOME/gtk),
+   GTK 3.24 Adwaita and GTK 4.16 Default, Copyright the GTK Team and contributors.
+
+4. GPL-2.0-or-later  (LICENSES/GPL-2.0-or-later.txt)
+   cursors/: KDE Breeze cursors by Ken Vermette, recoloured.
+
+5. LGPL-3.0-or-later  (LICENSES/LGPL-3.0-or-later.txt)
+   Small monochrome symbols from KDE's Breeze icon theme (https://invent.kde.org/frameworks/breeze-icons),
+   Copyright (C) 2014 Uri Herrera and others, used as glyphs on some icons in icons/.
+
+6. CC-BY-SA-4.0  (LICENSES/CC-BY-SA-4.0.txt)
+   icons/ (apart from the Breeze glyphs), hicolor/, wallpapers/, the Global Theme previews and
+   splash images, and the Fastfetch logo. Attribution: "@@NAME@@ by @@BRAND@@".
+
+No third-party logos, characters or trademarks are included.
