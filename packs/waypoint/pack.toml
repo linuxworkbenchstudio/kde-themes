@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.waypoint"
 previous_ids = ["org.waypoint"]       # the installer moves people off these
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons"]
 
 [theme.names]
 # as released; installed systems refer to these, so they stay
@@ -19,10 +19,50 @@ color_scheme = "{Slug}-{Edition}"      # Waypoint-Dark
 konsole = "{Compact}{Edition}"         # WaypointDark
 plasma_style = "{id}-{edition}"        # waypoint-dark
 kvantum = "{Compact}{Edition}"         # WaypointDark
+icons = "{Name}"                       # one icon theme for both editions, as released
 
 [theme.gtk]
 # GTK 3's pre-rendered slider knobs and text handles: Adwaita blue -> amber, greys -> steel greys
 png = {accent_hue = 33, accent_saturation = 0.62, neutral_hue = 214, neutral_saturation = 0.17}
+
+[theme.icons]
+# The shared icon set in Waypoint's colours: steel-grey folders and tiles, frost glyphs, amber where
+# Vice Horizon has coral (downloads and the like), Waypoint's red for destructive, a muted green.
+comment = "{Name} folders, app, device and file-type icons (glyphs partly from KDE Breeze, LGPL-3.0-or-later); everything else inherits from Papirus, Breeze or Adwaita"
+
+[theme.icons.style]
+tile = ["graphite_raised", "graphite"]      # Waypoint's graphite app tile
+tile_edge = 0.14
+folder = ["#8A95A1", "#7F8A96", "#566170"]  # Waypoint's grey folder, every type
+
+[theme.icons.map]
+"#FAD3C0" = "#A7B1BC"
+"#F9C8B2" = "#A1ACB8"
+"#F5B3A8" = "steel"
+"#DDB6D5" = "#97A2AE"
+"#D7AACD" = "#929DA9"
+"#CEC9EA" = "#B4BDC6"
+"#C3B8E6" = "#8E99A5"
+"#B9B2E3" = "#8A95A1"
+"#B9A9DA" = "#86919D"
+"#A79FD4" = "#828D99"
+"#EFA1A1" = "#7F8A96"           # Waypoint's folder grey
+"#F2A98F" = "#848F9B"
+"#C48FBA" = "#6E7986"
+"#A77091" = "#66717E"
+"#857DB5" = "#5E6976"
+"#6C64A3" = "#566170"
+"#4B4670" = "steel_line"
+"#302C49" = "graphite_raised"
+"#252239" = "graphite"
+"#F4A79A" = "#E8B572"
+"#EA5148" = "amber"
+"#E58C8C" = "#C9893F"
+"#C93B32" = "red"
+"#A9D8B8" = "#A9CB94"
+"#3B9564" = "#5E8A4A"
+"#FEFCFC" = "frost"
+"#2F1F2B" = "graphite_black"
 
 [theme.fastfetch]
 logo_colours = ["amber", "text"]              # amber chevron, W in the terminal's text colour

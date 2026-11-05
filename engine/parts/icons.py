@@ -9,6 +9,10 @@ own colour for each in
 
 and the generator runs with those colours swapped into its source, so gradients, mixes and
 shades all come from the pack's colours. Colours a pack doesn't map stay as they are.
+[theme.icons.style] (optional) gives every icon of a kind one look instead of per-type colours:
+  tile = [top, bottom]           every app and category tile
+  tile_edge = 0.16               opacity of the tile's light edge (Vice Horizon: only its dark tiles)
+  folder = [top, bottom, back]   every folder (front gradient, back flap)
 [theme.icons] also takes `comment` (index.theme) and `inherits_dark` / `inherits_light`.
 The theme's own brand icons (launcher, app icon) come from packs/<pack>/art/hicolor/.
 """
@@ -69,7 +73,7 @@ def _index(pack: Pack, ed, name: str, M) -> str:
     sizes = M["icons_base"].LAUNCHER_SIZES
     dirs = M["icons_set"].index_dirs()
     return ("[Icon Theme]\n"
-            f"Name={pack.display(ed)}\n"
+            f"Name={pack.display(ed) if '{Edition}' in pack.names['icons'] else pack.name}\n"
             f"Comment={theme.get('comment', COMMENT).format(Name=pack.name)}\n"
             f"Inherits={inherits}\n"
             "Example=folder\n"
@@ -92,6 +96,20 @@ def _index(pack: Pack, ed, name: str, M) -> str:
 def build_edition(pack: Pack, ed) -> dict:
     M = load(_map(pack, ed), pack.name)
     B, X, MO, S = (M[m] for m in MODULES)
+    style = pack.raw.get("theme", {}).get("icons", {}).get("style", {})
+    resolve = resolver(pack, ed)
+    if "tile" in style:
+        t = tuple(resolve(c) for c in style["tile"])
+        for d in (X.FAM, MO.TILE):
+            for k in d:
+                d[k] = t
+    if "folder" in style:
+        f = tuple(resolve(c) for c in style["folder"])
+        for d in (MO.FAM, S.FAM):
+            for k in d:
+                d[k] = f
+        for k, v in B.FOLDERS.items():
+            B.FOLDERS[k] = f + (v[3],)
     variant = "dark" if ed.template == "dark" else "light"
     name = pack.file_name("icons", ed)
     art = pack.root / "art" / "hicolor"
@@ -127,9 +145,13 @@ def build_edition(pack: Pack, ed) -> dict:
         X.write_all(write, base, pack.version)
         MO.write_all(write, base, pack.version, lambda *a: B.folder_svg(*a, pack.version), variant)
         S.write_all(write, base, pack.version, variant)
+        edge = style.get("tile_edge")
         for p in sorted(root.rglob("*")):
             if p.is_file():
-                out[f"icons/{p.relative_to(root).as_posix()}"] = p.read_text(encoding="utf-8")
+                text = p.read_text(encoding="utf-8")
+                if edge is not None and "app icon" in text[:400]:
+                    text = text.replace('stroke="#FFFFFF" stroke-opacity="0"', f'stroke="#FFFFFF" stroke-opacity="{edge}"')
+                out[f"icons/{p.relative_to(root).as_posix()}"] = text
     licences = TEMPLATES / "licences"
     out[f"icons/{name}/COPYING"] = (licences / "CC-BY-SA-4.0.txt").read_text(encoding="utf-8")
     out[f"icons/{name}/COPYING.LGPL-3"] = (licences / "LGPL-3.0-or-later.txt").read_text(encoding="utf-8")
@@ -144,7 +166,11 @@ def build_edition(pack: Pack, ed) -> dict:
 
 
 def build(pack: Pack) -> dict:
-    out = {}
+    out, names = {}, set()
     for ed in pack.editions.values():
+        name = pack.file_name("icons", ed)
+        if name in names:           # one icon theme for every edition (Waypoint): the first edition's
+            continue
+        names.add(name)
         out.update(build_edition(pack, ed))
     return out
