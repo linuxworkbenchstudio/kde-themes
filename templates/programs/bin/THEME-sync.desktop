@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=@@NAME@@ sync
+Comment=Keeps the Kvantum style, Konsole profile and Fastfetch colours in step when you pick @@NAME@@ Dark or Light
+Exec=sh -c 'exec "$HOME/.local/bin/@@COMMAND@@" watch'
+Icon=@@COMMAND@@
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

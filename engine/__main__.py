@@ -92,6 +92,8 @@ def main(argv=None) -> int:
             p.write_bytes(value)
         else:
             p.write_text(value, encoding="utf-8")
+            if value.startswith("#!"):          # programs stay runnable
+                p.chmod(0o755)
     print(f"{len(files)} files written to {root}")
     return 0
 

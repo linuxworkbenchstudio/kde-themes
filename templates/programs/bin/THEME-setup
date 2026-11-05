@@ -1,0 +1,782 @@
+#!/usr/bin/env python3
+"""@@NAME@@ Setup - the guided installer (full-screen, in the terminal).
+
+  ./install.sh                                   starts it (or: ./setup.sh)
+  @@COMMAND@@-setup PACKAGE_DIR                 the same, given the unpacked package
+  @@COMMAND@@-setup PACKAGE_DIR --print-command walk through it, then print what it would run (tests)
+
+Screens: Welcome > Your system > Your choices > Add-ons > Review > Installing > Done.
+Nothing changes until you press Install on the Review screen. The work itself is done by
+install.sh (theme files, backups, switching on) and your package manager (add-ons, with your
+password); this app asks, shows and keeps a log in your home folder.
+Keys: arrows (or j/k, h/l) move and change, Enter chooses, Esc or q goes back.
+Part of @@NAME@@ (GPL-3.0-or-later).
+"""
+import curses
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HOME = Path.home()
+BIN = HOME / ".local/bin"
+DESK = os.environ.get("XDG_CURRENT_DESKTOP", "")
+IN_PLASMA = "KDE" in DESK
+STEPS = ["Welcome", "System", "Choices", "Add-ons", "Review", "Install", "Done"]
+ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b[()][0-9A-Z]")
+
+# choice rows: key, label, [(value, shown)], hint per value
+CHOICES = [
+    ("edition", "Switch on", [("dark", "Dark"), ("light", "Light"), ("later", "Later")],
+     {"dark": "@@DARK_HINT@@ Both editions are installed either way.",
+      "light": "@@LIGHT_HINT@@ Both editions are installed.",
+      "later": "Install only. Switch on any time with: @@COMMAND@@ dark (or light)."}),
+    ("panel", "Top panel", [("build", "@@NAME@@ panel"), ("keep", "Keep mine")],
+     {"build": "Launcher, tasks, centred clock, system stats and tray along the top. Your panels are backed up first.",
+      "keep": "Your panel stays as it is. Build it later with: @@COMMAND@@ panel --apply"}),
+    ("look", "Panel look", [("Fancy", "Fancy"), ("Normal", "Normal"), ("Transparent", "Transparent"),
+                            ("Invisible", "Invisible"), ("Cards", "Cards"), ("Pills", "Pills"), ("Standard", "Standard")],
+     {"Fancy": "A floating bar with each group on its own section (the default).",
+      "Normal": "A solid bar, fully opaque.",
+      "Transparent": "A see-through, blurred bar.",
+      "Invisible": "No bar at all: light text with a soft shadow in Dark, dark text with a light halo in Light.",
+      "Cards": "A floating bar with a card behind each group.",
+      "Pills": "No bar: each group is a pill with fully rounded ends.",
+      "Standard": "Plasma's own panel style, without Panel Colorizer (no extra widget needed)."}),
+    ("others", "Other panels", [("remove", "Remove"), ("keep", "Keep")],
+     {"remove": "The @@NAME@@ panel becomes the only one: Plasma's bottom panel goes (it's backed up; @@COMMAND@@ panel --restore).",
+      "keep": "Your other panels stay, e.g. Plasma's default bottom panel."}),
+    ("fastfetch", "Fastfetch", [("recolour", "Recolour mine"), ("design", "@@NAME@@ design"), ("off", "Leave alone")],
+     {"recolour": "Your Fastfetch layout and logo stay; only the colours change. Uninstall restores it.",
+      "design": "The @@NAME@@ design with its logo. Your config is kept and comes back on uninstall.",
+      "off": "Fastfetch is not touched."}),
+    ("sync", "Keep in step", [("on", "On"), ("off", "Off")],
+     {"on": "Picking @@NAME@@ Dark or Light in System Settings also switches Kvantum, Konsole and Fastfetch.",
+      "off": "Only the @@COMMAND@@ command switches Kvantum, Konsole and Fastfetch."}),
+    ("dim", "Dim inactive windows", [("default", "Edition default"), ("off", "Off")],
+     {"default": "Windows you are not using fade slightly (Dark 20, Light 10). Change any time: @@COMMAND@@ dim",
+      "off": "Inactive windows are not faded."}),
+    ("gtk", "GTK apps", [("on", "@@NAME@@"), ("off", "Leave alone")],
+     {"on": "Firefox, GIMP, Inkscape and other GTK apps get the @@NAME@@ theme, following Dark/Light. Uninstall puts yours back.",
+      "off": "GTK apps keep the theme they have now (add it later: @@COMMAND@@ gtk on)."}),
+]
+
+
+def xterm256(rgb):
+    """Nearest xterm-256 colour index for an (r, g, b)."""
+    steps = [0, 95, 135, 175, 215, 255]
+    q = [min(range(6), key=lambda i: abs(steps[i] - c)) for c in rgb]
+    cube = 16 + 36 * q[0] + 6 * q[1] + q[2]
+    cd = sum((steps[q[i]] - rgb[i]) ** 2 for i in range(3))
+    g = min(range(24), key=lambda i: abs(8 + 10 * i - sum(rgb) / 3))
+    gv = 8 + 10 * g
+    gd = sum((gv - c) ** 2 for c in rgb)
+    return cube if cd <= gd else 232 + g
+
+
+class UI:
+    def __init__(self, scr, pkg):
+        self.s = scr
+        self.pkg = pkg
+        curses.curs_set(0)
+        scr.keypad(True)
+        curses.use_default_colors()
+        self.rich = curses.COLORS >= 256
+        self.c = {}
+        for i, (name, c256, c8) in enumerate([("pink", @@X_ACCENT@@, curses.COLOR_RED), ("peach", @@X_WARM@@, curses.COLOR_YELLOW),
+                                              ("mauve", @@X_HIGHLIGHT@@, curses.COLOR_MAGENTA), ("violet", @@X_LINK@@, curses.COLOR_BLUE),
+                                              ("coral", @@X_ERR@@, curses.COLOR_RED), ("muted", @@X_MUTED@@, curses.COLOR_WHITE),
+                                              ("ok", @@X_OK@@, curses.COLOR_GREEN), ("warn", @@X_WARN@@, curses.COLOR_YELLOW)], start=1):
+            curses.init_pair(i, c256 if self.rich else c8, -1)
+            self.c[name] = curses.color_pair(i)
+        curses.init_pair(20, @@X_ON_ACCENT@@ if self.rich else curses.COLOR_BLACK, @@X_ACCENT@@ if self.rich else curses.COLOR_RED)
+        self.c["sel"] = curses.color_pair(20)
+        self.logo = self._load_logo()
+
+    def _load_logo(self):
+        """The @@NAME@@ Fastfetch logo, with its colours mapped to the terminal's palette."""
+        try:
+            import json
+            text = (Path(self.pkg) / "fastfetch/design/@@COMMAND@@-logo.txt").read_text()
+            cfg = (Path(self.pkg) / "fastfetch/design/config.jsonc").read_text()
+            cols = json.loads(re.sub(r"^\s*//.*$", "", cfg, flags=re.M))["logo"]["color"]
+        except (OSError, ValueError, KeyError):
+            return []
+        pairs = {}
+        for k, v in cols.items():
+            rgb = tuple(int(x) for x in v.split(";")[2:5])
+            n = 30 + int(k)
+            curses.init_pair(n, xterm256(rgb) if self.rich else curses.COLOR_MAGENTA, -1)
+            pairs[k] = curses.color_pair(n)
+        rows = []
+        for line in text.rstrip("\n").split("\n"):
+            segs, cur = [], pairs.get("1", 0)
+            for part in re.split(r"(\$\d)", line):
+                if re.fullmatch(r"\$\d", part):
+                    cur = pairs.get(part[1], 0)
+                elif part:
+                    segs.append((part, cur))
+            rows.append(segs)
+        return rows
+
+    # -- drawing
+    def size(self):
+        return self.s.getmaxyx()
+
+    def put(self, y, x, text, attr=0):
+        h, w = self.size()
+        if 0 <= y < h and 0 <= x < w - 1:
+            try:
+                self.s.addstr(y, x, text[: max(0, w - x - 1)], attr)
+            except curses.error:
+                pass
+
+    def frame(self, step, title, keys="↑↓ move   Enter choose   q back"):
+        s = self.s
+        s.erase()
+        h, w = self.size()
+        bar = "━" * max(10, min(w - 4, 76))
+        seg = max(1, len(bar) // 4)
+        for row in (1, 3):
+            for i, col in enumerate(["peach", "pink", "mauve", "violet"]):
+                part = bar[i * seg:(i + 1) * seg] if i < 3 else bar[3 * seg:]
+                self.put(row, 2 + i * seg, part, self.c[col])
+        self.put(2, 2, "V I C E   H O R I Z O N", self.c["peach"] | curses.A_BOLD)
+        self.put(2, 27, "  Setup", self.c["muted"])
+        x = 2
+        idx = STEPS.index(step)
+        full = sum(len(n) + 4 for n in STEPS) <= w - 4
+        for i, name in enumerate(STEPS):
+            attr = (self.c["pink"] | curses.A_BOLD) if i == idx else (self.c["ok"] if i < idx else self.c["muted"])
+            mark = "●" if i == idx else ("✔" if i < idx else "○")
+            # narrow terminal: only the current step is named ("✔ ✔ ● Add-ons 4/7 ○ ○ ○")
+            text = f"{mark} {name}" if full else (f"{mark} {name} {i + 1}/{len(STEPS)}" if i == idx else mark)
+            self.put(4, x, text, attr)
+            x += len(text) + (2 if full else 1)
+        self.put(6, 4, title, curses.A_BOLD | self.c["pink"])
+        self.put(h - 2, 4, keys, self.c["muted"])
+
+    def wrap(self, y, x, text, attr=0, width=None, max_lines=None):
+        import textwrap
+        h, w = self.size()
+        width = width or max(20, w - x - 3)
+        # whole words only: a package name such as qt6-style-kvantum never breaks at its hyphens
+        lines = textwrap.wrap(text, width, break_on_hyphens=False) or [""]
+        if max_lines and len(lines) > max_lines:
+            lines = lines[:max_lines]
+            lines[-1] = lines[-1][: max(0, width - 1)] + "…"
+        for line in lines:
+            self.put(y, x, line, attr)
+            y += 1
+        return y
+
+    def key(self):
+        k = self.s.getch()
+        if k in (curses.KEY_UP, ord("k")):
+            return "up"
+        if k in (curses.KEY_DOWN, ord("j"), 9):
+            return "down"
+        if k in (curses.KEY_LEFT, ord("h")):
+            return "left"
+        if k in (curses.KEY_RIGHT, ord("l"), ord(" ")):
+            return "right"
+        if k in (10, 13, curses.KEY_ENTER):
+            return "enter"
+        if k in (27, ord("q")):
+            return "back"
+        return None
+
+    def buttons(self, y, items, pos):
+        x = 4
+        for i, label in enumerate(items):
+            attr = (self.c["sel"] | curses.A_BOLD) if i == pos else self.c["muted"]
+            self.put(y, x, f"  {label}  ", attr)
+            x += len(label) + 6
+
+
+# ---------------------------------------------------------------- system facts
+def which(*names):
+    for n in names:
+        if shutil.which(n):
+            return n
+    return ""
+
+
+def os_name():
+    try:
+        for line in Path("/etc/os-release").read_text().splitlines():
+            if line.startswith("PRETTY_NAME="):
+                return line.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        pass
+    return "unknown"
+
+
+def plasma_version():
+    try:
+        out = subprocess.run(["plasmashell", "--version"], capture_output=True, text=True, timeout=5).stdout
+        m = re.search(r"(\d+(\.\d+)*)", out)
+        return m.group(1) if m else ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def system_facts():
+    pv = plasma_version()
+    facts = [("Distribution", os_name(), None),
+             ("Package manager", which("pacman", "dnf", "zypper", "apt") or "not found", None),
+             ("AUR helper", which("paru", "yay") or ("none yet" if which("pacman") else "not needed"), None),
+             ("KDE Plasma", pv or "not found", None if pv else "warn"),
+             ("Session", f"{DESK or 'unknown'} ({os.environ.get('XDG_SESSION_TYPE', '?')})", None if IN_PLASMA else "warn"),
+             ("Installs into", "your home folder only (no root)", None)]
+    notes = []
+    if pv and int(pv.split(".")[0]) < 6:
+        notes.append("@@NAME@@ is made for Plasma 6; this is Plasma " + pv + ".")
+    if not IN_PLASMA:
+        notes.append("This isn't a running Plasma session: @@NAME@@ is installed now and switched on "
+                     "the next time you log in to Plasma and run: @@COMMAND@@ dark")
+    return facts, notes
+
+
+# ---------------------------------------------------------------- the screens
+def welcome(ui):
+    pos = 0
+    while True:
+        ui.frame("Welcome", "Welcome", "←→ choose   Enter   q quit")
+        h, w = ui.size()
+        tx = 4
+        if ui.logo and w >= 92 and h >= 30:
+            for i, segs in enumerate(ui.logo):
+                x = 4
+                for text, attr in segs:
+                    ui.put(8 + i, x, text, attr)
+                    x += len(text)
+            tx = 44
+        logo_end = 8 + len(ui.logo) if tx == 44 else 0
+        version = (Path(ui.pkg) / "VERSION").read_text().strip() if (Path(ui.pkg) / "VERSION").exists() else ""
+        y = ui.wrap(8, tx, f"@@NAME@@ {version}", curses.A_BOLD | ui.c["peach"])
+        y = ui.wrap(y, tx, "@@TAGLINE@@", ui.c["mauve"]) + 1
+        for line in ("This guide checks your system and asks a few choices.",
+                     "It offers to install the programs the theme uses (Kvantum, the panel widgets, "
+                     "Fastfetch), then installs @@NAME@@ into your home folder and switches it on.",
+                     "Nothing changes until you press Install on the Review screen.",
+                     "Anything it replaces is backed up first, and ./uninstall.sh puts everything back."):
+            y = ui.wrap(y, tx, line) + 1
+        ui.buttons(max(y + 1, logo_end + 1), ["Start", "Quit"], pos)
+        ui.s.refresh()
+        k = ui.key()
+        if k in ("left", "right", "up", "down"):
+            pos = 1 - pos
+        elif k == "enter":
+            return pos == 0
+        elif k == "back":
+            return False
+
+
+def system(ui):
+    facts, notes = system_facts()
+    pos = 0
+    while True:
+        ui.frame("System", "Your system", "←→ choose   Enter   q back")
+        y = 8
+        for label, value, flag in facts:
+            ui.put(y, 4, f"{label:<17}", ui.c["muted"])
+            ui.put(y, 22, ("✔ " if flag is None else "! ") + value, ui.c["ok"] if flag is None else ui.c["warn"])
+            y += 1
+        y += 1
+        for n in notes:
+            y = ui.wrap(y, 4, "! " + n, ui.c["warn"]) + 0
+        ui.buttons(y + 1, ["Continue", "Back"], pos)
+        ui.s.refresh()
+        k = ui.key()
+        if k in ("left", "right", "up", "down"):
+            pos = 1 - pos
+        elif k == "enter":
+            return "next" if pos == 0 else "back"
+        elif k == "back":
+            return "back"
+
+
+def choices(ui, picks):
+    pos = 0
+    rows = len(CHOICES) + 1
+    while True:
+        ui.frame("Choices", "Your choices", "↑↓ move   ←→ change   Enter continue   q back")
+        y = 8
+        gap = 2 if ui.size()[0] >= 8 + 2 * len(CHOICES) + 7 else 1   # one row apart on a small terminal
+        for i, (key, label, values, hints) in enumerate(CHOICES):
+            ui.put(y, 4, f"{label:<22}", ui.c["pink"] | curses.A_BOLD if i == pos else 0)
+            x = 27
+            room = ui.size()[1] - x - 2
+            if sum(len(sh) + 3 for _, sh in values) > room:
+                # too wide for this terminal: the current option between arrows, and where it is
+                k = [v for v, _ in values].index(picks[key])
+                attr = (ui.c["sel"] | curses.A_BOLD) if i == pos else (ui.c["peach"] | curses.A_BOLD)
+                ui.put(y, x, "‹", ui.c["muted"])
+                ui.put(y, x + 2, f" {values[k][1]} ", attr)
+                ui.put(y, x + len(values[k][1]) + 5, "›", ui.c["muted"])
+                ui.put(y, x + len(values[k][1]) + 8, f"{k + 1} of {len(values)}", ui.c["muted"])
+            else:
+                for v, shown in values:
+                    on = picks[key] == v
+                    attr = (ui.c["sel"] | curses.A_BOLD) if (on and i == pos) else (ui.c["peach"] | curses.A_BOLD if on else ui.c["muted"])
+                    ui.put(y, x, f" {shown} ", attr)
+                    x += len(shown) + 3
+            y += gap
+        ui.buttons(y, ["Continue"], 0 if pos == rows - 1 else -1)
+        if pos < len(CHOICES):
+            key, label, values, hints = CHOICES[pos]
+            ui.wrap(y + 2, 4, hints[picks[key]], ui.c["mauve"])
+        ui.s.refresh()
+        k = ui.key()
+        if k == "up":
+            pos = (pos - 1) % rows
+        elif k == "down":
+            pos = (pos + 1) % rows
+        elif k in ("left", "right") and pos < len(CHOICES):
+            key, _, values, _ = CHOICES[pos]
+            vals = [v for v, _ in values]
+            i = vals.index(picks[key])
+            picks[key] = vals[(i + (1 if k == "right" else -1)) % len(vals)]
+        elif k == "enter":
+            return "next"
+        elif k == "back":
+            return "back"
+
+
+def install_args(picks):
+    a = ["--variant", "both", "--yes", "--no-deps"]
+    if picks["panel"] == "keep":
+        a += ["--no-panel"]
+    elif picks.get("look") == "Standard":
+        a += ["--panel", "--plain-panel"]
+    else:
+        a += ["--panel", "--panel-style", picks.get("look", "Fancy")]
+    if picks["panel"] != "keep" and picks.get("others") == "remove":
+        a += ["--only-panel"]
+    if picks["fastfetch"] == "recolour":
+        a += ["--fastfetch"]
+    elif picks["fastfetch"] == "design":
+        a += ["--fastfetch-design"]
+    if picks["sync"] == "off":
+        a += ["--no-autosync"]
+    if picks.get("gtk") == "off":
+        a += ["--without", "kde-gtk"]
+    a += ["--no-activate"] if picks["edition"] == "later" else [f"--activate={picks['edition']}"]
+    return a
+
+
+def deps_report(ui, picks):
+    """What the chosen parts need, from install.sh itself: [(label, status, why, command)]."""
+    a = [str(Path(ui.pkg) / "install.sh"), "--deps-report"] + [x for x in install_args(picks) if x not in ("--yes",)]
+    if os.geteuid() == 0:
+        a.append("--allow-root")
+    try:
+        out = subprocess.run(a, capture_output=True, text=True, timeout=60, stdin=subprocess.DEVNULL,
+                             env=dict(os.environ, NO_COLOR="1")).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    items = []
+    for line in out.splitlines():
+        f = line.split("\t")
+        if f[0] == "ITEM" and len(f) >= 5:
+            label, status, why, cmd = f[1], f[2], f[3], f[4]
+            if picks["panel"] == "keep" and label in ("KVitals", "Panel Colorizer"):
+                continue
+            if picks["fastfetch"] == "off" and label in ("Fastfetch", "Python 3"):
+                continue
+            items.append([label, status, why, cmd])
+    return items
+
+
+def item_options(cmd):
+    if cmd.startswith("manual:"):
+        return ["Manual", "Skip"]
+    if cmd.startswith("bundled:"):
+        return ["Install", "Skip"]
+    return ["Install", "Manual", "Skip"]
+
+
+def describe(cmd):
+    if cmd.startswith("manual:"):
+        return cmd[len("manual:"):].strip()
+    if cmd.startswith("bundled:"):
+        return "The copy that comes with @@NAME@@, installed for your user - no password, no download."
+    return "$ " + cmd
+
+
+def addons(ui, items, actions):
+    """For each missing add-on: Install / Manual / Skip."""
+    need = [i for i, it in enumerate(items) if it[1] != "ok"]
+    pos = 0
+    rows = len(need) + 1
+    while True:
+        ui.frame("Add-ons", "Add-ons", "↑↓ move   ←→ Install / Manual / Skip   Enter continue   q back")
+        h, w = ui.size()
+        # what fits: intro, a gap, one row per add-on, Continue, then 2 lines of help above the key line
+        long_intro = ("Programs @@NAME@@ uses. Missing ones can be installed now (your password is "
+                      "asked in the terminal), done by you later, or skipped - the theme installs either way.")
+        import textwrap
+        intro_lines = len(textwrap.wrap(long_intro, max(20, w - 7), break_on_hyphens=False))
+        tight = 8 + intro_lines + 1 + len(items) + 2 + 3 > h - 2
+        y = 8
+        if tight:   # one line of intro, help right under Continue
+            y = ui.wrap(y, 4, "Install now, do it later, or skip - the theme installs either way.",
+                        ui.c["muted"], max_lines=1) + 1
+        else:
+            y = ui.wrap(y, 4, long_intro, ui.c["muted"]) + 1
+        # the "why" moves to the help lines when a row has no room for it
+        def opts_end(cmd):
+            return 25 + sum(len(o) + 3 for o in item_options(cmd))
+        narrow = any(opts_end(it[3]) + 2 + len(("optional - " if it[1] == "optional" else "") + it[2]) > w - 2
+                     for it in items if it[1] != "ok")
+        r = 0
+        for i, (label, status, why, cmd) in enumerate(items):
+            if status == "ok":
+                ui.put(y, 4, f"✔ {label:<18}", ui.c["ok"])
+                ui.put(y, 25, "installed", ui.c["muted"])
+                y += 1
+                continue
+            sel = r == pos
+            ui.put(y, 4, f"✘ {label:<18}", ui.c["warn"] | (curses.A_BOLD if sel else 0))
+            opts = item_options(cmd)
+            x = 25
+            for o in opts:
+                on = actions[i] == o
+                attr = (ui.c["sel"] | curses.A_BOLD) if (on and sel) else (ui.c["peach"] | curses.A_BOLD if on else ui.c["muted"])
+                ui.put(y, x, f" {o} ", attr)
+                x += len(o) + 3
+            if not narrow:
+                ui.put(y, x + 1, ("optional - " if status == "optional" else "") + why, ui.c["muted"])
+            elif status == "optional":
+                ui.put(y, x + 1, "optional", ui.c["muted"])
+            y += 1
+            r += 1
+        if not need:
+            y = ui.wrap(y + 1, 4, "Everything @@NAME@@ uses is already installed.", ui.c["ok"])
+        ui.buttons(y + (0 if tight else 1), ["Continue"], 0 if pos == rows - 1 else -1)
+        if need and pos < len(need):
+            label, status, why, cmd = items[need[pos]]
+            shown = describe(cmd)
+            if narrow:
+                shown = f"{label}: {why}. {shown}"
+            hy = y + (1 if tight else 3)
+            ui.wrap(hy, 4, shown, ui.c["mauve"], max_lines=max(1, h - 2 - hy))
+        ui.s.refresh()
+        k = ui.key()
+        if k == "up":
+            pos = (pos - 1) % rows
+        elif k == "down":
+            pos = (pos + 1) % rows
+        elif k in ("left", "right") and pos < len(need):
+            i = need[pos]
+            opts = item_options(items[i][3])
+            j = opts.index(actions[i]) if actions[i] in opts else 0
+            actions[i] = opts[(j + (1 if k == "right" else -1)) % len(opts)]
+        elif k == "enter":
+            return "next"
+        elif k == "back":
+            return "back"
+
+
+def review_lines(picks, items, actions):
+    ed = picks["edition"]
+    L = [("Theme", "@@NAME@@ Dark and Light into your home folder (anything replaced is backed up)")]
+    L.append(("Switch on", {"dark": "Dark", "light": "Light"}.get(ed, "later - run: @@COMMAND@@ dark (or light)")
+              + ("" if ed == "later" else ": colours, Plasma Style, icons, cursors, window borders, Kvantum, Konsole, wallpaper")))
+    p = picks["panel"]
+    lk = picks.get("look", "Fancy")
+    L.append(("Top panel", "keep yours" if p == "keep" else
+              f"@@NAME@@ panel, {'Standard (no Panel Colorizer)' if lk == 'Standard' else lk + ' look'} (your panels are backed up first)"
+              + ("; the other panels are removed" if picks.get("others") == "remove" else "")))
+    L.append(("Fastfetch", {"recolour": "recolour your config", "design": "@@NAME@@ design",
+                            "off": "not touched"}[picks["fastfetch"]]))
+    L.append(("Keep in step", "on" if picks["sync"] == "on" else "off"))
+    L.append(("Dimming", "edition default" if picks["dim"] == "default" else "off"))
+    L.append(("GTK apps", "@@NAME@@ (Firefox, GIMP, Inkscape ...)" if picks.get("gtk", "on") == "on" else "left alone"))
+    inst = [it for i, it in enumerate(items) if it[1] != "ok" and actions[i] == "Install"]
+    man = [it for i, it in enumerate(items) if it[1] != "ok" and actions[i] == "Manual"]
+    for it in inst:
+        L.append(("Install", f"{it[0]}:  " + ("bundled copy, for your user" if it[3].startswith("bundled:") else it[3])))
+    for it in man:
+        L.append(("Do yourself", f"{it[0]} (shown again at the end)"))
+    return L
+
+
+def review(ui, picks, items, actions):
+    pos = 0
+    while True:
+        ui.frame("Review", "Review", "←→ choose   Enter   q back")
+        y = 8
+        for label, text in review_lines(picks, items, actions):
+            ui.put(y, 4, f"{label:<14}", ui.c["pink"])
+            y = ui.wrap(y, 19, text)
+        y = ui.wrap(y + 1, 4, "Nothing has changed yet. Install starts now; it takes a minute or two.", ui.c["muted"])
+        ui.buttons(y + 1, ["Install", "Back", "Quit"], pos)
+        ui.s.refresh()
+        k = ui.key()
+        if k in ("left", "up"):
+            pos = (pos - 1) % 3
+        elif k in ("right", "down"):
+            pos = (pos + 1) % 3
+        elif k == "enter":
+            return ["install", "back", "quit"][pos]
+        elif k == "back":
+            return "back"
+
+
+def run_addons(scr, todo, log):
+    """Leave full-screen mode so the commands (and password prompts) show in the terminal."""
+    if not todo:
+        return []
+    curses.def_prog_mode()
+    curses.endwin()
+    failed = []
+    print("\n  \033[38;2;@@RGB_WARM@@m@@NAME@@ Setup - installing add-ons\033[0m")
+    print("  \033[38;2;@@RGB_MUTED@@mYour password may be asked for. The theme installs next either way.\033[0m\n")
+    for label, cmd in todo:
+        print(f"  \033[38;2;@@RGB_ACCENT@@m{label}\033[0m\n  \033[38;2;@@RGB_MUTED@@m$ {cmd}\033[0m")
+        log.write(f"\n== add-on {label}\n$ {cmd}\n")
+        log.flush()
+        try:
+            rc = subprocess.call(["bash", "-c", cmd])
+        except OSError:
+            rc = 1
+        log.write(f"exit status {rc}\n")
+        if rc != 0:
+            failed.append((label, cmd))
+            print(f"  \033[38;2;@@RGB_ERR@@m! {label} didn't install (exit status {rc})\033[0m\n")
+        else:
+            print(f"  \033[38;2;@@RGB_OK@@m✔ {label}\033[0m\n")
+    if failed:
+        try:
+            input("  Some add-ons didn't install - press Enter to continue with the theme ")
+        except EOFError:
+            pass
+    curses.reset_prog_mode()
+    scr.clear()          # the terminal now shows the command's output: redraw everything
+    scr.refresh()
+    return failed
+
+
+def installing(ui, cmd, log, extra):
+    """Run install.sh, showing its output live; returns (exit status, lines)."""
+    lines = []
+    comps = {"kde-colors", "kde-plasma", "kde-aurorae", "kde-kvantum", "kde-gtk", "kde-cursors", "kde-konsole",
+             "kde-lookandfeel", "kde-wallpaper", "kde-panel", "kde-command", "icons", "fastfetch"}
+    total = len(comps) - (0 if ("--fastfetch" in cmd or "--fastfetch-design" in cmd) else 1) - (1 if "kde-gtk" in cmd else 0)
+    done = 0
+    env = dict(os.environ, NO_COLOR="1", VH_WIDTH="76")
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                            text=True, bufsize=1, env=env)
+    ui.s.nodelay(True)
+
+    def draw(state):
+        ui.frame("Install", "Installing", "please wait")
+        h, w = ui.size()
+        width = max(20, min(w - 10, 70))
+        fill = int(width * min(done, total) / total)
+        ui.put(8, 4, "━" * fill, ui.c["pink"])
+        ui.put(8, 4 + fill, "─" * (width - fill), ui.c["muted"])
+        ui.put(9, 4, state, ui.c["mauve"])
+        view = lines[-max(3, h - 14):]
+        for i, l in enumerate(view):
+            attr = ui.c["ok"] if l.strip().startswith("✓") else ui.c["warn"] if l.strip().startswith("!") else 0
+            ui.put(11 + i, 4, l.rstrip()[: w - 8], attr)
+        ui.s.refresh()
+
+    for raw in proc.stdout:
+        line = ANSI.sub("", raw.rstrip("\n"))
+        log.write(line + "\n")
+        lines.append(line)
+        st = line.strip()
+        if st[:1] in ("✓", "+", "!") and st[1:].strip().split(" ")[0] in comps:
+            done += 1
+        draw("Installing @@NAME@@ into your home folder..." if done < total else "Switching it on...")
+        ui.s.getch()
+    rc = proc.wait()
+    for label, c in extra:
+        log.write(f"\n$ {' '.join(c)}\n")
+        try:
+            out = subprocess.run(c, capture_output=True, text=True, timeout=60).stdout
+            log.write(out)
+            lines.append(f"    ✓ {label}")
+        except (OSError, subprocess.SubprocessError):
+            lines.append(f"    ! {label} - didn't work, run: {' '.join(c)}")
+    done = total
+    draw("Finished.")
+    ui.s.nodelay(False)
+    return rc, lines
+
+
+def logout():
+    for q in ["qdbus6", "qdbus-qt6", "/usr/lib/qt6/bin/qdbus", "/usr/lib64/qt6/bin/qdbus", "qdbus"]:
+        if not shutil.which(q):
+            continue
+        for c in ([q, "org.kde.Shutdown", "/Shutdown", "org.kde.Shutdown.logout"],
+                  [q, "org.kde.ksmserver", "/KSMServer", "logout", "0", "0", "0"]):
+            if subprocess.call(c, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0:
+                return True
+    return False
+
+
+def finished(ui, rc, lines, manual, failed, picks, logpath):
+    # what needs attention: warnings from the install itself (not the "What it needs" list,
+    # which the Add-ons screen already covered), each once
+    start = next((i for i, l in enumerate(lines) if l.strip().startswith("Installing")), 0)
+    warns, seen = [], set()
+    for l in lines[start:]:
+        st = l.strip()
+        if not st.startswith("!"):
+            continue
+        w_ = st[1:].strip()
+        if "is not on your PATH" in w_:
+            w_ = "~/.local/bin is not on your PATH yet: run ~/.local/bin/@@COMMAND@@, or add it (the log says how)"
+        key = w_.split(" - ")[0].replace(" is not installed", " not installed")
+        if key not in seen:
+            seen.add(key)
+            warns.append(w_)
+    opts = (["Log out now", "Open @@NAME@@ Settings", "Close"] if IN_PLASMA and picks["edition"] != "later"
+            else ["Open @@NAME@@ Settings", "Close"])
+    pos = 0
+    while True:
+        ui.frame("Done", "Done" if rc == 0 else "Done, with problems", "↑↓ choose   Enter")
+        y = 8
+        if rc == 0:
+            ed = picks["edition"]
+            y = ui.wrap(y, 4, "✔ @@NAME@@ is installed" + ("" if ed == "later" else f" and switched on ({ed.title()}).")
+                        + (" Switch it on with: @@COMMAND@@ dark (or light)" if ed == "later" else ""), ui.c["ok"])
+        else:
+            y = ui.wrap(y, 4, f"! install.sh stopped (exit status {rc}). Nothing half-done is left behind; "
+                        "the log says what happened.", ui.c["warn"])
+        if picks["edition"] != "later" and IN_PLASMA:
+            y = ui.wrap(y + 1, 4, "Log out and back in once, so every app picks up the new style.", ui.c["mauve"])
+        if warns or failed or manual:
+            y = ui.wrap(y + 1, 4, "Needs your attention", ui.c["pink"] | curses.A_BOLD)
+            for label, cmd in failed:
+                y = ui.wrap(y, 6, f"! {label} didn't install - try again: {cmd}", ui.c["warn"])
+            for label, cmd in manual:
+                y = ui.wrap(y, 6, f"• {label}: " + describe(cmd).removeprefix("$ "))
+            for w_ in warns[:6]:
+                y = ui.wrap(y, 6, "! " + w_, ui.c["warn"])
+            if len(warns) > 6:
+                y = ui.wrap(y, 6, f"... and {len(warns) - 6} more in the log", ui.c["muted"])
+        y = ui.wrap(y + 1, 4, f"Full log: {str(logpath).replace(str(HOME), '~')}", ui.c["muted"])
+        y += 1
+        for i, o in enumerate(opts):
+            ui.put(y + i, 4, f"  {o:<32}", (ui.c["sel"] | curses.A_BOLD) if i == pos else 0)
+        ui.s.refresh()
+        k = ui.key()
+        if k in ("up", "left"):
+            pos = (pos - 1) % len(opts)
+        elif k in ("down", "right"):
+            pos = (pos + 1) % len(opts)
+        elif k == "enter":
+            return opts[pos]
+        elif k == "back":
+            return "Close"
+
+
+# ---------------------------------------------------------------- flow
+def setup(scr, pkg, print_only, result):
+    ui = UI(scr, pkg)
+    picks = {"edition": "dark", "panel": "build", "look": "Fancy", "others": "remove", "fastfetch": "recolour" if shutil.which("fastfetch") else "off",
+             "sync": "on", "dim": "default", "gtk": "on"}
+    if not welcome(ui):
+        return
+    stage = "system"
+    items, actions = [], []
+    while True:
+        if stage == "system":
+            stage = "choices" if system(ui) == "next" else "welcome"
+            if stage == "welcome":
+                if not welcome(ui):
+                    return
+                stage = "system"
+        elif stage == "choices":
+            if choices(ui, picks) == "next":
+                ui.frame("Add-ons", "Add-ons", "checking...")
+                ui.put(8, 4, "Checking what your choices need...", ui.c["muted"])
+                ui.s.refresh()
+                items = deps_report(ui, picks)
+                actions = [item_options(it[3])[0] if it[1] != "ok" else "" for it in items]
+                stage = "addons"
+            else:
+                stage = "system"
+        elif stage == "addons":
+            stage = "review" if addons(ui, items, actions) == "next" else "choices"
+        elif stage == "review":
+            r = review(ui, picks, items, actions)
+            if r == "back":
+                stage = "addons"
+            elif r == "quit":
+                return
+            else:
+                break
+    chosen = [it for i, it in enumerate(items) if it[1] != "ok" and actions[i] == "Install"]
+    todo = [(it[0], it[3]) for it in chosen if not it[3].startswith("bundled:")]
+    bundled = [it[3].split(":", 1)[1] for it in chosen if it[3].startswith("bundled:")]
+    manual = [(it[0], it[3]) for i, it in enumerate(items) if it[1] != "ok" and actions[i] == "Manual"]
+    cmd = ([str(Path(pkg) / "install.sh")] + install_args(picks) + (["--widgets", ",".join(bundled)] if bundled else [])
+           + (["--allow-root"] if os.geteuid() == 0 else []))
+    extra = []
+    if picks["dim"] == "off" and picks["edition"] != "later":
+        extra.append(("Dimming off", [str(BIN / "@@COMMAND@@"), "dim", "off"]))
+    if print_only:
+        result.append("ADDONS: " + " | ".join(c for _, c in todo))
+        result.append("COMMAND: " + " ".join(cmd[1:]))
+        if extra:
+            result.append("THEN: " + " ; ".join(" ".join(c[1:]) for _, c in extra))
+        return
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    logpath = HOME / f"@@COMMAND@@-install-{stamp}.log"
+    with open(logpath, "w") as log:
+        log.write(f"@@NAME@@ Setup {stamp}\nchoices: {picks}\n")
+        failed = run_addons(scr, todo, log)
+        log.write(f"\n== theme\n$ {' '.join(shlex.quote(c) for c in cmd)}\n")
+        rc, lines = installing(ui, cmd, log, extra)
+    choice = finished(ui, rc, lines, manual, failed, picks, logpath)
+    result.append(choice)
+
+
+def main():
+    a = sys.argv[1:]
+    if not a or a[0].startswith("-"):
+        sys.exit(__doc__)
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        sys.exit("@@NAME@@ Setup needs a terminal - or run: ./install.sh --yes (see ./install.sh --help)")
+    pkg = os.path.abspath(a[0])
+    if not (Path(pkg) / "install.sh").exists():
+        sys.exit(f"{pkg} is not an unpacked @@NAME@@ package (no install.sh)")
+    print_only = "--print-command" in a
+    result = []
+    try:
+        curses.wrapper(setup, pkg, print_only, result)
+    except KeyboardInterrupt:
+        print("  Stopped - nothing more was changed.")
+        return
+    if not result:
+        print("  Nothing was changed.")
+        return
+    if print_only:
+        print("\n".join(result))
+        return
+    if result[0] == "Log out now":
+        print("  Logging out...")
+        if not logout():
+            print("  Couldn't log out from here - use the Leave button in the application menu.")
+    elif result[0] == "Open @@NAME@@ Settings":
+        s = shutil.which("@@COMMAND@@-settings") or str(BIN / "@@COMMAND@@-settings")
+        if Path(s).exists():
+            os.execv(sys.executable, [sys.executable, "-I", s])
+        print("  @@NAME@@ Settings isn't installed.")
+    else:
+        print("  @@NAME@@ is installed. Settings any time: @@COMMAND@@ settings")
+
+
+if __name__ == "__main__":
+    main()

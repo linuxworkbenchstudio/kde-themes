@@ -66,7 +66,7 @@ TERMINAL_SETTINGS = {
 }
 
 THEME_KEYS = {"id", "name", "command", "brand", "version", "license", "editions", "names",
-              "lookandfeel_id", "previous_ids", "parts", "website", "fastfetch", "gtk", "icons", "panel", "lookandfeel"}
+              "lookandfeel_id", "previous_ids", "parts", "website", "fastfetch", "gtk", "icons", "panel", "lookandfeel", "programs"}
 LNF_ID = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){2,}$")      # org.thelinuxworkbench.waypoint
 OLD_ID = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$")         # older ids can be shorter
 NAME_DEFAULTS = {

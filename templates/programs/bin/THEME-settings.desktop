@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=@@NAME@@ Settings
+Comment=Switch Dark/Light, the panel or top bar style, dimming and Fastfetch
+Exec=sh -c 'exec "$HOME/.local/bin/@@COMMAND@@-settings"'
+Icon=@@COMMAND@@
+Terminal=true
+Categories=Settings;DesktopSettings;
+Keywords=theme;dark;light;panel;top bar;vice horizon;

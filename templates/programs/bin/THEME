@@ -1,0 +1,691 @@
+#!/usr/bin/env bash
+# @@COMMAND@@ - switch the whole @@NAME@@ KDE setup between dark and light.
+# (The Linux Workbench theme engine: the same command in every theme.)
+#
+# Usage: @@COMMAND@@ dark|light            whole theme: Global Theme, Kvantum, Konsole, Fastfetch, dimming
+#        @@COMMAND@@ dark|light --layout   same, and rebuild the top panel from the Global Theme layout
+#        @@COMMAND@@ panel                 preview what the top panel step does
+#        @@COMMAND@@ panel --apply [--look NAME|--plain]
+#                                           back up panels, build the @@NAME@@ top panel, styled by
+#                                           Panel Colorizer. NAME: Normal, Transparent, Invisible, Cards,
+#                                           Pills or Fancy (the default); older names still work: Base =
+#                                           Transparent, Islands = Pills, Plain = Normal. --plain (or
+#                                           Standard): no Panel Colorizer
+#        @@COMMAND@@ panel --look NAME     switch the look of the panel you have (Dark/Light follows)
+#        @@COMMAND@@ panel --apply --only  ... and remove the other panels on the main screen (e.g. Plasma's
+#                                           default bottom panel); they are in the backup
+#        @@COMMAND@@ panel --restyle [dark|light]   re-apply the panel's Panel Colorizer look for the
+#                                           edition (the Light edition gets a see-through white bar)
+#        @@COMMAND@@ panel --restore       put the most recent panel backup back
+#        @@COMMAND@@ dim on|off|N          fade unfocused windows (N = 0-100; Dark 20, Light 10)
+#        @@COMMAND@@ gtk [on|off]          GTK apps (Firefox, GIMP, Inkscape ...): @@NAME@@'s GTK theme
+#                                           for the current edition, or back to your own (status without)
+#        @@COMMAND@@ uninstall [--dry-run|--yes|...]   remove @@NAME@@ and put your look back
+#        @@COMMAND@@ sync                  match Kvantum, Konsole and Fastfetch to the current colour
+#                                           scheme (does nothing unless it is @@NAME@@'s)
+#        @@COMMAND@@ watch                 run sync whenever the colour scheme changes; started at
+#                                           login by ~/.config/autostart/@@COMMAND@@-sync.desktop
+#
+# On GNOME (XDG_CURRENT_DESKTOP contains GNOME): `topbar [STYLE]` picks the top-bar style (normal,
+# translucent, invisible, islands, translucent-islands); dark|light switch GNOME's Dark Style, the GTK
+# theme, Shell theme, icons and Fastfetch; sync/watch follow the Dark Style switch, but only while
+# a @@NAME@@ GTK theme is selected (autostart: @@COMMAND@@-sync-gnome.desktop).
+@@NAMES_SH@@
+set -euo pipefail
+DATA="${XDG_DATA_HOME:-$HOME/.local/share}"
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
+STATE="$DATA/@@COMMAND@@"
+FFC="$STATE/fastfetch/@@COMMAND@@-fastfetch.py"
+RD=kreadconfig6; command -v $RD >/dev/null 2>&1 || RD=kreadconfig5
+WR=kwriteconfig6; command -v $WR >/dev/null 2>&1 || WR=kwriteconfig5
+# qdbus6 (Arch, openSUSE), qdbus-qt6 (Fedora), /usr/lib/qt6/bin/qdbus (Debian/Ubuntu)
+qdbus_cmd() { for q in qdbus6 qdbus-qt6 /usr/lib/qt6/bin/qdbus /usr/lib64/qt6/bin/qdbus /usr/libexec/qt6/qdbus qdbus; do
+  case "$q" in /*) [ -x "$q" ] && { echo "$q"; return 0; } ;; *) command -v "$q" >/dev/null 2>&1 && { echo "$q"; return 0; } ;; esac
+done; return 1; }
+kwin_reconfigure() { local q; q="$(qdbus_cmd)" && $q org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || true; }
+# ---- GTK apps on Plasma: through Plasma's GTK settings service (kde-gtk-config), which also tells
+# running apps; without it, only the gtk-theme-name line of GTK's own settings files changes.
+ini_set() { # file key value - one key in [Settings], every other line kept
+  local f="$1" k="$2" val="$3" tmp
+  mkdir -p "$(dirname "$f")" || return 1; [ -f "$f" ] || : > "$f"; tmp="$(mktemp)"
+  awk -v k="$k" -v v="$val" '
+    /^[[:space:]]*\[/ { if (ins && !done) { print k "=" v; done = 1 }; ins = ($0 ~ /^[[:space:]]*\[Settings\][[:space:]]*$/) }
+    ins && !done && $0 ~ ("^[[:space:]]*" k "[[:space:]]*=") { print k "=" v; done = 1; next }
+    { print }
+    END { if (!done) { if (!ins) print "[Settings]"; print k "=" v } }' "$f" > "$tmp" && cat "$tmp" > "$f"
+  local rc=$?; rm -f "$tmp"; return $rc
+}
+gtk_now() {
+  local q t
+  if q="$(qdbus_cmd)" && t="$($q org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.gtkTheme 2>/dev/null)" && [ -n "$t" ]; then
+    echo "$t"; return 0
+  fi
+  sed -n 's/^[[:space:]]*gtk-theme-name[[:space:]]*=[[:space:]]*//p' "$CONF/gtk-3.0/settings.ini" 2>/dev/null | head -n1
+}
+gtk_default() { if [ -d /usr/share/themes/Breeze/gtk-3.0 ]; then echo Breeze; else echo Adwaita; fi; }
+gtk_set() {
+  local q d
+  if q="$(qdbus_cmd)" && $q org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "$1" >/dev/null 2>&1; then return 0; fi
+  for d in gtk-3.0 gtk-4.0; do ini_set "$CONF/$d/settings.ini" gtk-theme-name "$1" || return 1; done
+  if command -v gsettings >/dev/null 2>&1 && gsettings list-schemas 2>/dev/null | grep -qx org.gnome.desktop.interface; then
+    gsettings set org.gnome.desktop.interface gtk-theme "$1" 2>/dev/null || true
+  fi
+  return 0
+}
+gtk_prev() { # the GTK theme you had before @@NAME@@ (recorded at the first switch)
+  local p="$STATE/previous-settings.tsv" t=""
+  [ -f "$p" ] && t="$(awk -F'\t' '$1=="kde" && $2=="gtk" {print $4; exit}' "$p")"
+  echo "${t:-$(gtk_default)}"
+}
+v="${1:-}"
+
+# ---- presentation: colour only on a terminal (NO_COLOR respected), glyphs only in UTF-8 locales
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+  UI_COLOR=1; R=$'\e[0m'; BO=$'\e[1m'
+  PK=$'\e[38;2;@@RGB_ACCENT@@m'; PE=$'\e[38;2;@@RGB_WARM@@m'; MV=$'\e[38;2;@@RGB_HIGHLIGHT@@m'
+  MU=$'\e[38;2;@@RGB_MUTED@@m'; OK=$'\e[38;2;@@RGB_OK@@m'
+else
+  UI_COLOR=0; R=""; BO=""; PK=""; PE=""; MV=""; MU=""; OK=""
+fi
+case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in
+  *[Uu][Tt][Ff]-8*|*[Uu][Tt][Ff]8*) G_OK="✓"; G_NO="–"; G_WARN="!"; G_BAR="━"; G_DOT="·"; G_GO="↻" ;;
+  *) G_OK="+"; G_NO="-"; G_WARN="!"; G_BAR="="; G_DOT="-"; G_GO="~" ;;
+esac
+ui_bar() {   # a rule in the theme's four brand colours
+  local w=44 i t s f out="" r g b
+  local -a RR=(@@BAR_R@@) GG=(@@BAR_G@@) BB=(@@BAR_B@@)
+  for ((i = 0; i < w; i++)); do
+    if [ "$UI_COLOR" = 1 ]; then
+      t=$(( i * 300 / (w - 1) )); s=$(( t / 100 )); [ $s -gt 2 ] && s=2; f=$(( t - s * 100 ))
+      r=$(( RR[s] + (RR[s + 1] - RR[s]) * f / 100 )); g=$(( GG[s] + (GG[s + 1] - GG[s]) * f / 100 ))
+      b=$(( BB[s] + (BB[s + 1] - BB[s]) * f / 100 ))
+      out+=$'\e'"[38;2;${r};${g};${b}m$G_BAR"
+    else out+="$G_BAR"; fi
+  done
+  printf '  %s%s\n' "$out" "$R"
+}
+ui_head() { echo; ui_bar; printf '  %sV I C E   H O R I Z O N%s  %s%s%s\n' "$BO$PE" "$R" "$MU" "$*" "$R"; ui_bar; echo; }
+ui_ok()   { printf '    %s%s%s %s%-14s%s %s%s\n' "$OK" "$G_OK" "$R" "$MV" "$1" "$R" "$2" "${3:+  $MU$3$R}"; }
+ui_no()   { printf '    %s%s%s %s%-14s%s %s%s%s\n' "$MU" "$G_NO" "$R" "$MV" "$1" "$R" "$MU" "$2" "$R"; }
+ui_warn() { printf '    %s%s%s %s\n' "$PE" "$G_WARN" "$R" "$*" >&2; }
+ui_go()   { printf '    %s%s%s %s%-14s%s %s\n' "$PK" "$G_GO" "$R" "$MV" "$1" "$R" "$2"; }
+ui_note() { printf '      %s%s%s\n' "$MU" "$*" "$R"; }
+ui_done() { printf '\n  %s%s%s\n\n' "$BO$PK" "$1" "$R"; [ -n "${2:-}" ] && printf '  %s%s%s\n\n' "$MU" "$2" "$R"; return 0; }
+
+if [ "$v" = "widget" ]; then   # @@COMMAND@@ widget kvitals|panel-colorizer: install a bundled copy for you
+  case "${2:-}" in
+    kvitals) id=org.kde.plasma.kvitals ;; panel-colorizer) id=luisbocanegra.panel.colorizer ;;
+    *) echo "usage: @@COMMAND@@ widget kvitals|panel-colorizer" >&2; exit 2 ;;
+  esac
+  L="$STATE/uninstaller/lib/common.sh"; SRC="$STATE/widgets/$id"
+  [ -f "$L" ] && [ -d "$SRC" ] || { echo "The bundled widgets aren't here - run the @@NAME@@ installer again." >&2; exit 1; }
+  for d in /usr/share/plasma/plasmoids "$DATA/plasma/plasmoids"; do
+    [ -d "$d/$id" ] && { ui_ok "${2}" "already installed"; exit 0; }
+  done
+  # recorded in @@NAME@@'s install record, so the uninstaller removes it again
+  # shellcheck source=/dev/null
+  ( . "$L"; vh_manifest_load; vh_install_tree kde-widgets "$SRC" "$VH_DATA/plasma/plasmoids/$id" README.md && vh_manifest_save ) >/dev/null ||
+    { echo "could not install $id" >&2; exit 1; }
+  find "$DATA/plasma/plasmoids/$id" -path '*/tools/*' \( -name '*.sh' -o -name '*.py' \) -exec chmod 755 {} + 2>/dev/null || true
+  ui_ok "${2}" "installed for you - build the panel: @@COMMAND@@ panel --apply"
+  exit 0
+fi
+
+if [ "$v" = "uninstall" ]; then   # the uninstaller the installer keeps a copy of
+  U="$STATE/uninstaller/uninstall.sh"
+  [ -x "$U" ] || { echo "No uninstaller copy at $U - run ./uninstall.sh from the @@NAME@@ folder." >&2; exit 1; }
+  shift; exec bash "$U" "$@"
+fi
+
+if [ "$v" = "settings" ]; then   # the full-screen @@NAME@@ Settings app (needs python3)
+  S="$(dirname "$(readlink -f "$0")")/@@COMMAND@@-settings"
+  [ -x "$S" ] || S="$(command -v @@COMMAND@@-settings || true)"
+  [ -n "$S" ] || { echo "@@NAME@@ Settings is not installed (reinstall the command component)." >&2; exit 1; }
+  exec python3 -I "$S"
+fi
+
+if [ "$v" = "gtk" ]; then   # @@COMMAND@@ gtk [on|off]
+  case "$($RD --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)" in
+    *Light*) GT="$(tw_name gtk Light)" ;; *) GT="$(tw_name gtk Dark)" ;;
+  esac
+  CUR="$(gtk_now)"
+  case "${2:-}" in
+    on)
+      [ -f "$DATA/themes/$GT/gtk-3.0/gtk.css" ] || { echo "The @@NAME@@ GTK theme is not installed (./install.sh --components kde-gtk)." >&2; exit 1; }
+      PREV="$STATE/previous-settings.tsv"
+      case "$CUR" in "$(tw_name gtk Dark)"|"$(tw_name gtk Light)"|"") ;; *)
+        { [ -f "$PREV" ] && awk -F'\t' '$1=="kde" && $2=="gtk" {f=1} END {exit !f}' "$PREV"; } ||
+          { mkdir -p "$STATE"; printf 'kde\tgtk\t-\t%s\n' "$CUR" >> "$PREV"; } ;;
+      esac
+      rm -f "$STATE/gtk-off"
+      if gtk_set "$GT"; then ui_ok "GTK apps" "$GT" "reopen GTK apps that were already open"
+      else ui_warn "could not set the GTK theme - pick $GT in System Settings > Application Style > GNOME/GTK"; exit 1; fi ;;
+    off)
+      P="$(gtk_prev)"
+      mkdir -p "$STATE"; : > "$STATE/gtk-off"   # dark|light and the sync helper leave GTK alone now
+      if gtk_set "$P"; then ui_ok "GTK apps" "$P (yours again)" "back to @@NAME@@: @@COMMAND@@ gtk on"
+      else ui_warn "could not set the GTK theme $P - pick it in System Settings > Application Style > GNOME/GTK"; exit 1; fi ;;
+    "")
+      if [ -f "$DATA/themes/$GT/gtk-3.0/gtk.css" ]; then IN="installed"; else IN="not installed"; fi
+      ui_ok "GTK apps" "${CUR:-not set}" "@@NAME@@ GTK theme: $IN"
+      [ -e "$STATE/gtk-off" ] && ui_note "switched off - dark|light leave GTK apps alone (@@COMMAND@@ gtk on)" ;;
+    *) echo "usage: @@COMMAND@@ gtk [on|off]" >&2; exit 2 ;;
+  esac
+  exit 0
+fi
+
+# ---------------------------------------------------------------- GNOME
+# On GNOME the same command switches the GTK theme, Shell theme, icons and Fastfetch, and
+# `watch` follows GNOME's own Dark Style switch (org.gnome.desktop.interface color-scheme).
+case ":${XDG_CURRENT_DESKTOP:-}:" in *GNOME*) IS_GNOME=1 ;; *) IS_GNOME=0 ;; esac
+gs_get() { gsettings get "$1" "$2" 2>/dev/null | tr -d "'" || true; }
+gs_has() { gsettings list-schemas 2>/dev/null | grep -qx "$1"; }
+UT_UUID="user-theme@gnome-shell-extensions.gcampax.github.com"
+# User Themes' settings schema: global when it comes from a distro package, otherwise inside the
+# extension's own folder (installed from extensions.gnome.org) - plain gsettings can't see that one
+ut_gs() {
+  local d
+  if gs_has org.gnome.shell.extensions.user-theme; then gsettings "$@"; return; fi
+  for d in "$DATA/gnome-shell/extensions/$UT_UUID/schemas" "/usr/share/gnome-shell/extensions/$UT_UUID/schemas" \
+           "/usr/local/share/gnome-shell/extensions/$UT_UUID/schemas"; do
+    [ -f "$d/gschemas.compiled" ] && { gsettings --schemadir "$d" "$@"; return; }
+  done
+  return 1
+}
+ut_state() { # on | off | missing
+  command -v gnome-extensions >/dev/null 2>&1 || { echo missing; return; }
+  gnome-extensions info "$UT_UUID" >/dev/null 2>&1 || { echo missing; return; }
+  gnome-extensions list --enabled 2>/dev/null | grep -qx "$UT_UUID" && echo on || echo off
+}
+gnome_apply() { # edition mode(set|sync)
+  local ed="$1" mode="$2" T th cur bg st
+  T=Dark; [ "$ed" = light ] && T=Light; th="$(tw_name gtk "$T")"
+  gok() { [ "$mode" = sync ] && [ "${Q:-0}" = 1 ] || ui_ok "$@"; }
+  gno() { [ "$mode" = sync ] && [ "${Q:-0}" = 1 ] || ui_no "$@"; }
+  if [ "$mode" = set ]; then
+    gsettings set org.gnome.desktop.interface color-scheme "$([ "$ed" = dark ] && echo prefer-dark || echo default)"
+    gok "Style" "$T  (GNOME Dark Style $([ "$ed" = dark ] && echo on || echo off))"
+  fi
+  if [ -f "$DATA/themes/$th/gtk-3.0/gtk.css" ]; then
+    cur="$(gs_get org.gnome.desktop.interface gtk-theme)"
+    if [ "$cur" != "$th" ]; then gsettings set org.gnome.desktop.interface gtk-theme "$th"; gok "GTK apps" "$th"; fi
+  fi
+  if [ -f "$DATA/icons/$th/index.theme" ]; then
+    cur="$(gs_get org.gnome.desktop.interface icon-theme)"
+    # sync only swaps @@NAME@@ icons; your own icon theme is left alone
+    if [ "$cur" != "$th" ] && { [ "$mode" = set ] || case "$cur" in "$(tw_name gtk Dark)"|"$(tw_name gtk Light)"|"$(tw_name icons Dark)"|"$(tw_name icons Light)") true ;; *) false ;; esac; }; then
+      gsettings set org.gnome.desktop.interface icon-theme "$th"; gok "Icons" "$th"
+    fi
+  fi
+  if [ -d "$DATA/themes/$th/gnome-shell" ]; then
+    st="$(ut_state)"
+    if [ "$st" = off ] && [ "$mode" = set ]; then
+      gnome-extensions enable "$UT_UUID" 2>/dev/null && st=on && gok "User Themes" "switched on (needed for the Shell theme)"
+    fi
+    if [ "$st" = on ] || ut_gs get org.gnome.shell.extensions.user-theme name >/dev/null 2>&1; then
+      cur="$(ut_gs get org.gnome.shell.extensions.user-theme name 2>/dev/null | tr -d "'")"
+      if [ "$cur" != "$th" ] && { [ "$mode" = set ] || case "$cur" in "$(tw_name gtk Dark)"|"$(tw_name gtk Light)"|"$(tw_name icons Dark)"|"$(tw_name icons Light)") true ;; *) false ;; esac; }; then
+        if ut_gs set org.gnome.shell.extensions.user-theme name "$th" 2>/dev/null; then gok "Shell" "$th"
+        else gno "Shell" "could not set the Shell theme - pick $th in Extensions > User Themes"; fi
+      fi
+    elif [ "$mode" = set ]; then
+      gno "Shell" "needs the User Themes extension (top bar, menus, Quick Settings)"
+      ui_note "                 install: gnome-shell-extensions (Arch/Debian) or gnome-shell-extension-user-theme (Fedora),"
+      ui_note "                 or from extensions.gnome.org - then run: @@COMMAND@@ $ed"
+    fi
+  fi
+  # wallpaper: both files, so it follows the Dark Style switch by itself
+  if [ "$mode" = set ]; then
+    bg="$DATA/backgrounds/@@COMMAND@@"; L="$bg/@@COMMAND@@-light.jpg"; D="$bg/@@COMMAND@@-dark.jpg"
+    if [ ! -f "$D" ]; then   # GNOME wallpaper part not installed: use the Plasma wallpaper package's images
+      L="$DATA/wallpapers/@@SLUG@@/contents/images/3840x2160.jpg"; D="$DATA/wallpapers/@@SLUG@@/contents/images_dark/3840x2160.jpg"
+    fi
+    if [ -f "$D" ] && [ -f "$L" ]; then
+      gsettings set org.gnome.desktop.background picture-uri "file://$L"
+      gsettings set org.gnome.desktop.background picture-uri-dark "file://$D"
+      gok "Wallpaper" "@@NAME@@ (switches with Dark Style)"
+    else
+      gno "Wallpaper" "not installed - ./install.sh --components gnome-wallpaper"
+    fi
+  fi
+  if [ -f "$FFC" ] && command -v python3 >/dev/null 2>&1; then
+    python3 -I "$FFC" --if-applied --apply --quiet --variant "$ed" | grep -q '^Written' && gok "Fastfetch" "$T colours" || true
+  fi
+  return 0
+}
+if [ "$IS_GNOME" = 1 ]; then
+  command -v gsettings >/dev/null 2>&1 || { echo "gsettings not found." >&2; exit 1; }
+  case "$v" in
+    dark|light)
+      EDN="Dark"; [ "$v" = light ] && EDN="Light"
+      ui_head "$EDN edition $G_DOT GNOME"
+      gnome_apply "$v" set
+      ui_done "@@NAME@@ $EDN is on." "Ptyxis follows the Dark Style switch by itself; reopen GTK apps to see the change."
+      exit 0 ;;
+    sync)
+      Q=0; [ "${2:-}" = "--quiet" ] && Q=1
+      case "$(gs_get org.gnome.desktop.interface gtk-theme)" in
+        "$(tw_name gtk Dark)"|"$(tw_name gtk Light)") ;;
+        *) [ $Q = 1 ] || echo "The GTK theme is not @@NAME@@'s: nothing to do."; exit 0 ;;
+      esac
+      case "$(gs_get org.gnome.desktop.interface color-scheme)" in prefer-dark) ED=dark ;; *) ED=light ;; esac
+      gnome_apply "$ED" sync
+      exit 0 ;;
+    watch)
+      SELF="$(readlink -f "$0")"
+      if command -v flock >/dev/null 2>&1; then
+        exec 9>"${XDG_RUNTIME_DIR:-/tmp}/@@COMMAND@@-watch.lock"
+        flock -n 9 || exit 0
+      fi
+      "$SELF" sync --quiet || true
+      gsettings monitor org.gnome.desktop.interface color-scheme 2>/dev/null |
+      while IFS= read -r _; do
+        while IFS= read -r -t 1 _; do :; done   # one sync per burst
+        "$SELF" sync --quiet || true
+      done
+      exit 0 ;;
+    topbar)
+      STYLES="normal translucent invisible islands translucent-islands"
+      CUR="$(cat "$STATE/topbar-style" 2>/dev/null || echo normal)"
+      NEW="${2:-}"
+      if [ -z "$NEW" ]; then
+        ui_head "Top bar"
+        i=1
+        for st in $STYLES; do
+          case "$st" in
+            normal) d="solid bar" ;; translucent) d="see the wallpaper through the bar" ;;
+            invisible) d="no bar, the items float on the wallpaper" ;; islands) d="three solid floating islands" ;;
+            translucent-islands) d="three see-through floating islands" ;;
+          esac
+          mark=" "; [ "$st" = "$CUR" ] && mark="$G_OK"
+          printf '    %s%s%s %s%d%s  %-20s %s%s%s\n' "$OK" "$mark" "$R" "$PK" "$i" "$R" "$st" "$MU" "$d" "$R"
+          i=$((i + 1))
+        done
+        if [ -t 0 ]; then
+          printf '\n    Choose 1-5 (Enter keeps %s): ' "$CUR"; read -r n || n=""
+          case "$n" in [1-5]) NEW="$(echo $STYLES | cut -d' ' -f"$n")" ;; *) exit 0 ;; esac
+        else
+          printf '\n    %sset one with: @@COMMAND@@ topbar STYLE%s\n\n' "$MU" "$R"; exit 0
+        fi
+      fi
+      case " $STYLES " in *" $NEW "*) ;; *) echo "unknown top bar style '$NEW' ($STYLES)" >&2; exit 2 ;; esac
+      n=0
+      for T in Dark Light; do
+        d="$DATA/themes/$(tw_name gtk "$T")/gnome-shell"
+        [ -f "$d/topbar/$NEW.css" ] || continue
+        printf '/* written by @@NAME@@ - change with: @@COMMAND@@ topbar */\n@import url("topbar/%s.css");\n' "$NEW" > "$d/topbar.css"
+        n=$((n + 1))
+      done
+      [ $n -gt 0 ] || { echo "The @@NAME@@ Shell theme is not installed (./install.sh --components gnome-shell)." >&2; exit 1; }
+      mkdir -p "$STATE"; echo "$NEW" > "$STATE/topbar-style"
+      # GNOME Shell reloads its theme when the User Themes name changes
+      CURTH="$(ut_gs get org.gnome.shell.extensions.user-theme name 2>/dev/null | tr -d "'")"
+      case "$CURTH" in
+        "$(tw_name gtk Dark)"|"$(tw_name gtk Light)")
+          ut_gs set org.gnome.shell.extensions.user-theme name ""
+          sleep 0.3
+          ut_gs set org.gnome.shell.extensions.user-theme name "$CURTH" ;;
+        *) ui_note "the Shell theme is not active yet - run: @@COMMAND@@ dark (or light)" ;;
+      esac
+      ui_ok "Top bar" "$NEW"
+      exit 0 ;;
+    panel|dim)
+      echo "'@@COMMAND@@ $v' is a KDE Plasma feature (on GNOME, style the top bar with: @@COMMAND@@ topbar)."; exit 0 ;;
+    *) echo "usage (GNOME): @@COMMAND@@ dark|light | topbar [STYLE] | sync | watch" >&2; exit 2 ;;
+  esac
+fi
+
+if [ "$v" = "topbar" ]; then
+  echo "'@@COMMAND@@ topbar' is for GNOME. On Plasma, pick the panel look with: @@COMMAND@@ panel --look Normal|Transparent|Invisible|Cards|Pills|Fancy"
+  exit 0
+fi
+
+if [ "$v" = "sync" ]; then
+  Q=0; [ "${2:-}" = "--quiet" ] && Q=1
+  say() { [ $Q = 1 ] || echo "$@"; }
+  CS="$($RD --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)"
+  case "$CS" in
+    "$(tw_name color_scheme Dark)")  V=dark;  T=Dark ;;
+    "$(tw_name color_scheme Light)") V=light; T=Light ;;
+    *) say "Colour scheme is '$CS', not @@NAME@@'s: nothing to do."; exit 0 ;;
+  esac
+  KV="$(tw_name kvantum "$T")"; KP="$(tw_name konsole "$T").profile"; GT="$(tw_name gtk "$T")"
+  STYLE="$($RD --file kdeglobals --group KDE --key widgetStyle 2>/dev/null || true)"
+  if [ "$STYLE" = "kvantum" ] && command -v kvantummanager >/dev/null 2>&1; then
+    CUR="$($RD --file "$CONF/Kvantum/kvantum.kvconfig" --group General --key theme 2>/dev/null || true)"
+    if [ "$CUR" != "$KV" ]; then
+      kvantummanager --set "$KV" >/dev/null 2>&1 && say "Kvantum theme -> $KV (newly opened apps use it)"
+    fi
+  fi
+  if [ -f "$DATA/konsole/$KP" ]; then
+    CUR="$($RD --file konsolerc --group "Desktop Entry" --key DefaultProfile 2>/dev/null || true)"
+    case "$CUR" in   # only swap The Linux Workbench themes' profiles; a profile of your own is left alone
+      ""|@@PROFILES@@)
+        [ "$CUR" != "$KP" ] && $WR --file konsolerc --group "Desktop Entry" --key DefaultProfile "$KP" && say "Konsole profile -> $KP" ;;
+    esac
+  fi
+  if [ -f "$FFC" ] && command -v python3 >/dev/null 2>&1; then
+    python3 -I "$FFC" --if-applied --apply --quiet --variant "$V" | grep -q '^Written' && say "Fastfetch colours -> $V" || true
+  fi
+  # GTK apps: only swaps between @@NAME@@'s two; a GTK theme of your own is left alone
+  if [ -f "$DATA/themes/$GT/gtk-3.0/gtk.css" ] && [ ! -e "$STATE/gtk-off" ]; then
+    CUR="$(gtk_now)"
+    case "$CUR" in "$(tw_name gtk Dark)"|"$(tw_name gtk Light)") [ "$CUR" != "$GT" ] && gtk_set "$GT" && say "GTK theme -> $GT" ;; esac
+  fi
+  exit 0
+fi
+
+if [ "$v" = "watch" ]; then
+  command -v dbus-monitor >/dev/null 2>&1 || { echo "@@COMMAND@@ watch needs dbus-monitor (package: dbus)." >&2; exit 1; }
+  SELF="$(readlink -f "$0")"
+  if command -v flock >/dev/null 2>&1; then          # one watcher per session
+    exec 9>"${XDG_RUNTIME_DIR:-/tmp}/@@COMMAND@@-watch.lock"
+    flock -n 9 || exit 0
+  fi
+  "$SELF" sync --quiet || true
+  dbus-monitor --session \
+    "type='signal',interface='org.kde.KGlobalSettings',member='notifyChange'" \
+    "type='signal',interface='org.kde.kconfig.notify',member='ConfigChanged',path='/kdeglobals'" 2>/dev/null |
+  while IFS= read -r line; do
+    case "$line" in
+      *member=notifyChange*|*member=ConfigChanged*)
+        sleep 1
+        while IFS= read -r -t 1 _; do :; done   # one sync per burst of changes
+        "$SELF" sync --quiet || true ;;
+    esac
+  done
+  exit 0
+fi
+
+if [ "$v" = "dim" ]; then
+  case "${2:-}" in
+    off) $WR --file kwinrc --group Plugins --key diminactiveEnabled false ;;
+    on)  $WR --file kwinrc --group Plugins --key diminactiveEnabled true ;;
+    [0-9]*) $WR --file kwinrc --group Effect-diminactive --key Strength "$2"
+            $WR --file kwinrc --group Plugins --key diminactiveEnabled true ;;
+    *) echo "usage: @@COMMAND@@ dim on|off|<strength 0-100>" >&2; exit 2 ;;
+  esac
+  kwin_reconfigure
+  case "$2" in off) ui_no "Dim inactive" "off" ;; on) ui_ok "Dim inactive" "on" ;; *) ui_ok "Dim inactive" "strength $2" ;; esac
+  exit 0
+fi
+
+backup_panels() {
+  local B f
+  B="$STATE/panel-backups/$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "$B"
+  for f in plasma-org.kde.plasma.desktop-appletsrc plasmashellrc; do [ -f "$CONF/$f" ] && cp -a "$CONF/$f" "$B/"; done
+  ui_ok "Panel backup" "${B/#$HOME/\~}"
+}
+
+if [ "$v" = "panel" ]; then
+  JS="$STATE/panel/@@COMMAND@@-panel.js"
+  FILES=(plasma-org.kde.plasma.desktop-appletsrc plasmashellrc)
+  QDBUS="$(qdbus_cmd || true)"
+  # Panel Colorizer is part of the @@NAME@@ panel look; --plain builds it without.
+  FANCY=1; STYLE="Fancy"; ACTION="${2:-}"; EDITION=""; ONLY=0
+  shift 2>/dev/null || true; shift 2>/dev/null || true
+  if [ "$ACTION" = "--restyle" ] && [ $# -gt 0 ] && [ "${1#-}" = "$1" ]; then EDITION="$1"; shift; fi
+  case "$ACTION" in   # @@COMMAND@@ panel --look NAME: a new look for the panel you have
+    --look|--style) [ $# -gt 0 ] && { STYLE="$1"; shift; }; ACTION="--relook" ;;
+    --look=*|--style=*) STYLE="${ACTION#*=}"; ACTION="--relook" ;;
+  esac
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --plain) FANCY=0 ;;
+      --only) ONLY=1 ;;
+      --variant) EDITION="${2:-}"; shift ;;
+      dark|light) EDITION="$1" ;;
+      --fancy) FANCY=1; STYLE="Fancy" ;;
+      --style|--look) STYLE="${2:-}"; shift ;;
+      --style=*|--look=*) STYLE="${1#*=}" ;;
+      *) echo "unknown panel option: $1" >&2; exit 2 ;;
+    esac
+    shift
+  done
+  case "$ACTION" in --fancy|--plain) [ "$ACTION" = --plain ] && FANCY=0; ACTION="" ;; esac
+  # the six looks; the names of 1.7 and earlier still work
+  case "$(printf '%s' "$STYLE" | tr '[:upper:]' '[:lower:]')" in
+    normal|plain) LOOK=Normal ;;
+    transparent|base|"vice horizon") LOOK=Transparent ;;
+    invisible) LOOK=Invisible ;;
+    cards) LOOK=Cards ;;
+    pills|islands) LOOK=Pills ;;
+    fancy) LOOK=Fancy ;;
+    standard) LOOK=Fancy; FANCY=0 ;;
+    *) echo "unknown panel look '$STYLE' (Normal, Transparent, Invisible, Cards, Pills, Fancy)" >&2; exit 2 ;;
+  esac
+  PRESET_NAME="@@NAME@@ $LOOK"
+  # Light edition: the preset's "Light" twin (semi-translucent light bar, dark text)
+  if [ -z "$EDITION" ]; then
+    case "$($RD --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)" in
+      *Light*|*light*) EDITION=light ;; *) EDITION=dark ;;
+    esac
+  fi
+  case "$EDITION" in dark) ;; light) PRESET_NAME="$PRESET_NAME Light" ;;
+    *) echo "edition must be dark or light (got '$EDITION')" >&2; exit 2 ;; esac
+  PRESET="$CONF/panel-colorizer/presets/$PRESET_NAME/settings.json"
+  case "$ACTION" in
+    --apply)
+      [ -f "$JS" ] || { echo "Missing $JS - run the @@NAME@@ installer first." >&2; exit 1; }
+      ui_head "Top panel"
+      [ -n "$QDBUS" ] || { echo "qdbus not found (qdbus6 / qdbus-qt6 - it ships with Qt 6's tools: qt6-tools, qt6-qttools or qt6-tools-dev-tools)." >&2; exit 1; }
+      # Widgets installed while Plasma is running aren't visible to it until it restarts.
+      on_disk() { for d in /usr/share/plasma/plasmoids "$DATA/plasma/plasmoids"; do [ -d "$d/$1" ] && return 0; done; return 1; }
+      known() { $QDBUS org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "print(knownWidgetTypes.indexOf('$1') >= 0)" 2>/dev/null | grep -q true; }
+      stale=0
+      IDS="org.kde.plasma.kvitals"; [ $FANCY = 1 ] && IDS="$IDS luisbocanegra.panel.colorizer"
+      for id in $IDS; do
+        if on_disk "$id" && ! known "$id"; then stale=1; fi
+      done
+      if [ $stale = 1 ]; then
+        ui_go "Plasma" "restarting to load newly installed widgets"
+        systemctl --user restart plasma-plasmashell.service
+        sleep 2
+        for _ in $(seq 1 30); do $QDBUS org.kde.plasmashell /PlasmaShell >/dev/null 2>&1 && break; sleep 1; done
+        sleep 3   # let the shell finish loading its panels before we edit them
+      fi
+      on_disk org.kde.plasma.kvitals || ui_no "KVitals" "not installed - no stats on the panel (./install.sh --kvitals)"
+      PRE=""
+      if [ $FANCY = 1 ]; then
+        [ -f "$PRESET" ] || { echo "Missing $PRESET - run the @@NAME@@ installer first." >&2; exit 1; }
+        if ! on_disk luisbocanegra.panel.colorizer; then
+          ui_warn "Panel Colorizer is not installed - it gives the panel its @@NAME@@ look, so"
+          ui_note "the panel is built plain for now. Install it (./install.sh --panel-colorizer, or"
+          ui_note "Add or Manage Widgets > Get New > 'Panel Colorizer'), then run: @@COMMAND@@ panel --apply"
+        fi
+        PRE="var @@PREFIX@@_FANCY = $(cat "$PRESET"); var @@PREFIX@@_STYLE_NAME = \"$PRESET_NAME\";"
+      fi
+      backup_panels
+      [ $ONLY = 1 ] && PRE="var @@PREFIX@@_ONLY = true; $PRE"
+      $QDBUS org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "$PRE$(cat "$JS")" >/dev/null
+      [ $ONLY = 1 ] && ui_ok "Other panels" "removed from the main screen (in the backup)"
+      if [ $FANCY = 1 ]; then ui_ok "Top panel" "built $G_DOT $PRESET_NAME"; else ui_ok "Top panel" "built (plain)"; fi
+      ui_done "Your @@NAME@@ panel is ready." "Undo any time: @@COMMAND@@ panel --restore" ;;
+    --restyle)
+      # change the Panel Colorizer look of an existing @@NAME@@ panel, keeping its style family
+      [ -n "$QDBUS" ] || { echo "qdbus not found (qdbus6 / qdbus-qt6)." >&2; exit 1; }
+      FAM="$($QDBUS org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var f = '';
+panels().forEach(function (p) { p.currentConfigGroup = ['General'];
+  if (!f && String(p.readConfig('@@KEY@@Panel', '')) === 'true') f = String(p.readConfig('@@KEY@@Style', '@@NAME@@ Fancy')); });
+print(f);" 2>/dev/null | tail -n1 || true)"
+      FAM="${FAM% Light}"
+      [ -n "$FAM" ] || { echo "No @@NAME@@ panel found (build one with: @@COMMAND@@ panel --apply)."; exit 0; }
+      case "$FAM" in   # looks stored by 1.7 and earlier
+        "@@NAME@@") FAM="@@NAME@@ Transparent" ;; "@@NAME@@ Islands") FAM="@@NAME@@ Pills" ;;
+      esac
+      [ -n "${NEWFAM:-}" ] && FAM="$NEWFAM"
+      NEW="$FAM"; [ "$EDITION" = light ] && NEW="$FAM Light"
+      PF="$CONF/panel-colorizer/presets/$NEW/settings.json"
+      [ -f "$PF" ] || { echo "Missing $PF - run the @@NAME@@ installer first." >&2; exit 1; }
+      $QDBUS org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var S = $(cat "$PF");
+var ISL = !!(S.@@KEY@@ && S.@@KEY@@.islands);
+var n = 0;
+panels().forEach(function (p) {
+  p.currentConfigGroup = ['General'];
+  if (String(p.readConfig('@@KEY@@Panel', '')) !== 'true') return;
+  p.widgets('luisbocanegra.panel.colorizer').forEach(function (w) {
+    w.currentConfigGroup = ['General'];
+    w.writeConfig('globalSettings', JSON.stringify(S.globalSettings));
+    w.writeConfig('islandsEnabled', ISL);
+    n++;
+  });
+  p.currentConfigGroup = ['General'];
+  p.writeConfig('@@KEY@@Style', '$NEW');
+});
+print('@@NAME@@ panel restyled: $NEW (' + n + ' Panel Colorizer widget)');"
+      ui_ok "Top panel" "$NEW" ;;
+    --relook)
+      [ $FANCY = 1 ] || { echo "Standard is the panel without Panel Colorizer: build it with @@COMMAND@@ panel --apply --plain"; exit 0; }
+      NEWFAM="@@NAME@@ $LOOK" exec "$0" panel --restyle "$EDITION" ;;   # restyle adds " Light" itself
+    --restore)
+      B="$(find "$STATE/panel-backups" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort | tail -n1)"
+      [ -n "$B" ] || { echo "No panel backup found in $STATE/panel-backups." >&2; exit 1; }
+      ui_go "Top panel" "restoring ${B/#$HOME/\~}"
+      systemctl --user stop plasma-plasmashell.service
+      for f in "${FILES[@]}"; do [ -f "$B/$f" ] && cp -a "$B/$f" "$CONF/$f"; done
+      systemctl --user start plasma-plasmashell.service
+      ui_ok "Top panel" "restored" ;;
+    "")
+      ui_head "Top panel - what --apply does"
+      printf '    %s1%s  back up your panel settings to %s\n' "$PK" "$R" "${STATE/#$HOME/\~}/panel-backups/<time>/"
+      printf '    %s2%s  remove the panel(s) on the TOP edge of your main screen, and any @@NAME@@\n' "$PK" "$R"
+      printf '       or a top panel of another The Linux Workbench theme on other screens %s(your other panels are kept)%s\n' "$MU" "$R"
+      printf '    %s3%s  add a 36 px top panel on your main screen:\n' "$PK" "$R"
+      printf '       %sLauncher  Task Manager  Clock (centre)  KVitals stats  System Tray%s\n' "$MU" "$R"
+      printf '    %s4%s  style it with Panel Colorizer: %s%s%s\n' "$PK" "$R" "$PE" "$PRESET_NAME" "$R"
+      printf '       %slooks: --look Normal %s Transparent %s Invisible %s Cards %s Pills %s Fancy  (each has a Light twin)%s\n' "$MU" "$G_DOT" "$G_DOT" "$G_DOT" "$G_DOT" "$G_DOT" "$R"
+      printf '       %s--plain for no Panel Colorizer; it needs the widget (./install.sh --panel-colorizer)%s\n' "$MU" "$R"
+      ui_done "Run it:  @@COMMAND@@ panel --apply" "Undo any time: @@COMMAND@@ panel --restore" ;;
+    *) echo "usage: @@COMMAND@@ panel [--apply [--look NAME|--plain|--only] [--variant dark|light]|--look NAME|--restyle [dark|light]|--restore]" >&2; exit 2 ;;
+  esac
+  exit 0
+fi
+
+case "$v" in
+  dark)  ID=@@LNF@@.dark;  T_=Dark;  DIM=20 ;;
+  light) ID=@@LNF@@.light; T_=Light; DIM=10 ;;
+  *) echo "usage: @@COMMAND@@ dark|light [--layout] | panel [--apply [--style NAME|--plain|--only]|--restore] | dim on|off|N | gtk [on|off] | sync | watch | settings | uninstall" >&2; exit 2 ;;
+esac
+EDN="Dark"; [ "$v" = light ] && EDN="Light"
+ui_head "$EDN edition"
+# Your look from before @@NAME@@, recorded once (the uninstaller puts it back). The installer
+# records it too when it switches @@NAME@@ on; whichever comes first wins, ours are never kept.
+PREV="$STATE/previous-settings.tsv"
+record() { # target value
+  [ -z "$2" ] && return 0; tw_mine "$2" && return 0
+  [ -f "$PREV" ] && awk -F'\t' -v t="$1" '$1=="kde" && $2==t {f=1} END {exit !f}' "$PREV" && return 0
+  mkdir -p "$STATE"; printf 'kde\t%s\t-\t%s\n' "$1" "$2" >> "$PREV"
+}
+rdv() { $RD --file "$1" --group "$2" --key "$3" 2>/dev/null || true; }
+wallpaper_now() {
+  local f="$CONF/plasma-org.kde.plasma.desktop-appletsrc"; [ -f "$f" ] || return 0
+  awk '/^\[Containments\]\[[0-9]+\]\[Wallpaper\]\[org\.kde\.image\]\[General\]$/ {g=1; next}
+       /^\[/ {g=0} g && /^Image=/ {sub(/^Image=/, ""); sub(/^file:\/\//, ""); print; exit}' "$f"
+}
+record lookandfeel "$(rdv kdeglobals KDE LookAndFeelPackage)"
+record wallpaper "$(wallpaper_now)"
+record colorscheme "$(rdv kdeglobals General ColorScheme)"
+record desktoptheme "$(rdv plasmarc Theme name)"
+record icons "$(rdv kdeglobals Icons Theme)"
+record cursor "$(rdv kcminputrc Mouse cursorTheme)"
+record widgetstyle "$(rdv kdeglobals KDE widgetStyle)"
+_dl="$(rdv kwinrc org.kde.kdecoration2 library)"; _dt="$(rdv kwinrc org.kde.kdecoration2 theme)"
+[ -n "$_dl$_dt" ] && record decoration "$_dl|$_dt"
+record splash "$(rdv ksplashrc KSplash Theme)"
+if [ -f "$DATA/themes/$(tw_name gtk "$T_")/gtk-3.0/gtk.css" ] && [ ! -e "$STATE/gtk-off" ]; then _g="$(gtk_now)"; record gtk "${_g:-$(gtk_default)}"; fi
+# Plasma's own output (and warnings such as kf.iconthemes) is only shown if applying fails
+if [ "${2:-}" = "--layout" ]; then
+  backup_panels
+  LNF_ARGS=(--apply "$ID" --resetLayout)
+else
+  LNF_ARGS=(--apply "$ID")
+fi
+if LNF_OUT="$(plasma-apply-lookandfeel "${LNF_ARGS[@]}" 2>&1)"; then
+  ui_ok "Global Theme" "@@NAME@@ $EDN"
+else
+  ui_warn "Plasma could not apply the Global Theme $ID:"
+  printf '%s\n' "$LNF_OUT" | sed 's/^/      /' >&2
+fi
+# Plasma 6.7/6.8 sometimes applies a Global Theme without one of its parts - seen with the colour
+# scheme on CachyOS and Fedora. Check each part it should have set; set what is missing.
+KV="$(tw_name kvantum "$T_")"; KP="$(tw_name konsole "$T_").profile"; GT="$(tw_name gtk "$T_")"
+CSN="$(tw_name color_scheme "$T_")"; PSN="$(tw_name plasma_style "$T_")"; ICN="$(tw_name icons "$T_")"; AUN="$(tw_name aurorae "$T_")"
+fixed=0
+want() { # label  current  expected  command...
+  local label="$1" cur="$2" exp="$3"; shift 3
+  [ "$cur" = "$exp" ] && return 0
+  if "$@" >/dev/null 2>&1; then ui_ok "$label" "set directly - the Global Theme skipped it"; fixed=$((fixed + 1))
+  else ui_warn "$label: could not set $exp - pick it in System Settings"; fi
+}
+changeicons() {
+  local p
+  for p in plasma-changeicons /usr/lib/plasma-changeicons /usr/libexec/plasma-changeicons /usr/lib64/libexec/plasma-changeicons \
+           /usr/lib/x86_64-linux-gnu/libexec/plasma-changeicons /usr/lib/libexec/plasma-changeicons; do
+    case "$p" in /*) [ -x "$p" ] && { "$p" "$@"; return; } ;; *) command -v "$p" >/dev/null 2>&1 && { "$p" "$@"; return; } ;; esac
+  done; return 1
+}
+set_decoration() { $WR --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae &&
+  $WR --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__$AUN" && kwin_reconfigure; }
+set_splash() { $WR --file ksplashrc --group KSplash --key Engine KSplashQML && $WR --file ksplashrc --group KSplash --key Theme "$ID"; }
+rd() { $RD --file "$1" --group "$2" --key "$3" 2>/dev/null || true; }
+[ -f "$DATA/color-schemes/$CSN.colors" ] &&
+  want "Colours" "$(rd kdeglobals General ColorScheme)" "$CSN" plasma-apply-colorscheme "$CSN"
+[ -d "$DATA/plasma/desktoptheme/$PSN" ] &&
+  want "Plasma Style" "$(rd plasmarc Theme name)" "$PSN" plasma-apply-desktoptheme "$PSN"
+[ -d "$DATA/icons/$ICN" ] &&
+  want "Icons" "$(rd kdeglobals Icons Theme)" "$ICN" changeicons "$ICN"
+[ -d "$HOME/.icons/$(tw_name cursors "$T_")" ] &&
+  want "Cursors" "$(rd kcminputrc Mouse cursorTheme)" "$(tw_name cursors "$T_")" plasma-apply-cursortheme "$(tw_name cursors "$T_")"
+[ -d "$DATA/aurorae/themes/$AUN" ] &&
+  want "Window borders" "$(rd kwinrc org.kde.kdecoration2 theme)" "__aurorae__svg__$AUN" set_decoration
+want "Splash" "$(rd ksplashrc KSplash Theme)" "$ID" set_splash
+[ $fixed -eq 0 ] || ui_note "($fixed part(s) of the Global Theme set directly)"
+if command -v kvantummanager >/dev/null 2>&1 && [ -d "$CONF/Kvantum/$KV" ]; then
+  if kvantummanager --set "$KV" >/dev/null 2>&1; then
+    ui_ok "App style" "Kvantum $G_DOT $KV"
+  else
+    ui_warn "could not set the Kvantum theme - pick $KV in Kvantum Manager"
+  fi
+  $WR --file kdeglobals --group KDE --key widgetStyle kvantum
+else
+  ui_no "App style" "Breeze - install Kvantum for the @@NAME@@ style"
+  ui_note "                 package: kvantum (Arch, Fedora) or qt6-style-kvantum (Debian, Ubuntu)"
+fi
+if [ -f "$DATA/konsole/$KP" ]; then
+  CUR="$($RD --file konsolerc --group "Desktop Entry" --key DefaultProfile 2>/dev/null || true)"
+  case "$CUR" in
+    ""|@@PROFILES@@)
+      $WR --file konsolerc --group "Desktop Entry" --key DefaultProfile "$KP"
+      ui_ok "Konsole" "@@NAME@@ $EDN profile" ;;
+    *) ui_no "Konsole" "keeping your own default profile (${CUR%.profile})" ;;
+  esac
+fi
+if [ -f "$FFC" ] && command -v python3 >/dev/null 2>&1; then
+  python3 -I "$FFC" --if-applied --apply --quiet --variant "$v" | grep -q '^Written' && ui_ok "Fastfetch" "$EDN colours" || true
+fi
+# top panel: switch its Panel Colorizer look to this edition (Light = see-through white bar)
+if Q="$(qdbus_cmd)" && [ -f "$STATE/panel/@@COMMAND@@-panel.js" ]; then
+  "$0" panel --restyle "$v" 2>/dev/null | grep -q "restyled" && ui_ok "Top panel" "$EDN look" || true
+fi
+# GTK apps on Plasma (Firefox, GIMP, Inkscape ...), unless switched off with: @@COMMAND@@ gtk off
+if [ -f "$DATA/themes/$GT/gtk-3.0/gtk.css" ]; then
+  if [ -e "$STATE/gtk-off" ]; then
+    ui_no "GTK apps" "keeping your own GTK theme (@@COMMAND@@ gtk on to use @@NAME@@'s)"
+  elif gtk_set "$GT"; then
+    ui_ok "GTK apps" "$GT" "Firefox, GIMP, Inkscape ... reopen them to see it"
+  else
+    ui_warn "could not set the GTK theme - pick $GT in System Settings > Application Style > GNOME/GTK"
+  fi
+fi
+$WR --file kwinrc --group Plugins --key diminactiveEnabled true
+$WR --file kwinrc --group Effect-diminactive --key Strength "$DIM"
+kwin_reconfigure
+ui_ok "Dim inactive" "strength $DIM" "undo: @@COMMAND@@ dim off"
+# The panel's own right-click menus are drawn by plasmashell with the app style; restart it so
+# they use the matching style instead of whatever style it started with.
+if systemctl --user --quiet is-active plasma-plasmashell.service 2>/dev/null; then
+  ui_go "Panel" "restarting so its menus use the new app style"
+  systemctl --user restart plasma-plasmashell.service
+fi
+ui_done "@@NAME@@ $EDN is on." "Reopen Dolphin, Konsole and System Settings to see the new app style."

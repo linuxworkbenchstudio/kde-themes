@@ -200,4 +200,7 @@ def build(pack: Pack) -> dict:
         out[base + "index.theme"] = INDEX.format(display=pack.display(ed), name=name,
                                                  icons=pack.file_name("icons", ed),
                                                  cursors=pack.file_name("cursors", ed))
+    out["gtk/gtk-2.0.gtkrc.in"] = (f"# {pack.name} {pack.version} - GTK 2 apps use the system's Breeze GTK 2 theme.\n"
+                                   f"# Written by the {pack.name} installer; removed again by its uninstaller.\n"
+                                   'include "@BASE@"\n')
     return out

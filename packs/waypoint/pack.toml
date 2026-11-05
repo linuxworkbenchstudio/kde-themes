@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.waypoint"
 previous_ids = ["org.waypoint"]       # the installer moves people off these
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs"]
 
 [theme.names]
 # as released; installed systems refer to these, so they stay
@@ -109,6 +109,14 @@ model3d = ["#6F7F94", "#4F5D70"]
 "#3B9564" = "#5E8A4A"
 "#FEFCFC" = "frost"
 "#2F1F2B" = "graphite_black"
+
+[theme.programs]
+tagline = "Graphite and machined amber for KDE Plasma 6, in Dark and Light."
+dark_surface = "Graphite"
+light_surface = "Light grey"
+dark_hint = "Graphite surfaces, machined-amber accents."
+light_hint = "Light grey surfaces, amber accents."
+bar = ["steel", "amber", "amber_bright", "steel"]
 
 [theme.fastfetch]
 logo_colours = ["amber", "text"]              # amber chevron, W in the terminal's text colour

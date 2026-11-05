@@ -1,0 +1,529 @@
+#!/usr/bin/env python3
+"""@@NAME@@ Settings - a full-screen terminal app (curses).
+
+  @@COMMAND@@-settings          edition, top panel look, dimming, Fastfetch, status
+  (the guided installer is @@COMMAND@@-setup, started by ./install.sh)
+
+Keys: arrows or j/k to move, Enter to choose, Space to tick, Esc or q to go back.
+Everything is done by the `@@COMMAND@@` command and install.sh; this app only chooses.
+Part of @@NAME@@ (GPL-3.0-or-later).
+"""
+import curses
+import os
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+@@NAMES_PY@@
+HOME = Path.home()
+DATA = Path(os.environ.get("XDG_DATA_HOME") or HOME / ".local/share")
+CONF = Path(os.environ.get("XDG_CONFIG_HOME") or HOME / ".config")
+STATE = DATA / "@@COMMAND@@"
+BIN = HOME / ".local/bin"
+VH = shutil.which("@@COMMAND@@") or str(BIN / "@@COMMAND@@")
+DESK = os.environ.get("XDG_CURRENT_DESKTOP", "")
+IS_KDE = "KDE" in DESK
+IS_GNOME = "GNOME" in DESK
+
+PANEL_STYLES = [("Fancy", "Fancy - a floating bar, a section per group (default)"), ("Normal", "Normal - a solid bar"),
+                ("Transparent", "Transparent - a see-through bar"), ("Invisible", "Invisible - no bar, shadowed text"),
+                ("Cards", "Cards - a card behind each group"), ("Pills", "Pills - rounded pills, no bar"),
+                ("Standard", "Standard - Plasma's own style, no Panel Colorizer")]
+TOPBAR_STYLES = [("normal", "Normal - solid bar"), ("translucent", "Translucent - see the wallpaper through it"),
+                 ("invisible", "Invisible - the items float on the wallpaper"),
+                 ("islands", "Floating islands - three solid islands"),
+                 ("translucent-islands", "Translucent floating islands")]
+
+
+# ---------------------------------------------------------------- drawing
+class UI:
+    def __init__(self, scr):
+        self.s = scr
+        curses.curs_set(0)
+        scr.keypad(True)
+        curses.use_default_colors()
+        self.c = {}
+        rich = curses.COLORS >= 256
+        # @@NAME@@ palette, nearest 256-colour entries (8-colour fallback)
+        for i, (name, c256, c8) in enumerate([("pink", @@X_ACCENT@@, curses.COLOR_RED), ("peach", @@X_WARM@@, curses.COLOR_YELLOW),
+                                              ("mauve", @@X_HIGHLIGHT@@, curses.COLOR_MAGENTA), ("violet", @@X_LINK@@, curses.COLOR_BLUE),
+                                              ("coral", @@X_ERR@@, curses.COLOR_RED), ("muted", @@X_MUTED@@, curses.COLOR_WHITE),
+                                              ("ok", @@X_OK@@, curses.COLOR_GREEN)], start=1):
+            curses.init_pair(i, c256 if rich else c8, -1)
+            self.c[name] = curses.color_pair(i)
+        curses.init_pair(20, @@X_ON_ACCENT@@ if rich else curses.COLOR_BLACK, @@X_ACCENT@@ if rich else curses.COLOR_RED)
+        self.c["sel"] = curses.color_pair(20)
+
+    def frame(self, title, subtitle=""):
+        s = self.s
+        s.erase()
+        h, w = s.getmaxyx()
+        bar = "━" * max(10, min(w - 4, 70))
+        stops = ["peach", "pink", "mauve", "violet"]
+        seg = max(1, len(bar) // 4)
+        for i, col in enumerate(stops):
+            part = bar[i * seg:(i + 1) * seg] if i < 3 else bar[3 * seg:]
+            self.put(1, 2 + i * seg, part, self.c[col])
+        self.put(2, 2, "V I C E   H O R I Z O N", self.c["peach"] | curses.A_BOLD)
+        self.put(2, 27, f" {title}", self.c["muted"])
+        for i, col in enumerate(stops):
+            part = bar[i * seg:(i + 1) * seg] if i < 3 else bar[3 * seg:]
+            self.put(3, 2 + i * seg, part, self.c[col])
+        if subtitle:
+            self.put(5, 4, subtitle, curses.A_BOLD | self.c["pink"])
+        self.put(h - 2, 4, "↑↓ move   Enter choose   Space tick   q back", self.c["muted"])
+
+    def put(self, y, x, text, attr=0):
+        h, w = self.s.getmaxyx()
+        if 0 <= y < h and x < w - 1:
+            try:
+                self.s.addstr(y, x, text[: max(0, w - x - 1)], attr)
+            except curses.error:
+                pass
+
+    def menu(self, title, subtitle, items, current=None, note="", info=()):
+        """items: list of (key, label, hint). Returns key or None."""
+        pos = 0
+        if current is not None:
+            for i, it in enumerate(items):
+                if it[0] == current:
+                    pos = i
+        import textwrap
+        while True:
+            self.frame(title, subtitle)
+            h, w = self.s.getmaxyx()
+            y = 7
+            for label, value in info:      # "Label          value" lines, as on the Status page
+                self.put(y, 4, f"{label:<15}", self.c["mauve"])
+                self.put(y, 19, value, 0)
+                y += 1
+            if info:
+                y += 1
+            # the note wraps to the terminal; whole words only (package names keep their hyphens)
+            note_lines = textwrap.wrap(" ".join(note.split("\n")), max(20, w - 7), break_on_hyphens=False) if note else []
+            room = (h - 3) - y                                 # rows above the help lines
+            if len(note_lines) + 1 + len(items) > room:        # too tall: drop the gap, then the note
+                if len(note_lines) + len(items) > room:
+                    note_lines = []
+                gap = 0
+            else:
+                gap = 1 if note_lines else 0
+            for line in note_lines:
+                self.put(y, 4, line, self.c["muted"]); y += 1
+            y += gap
+            # a hint that doesn't fit beside its row is shortened there and shown in full at the bottom
+            narrow = any(hint and 52 + len(hint) > w - 2 for _, _, hint in items)
+            for i, (key, label, hint) in enumerate(items):
+                mark = "✓" if current is not None and key == current else " "
+                attr = self.c["sel"] | curses.A_BOLD if i == pos else 0
+                self.put(y + i, 4, f" {mark} {label:<44}", attr)
+                if hint:
+                    self.put(y + i, 52, hint.split(" - ")[0] if narrow else hint, self.c["muted"])
+            if narrow and items[pos][2]:
+                self.put(h - 3, 4, textwrap.shorten(items[pos][2], max(20, w - 7), placeholder="…"), self.c["mauve"])
+            self.s.refresh()
+            k = self.s.getch()
+            if k in (curses.KEY_UP, ord("k")):
+                pos = (pos - 1) % len(items)
+            elif k in (curses.KEY_DOWN, ord("j")):
+                pos = (pos + 1) % len(items)
+            elif k in (10, 13, curses.KEY_ENTER):
+                return items[pos][0]
+            elif k in (27, ord("q")):
+                return None
+            elif ord("1") <= k <= ord("9") and k - ord("1") < len(items):
+                return items[k - ord("1")][0]
+
+    def checklist(self, title, subtitle, items):
+        """items: list of [key, label, on]. Returns dict key->bool or None."""
+        pos = 0
+        rows = items + [["__done", "Continue", None]]
+        while True:
+            self.frame(title, subtitle)
+            for i, (key, label, on) in enumerate(rows):
+                box = "" if on is None else ("[✓] " if on else "[ ] ")
+                attr = self.c["sel"] | curses.A_BOLD if i == pos else 0
+                self.put(7 + i + (1 if key == "__done" else 0), 4, f" {box}{label:<56}", attr)
+            self.s.refresh()
+            k = self.s.getch()
+            if k in (curses.KEY_UP, ord("k")):
+                pos = (pos - 1) % len(rows)
+            elif k in (curses.KEY_DOWN, ord("j")):
+                pos = (pos + 1) % len(rows)
+            elif k == ord(" ") and rows[pos][2] is not None:
+                rows[pos][2] = not rows[pos][2]
+            elif k in (10, 13, curses.KEY_ENTER):
+                if rows[pos][0] == "__done":
+                    return {r[0]: r[2] for r in items}
+                if rows[pos][2] is not None:
+                    rows[pos][2] = not rows[pos][2]
+            elif k in (27, ord("q")):
+                return None
+
+    def message(self, title, lines, attr=0):
+        self.frame(title)
+        for i, line in enumerate(lines):
+            self.put(6 + i, 4, line, attr)
+        self.put(7 + len(lines), 4, "Press any key", self.c["muted"])
+        self.s.refresh()
+        self.s.getch()
+
+
+def run_outside(scr, cmd, title):
+    """Leave full-screen mode, run a command so its own output (and password prompts) show, come back."""
+    curses.def_prog_mode()
+    curses.endwin()
+    print(f"\n  \033[38;2;@@RGB_WARM@@m{title}\033[0m\n  \033[38;2;@@RGB_MUTED@@m$ {' '.join(shlex.quote(c) for c in cmd)}\033[0m\n")
+    try:
+        rc = subprocess.call(cmd)
+    except OSError as e:
+        print(f"  could not run it: {e}"); rc = 1
+    try:
+        input("\n  Press Enter to return to @@NAME@@ Settings ")
+    except EOFError:
+        pass
+    curses.reset_prog_mode()
+    scr.clear()          # the terminal now shows the command's output: redraw everything
+    scr.refresh()
+    return rc
+
+
+def read(cmd):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=5).stdout.strip().strip("'")
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def current_edition():
+    if IS_GNOME or not shutil.which("kreadconfig6"):
+        th = read(["gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"]) if shutil.which("gsettings") else ""
+    else:
+        th = read(["kreadconfig6", "--file", "kdeglobals", "--group", "General", "--key", "ColorScheme"])
+    return "dark" if th.endswith("Dark") else "light" if th.endswith("Light") else None
+
+
+# ---------------------------------------------------------------- Settings
+def settings(scr):
+    ui = UI(scr)
+    while True:
+        ed = current_edition()
+        items = [("edition", "Edition", (ed or "not @@NAME@@").title())]
+        if IS_KDE or not IS_GNOME:
+            items += [("panel", "Top panel look", ""), ("dim", "Dim inactive windows", "")]
+        if IS_GNOME or not IS_KDE:
+            tb = (STATE / "topbar-style").read_text().strip() if (STATE / "topbar-style").exists() else "normal"
+            items += [("topbar", "GNOME top bar", tb)]
+        if (STATE / "fastfetch/@@COMMAND@@-fastfetch.py").exists():
+            items += [("fastfetch", "Fastfetch", "")]
+        if (IS_KDE or not IS_GNOME) and gtk_installed():
+            items += [("gtk", "GTK apps", gtk_theme() or "not set")]
+        if IS_KDE or not IS_GNOME:
+            items += [("addons", "Add-ons", "programs the theme uses")]
+        items += [("status", "Status", ""), ("about", "About", f"version {version()}"), ("quit", "Quit", "")]
+        choice = ui.menu("Settings", "What would you like to change?", items)
+        if choice in (None, "quit"):
+            return
+        if choice == "edition":
+            e = ui.menu("Settings", "Edition", [("dark", "Dark - @@DARK_SURFACE@@", ""), ("light", "Light - @@LIGHT_SURFACE@@", "")], ed)
+            if e:
+                run_outside(scr, [VH, e], f"Switching to @@NAME@@ {e.title()}")
+        elif choice == "panel":
+            p = ui.menu("Settings", "Top panel look", [(k, l, "") for k, l in PANEL_STYLES] +
+                        [("only", "Fancy, and remove the other panels (e.g. the bottom one)", ""),
+                         ("restore", "Put my previous panel back", "")],
+                        note="Builds the @@NAME@@ top panel on your main screen.\n"
+                             "Your current panels are backed up first.")
+            if p == "only":
+                run_outside(scr, [VH, "panel", "--apply", "--only"], "Building the top panel, removing the others")
+            elif p == "restore":
+                run_outside(scr, [VH, "panel", "--restore"], "Restoring your previous panel")
+            elif p == "Standard":
+                run_outside(scr, [VH, "panel", "--apply", "--plain"], "Building the top panel (Standard)")
+            elif p:
+                run_outside(scr, [VH, "panel", "--apply", "--look", p], f"Building the top panel ({p})")
+        elif choice == "dim":
+            d = ui.menu("Settings", "Dim inactive windows", [("off", "Off", ""), ("10", "Light - 10", "Light edition default"),
+                                                             ("20", "Medium - 20", "Dark edition default"), ("30", "Strong - 30", "")])
+            if d:
+                run_outside(scr, [VH, "dim", d], f"Dim inactive windows: {d}")
+        elif choice == "topbar":
+            cur = (STATE / "topbar-style").read_text().strip() if (STATE / "topbar-style").exists() else "normal"
+            t = ui.menu("Settings", "GNOME top bar", [(k, l, "") for k, l in TOPBAR_STYLES], cur)
+            if t:
+                run_outside(scr, [VH, "topbar", t], f"Top bar: {t}")
+        elif choice == "fastfetch":
+            tool = STATE / "fastfetch/@@COMMAND@@-fastfetch.py"
+            f = ui.menu("Settings", "Fastfetch", [("recolour", "Recolour my config (keep layout and logo)", ""),
+                                                  ("design", "Use the @@NAME@@ design (its logo)", ""),
+                                                  ("restore", "Put my original config back", "")])
+            v = ed or "dark"
+            if f == "recolour":
+                run_outside(scr, ["python3", "-I", str(tool), "--apply", "--variant", v], "Recolouring Fastfetch")
+            elif f == "design":
+                src = STATE / "fastfetch/design/config.jsonc"
+                logo = CONF / "fastfetch/@@COMMAND@@-logo.txt"
+                with tempfile.NamedTemporaryFile("w", suffix=".jsonc", delete=False) as t:
+                    t.write(src.read_text().replace("~/.config/fastfetch/@@COMMAND@@-logo.txt", str(logo)))
+                logo.parent.mkdir(parents=True, exist_ok=True)
+                if not logo.exists() and (STATE / "fastfetch/design/@@COMMAND@@-logo.txt").exists():
+                    shutil.copyfile(STATE / "fastfetch/design/@@COMMAND@@-logo.txt", logo)
+                run_outside(scr, ["python3", "-I", str(tool), "--apply", "--variant", v, "--from", t.name],
+                            "Using the @@NAME@@ Fastfetch design")
+                os.unlink(t.name)
+            elif f == "restore":
+                run_outside(scr, ["python3", "-I", str(tool), "--restore"], "Restoring your Fastfetch config")
+        elif choice == "gtk":
+            g = ui.menu("Settings", "GTK apps", [("on", "@@NAME@@ - follows Dark/Light", ""),
+                                                 ("off", "My own GTK theme again", "")],
+                        "on" if gtk_theme() in NAMES["gtk"].values() else "off",
+                        note="Firefox, GIMP, Inkscape and other GTK apps.\n"
+                             "GIMP keeps its own theme unless you pick its System theme.")
+            if g:
+                run_outside(scr, [VH, "gtk", g], "GTK apps: " + ("@@NAME@@" if g == "on" else "your own theme"))
+        elif choice == "addons":
+            addons_page(ui, scr)
+        elif choice == "status":
+            ui.message("Status", status_lines())
+        elif choice == "about":
+            if about_page(ui, scr) == "uninstalled":
+                return "uninstalled"    # main() says so after leaving full-screen mode
+
+
+def gtk_installed():
+    return any((DATA / f"themes/{n}/gtk-3.0/gtk.css").exists() for n in NAMES["gtk"].values())
+
+
+def gtk_theme():
+    for q in QDBUS:
+        if shutil.which(q) or os.access(q, os.X_OK):
+            t = read([q, "org.kde.GtkConfig", "/GtkConfig", "org.kde.GtkConfig.gtkTheme"])
+            if t:
+                return t
+            break
+    try:
+        for line in (CONF / "gtk-3.0/settings.ini").read_text().splitlines():
+            k, _, v = line.partition("=")
+            if k.strip() == "gtk-theme-name":
+                return v.strip()
+    except OSError:
+        pass
+    return ""
+
+
+# ---------------------------------------------------------------- Add-ons
+QDBUS = ["qdbus6", "qdbus-qt6", "/usr/lib/qt6/bin/qdbus", "/usr/lib64/qt6/bin/qdbus", "qdbus"]
+# label, why, test, packages (pacman, dnf, zypper, apt) or ("widget", key)
+ADDONS = [
+    ("Kvantum", "the @@NAME@@ app style", lambda: shutil.which("kvantummanager"),
+     ("kvantum", "kvantum", "kvantum-qt6", "qt6-style-kvantum")),
+    ("qdbus", "builds the top panel", lambda: any(shutil.which(q) or os.access(q, os.X_OK) for q in QDBUS),
+     ("qt6-tools", "qt6-qttools", "qt6-tools-qdbus", "qt6-tools-dev-tools")),
+    ("dbus-monitor", "keeps Kvantum/Konsole in step", lambda: shutil.which("dbus-monitor"),
+     ("dbus", "dbus-tools", "dbus-1-tools", "dbus-bin")),
+    ("KVitals", "stats on the top panel", lambda: widget_on_disk("org.kde.plasma.kvitals"), ("widget", "kvitals")),
+    ("Panel Colorizer", "the top panel's @@NAME@@ look", lambda: widget_on_disk("luisbocanegra.panel.colorizer"),
+     ("widget", "panel-colorizer")),
+    ("Fastfetch", "system info in the terminal", lambda: shutil.which("fastfetch"),
+     ("fastfetch", "fastfetch", "fastfetch", "fastfetch")),
+    ("Plasma GTK settings", "switches GTK apps (Firefox, GIMP...) live",
+     lambda: any(Path(p).exists() for p in ("/usr/lib/qt6/plugins/kf6/kded/gtkconfig.so",
+                                            "/usr/lib64/qt6/plugins/kf6/kded/gtkconfig.so"))
+     or bool(list(Path("/usr/lib").glob("*/qt6/plugins/kf6/kded/gtkconfig.so"))),
+     ("kde-gtk-config", "kde-gtk-config", "kde-gtk-config6", "kde-config-gtk-style")),
+    ("Papirus icons", "fills in icons @@NAME@@ doesn't draw",
+     lambda: any((d / "Papirus").is_dir() for d in (DATA / "icons", Path("/usr/share/icons"))),
+     ("papirus-icon-theme",) * 4),
+]
+PM = [("pacman", "sudo pacman -S --needed"), ("dnf", "sudo dnf install"), ("zypper", "sudo zypper install"),
+      ("apt", "sudo apt install")]
+
+
+def widget_on_disk(wid):
+    return any((d / wid).is_dir() for d in (Path("/usr/share/plasma/plasmoids"), DATA / "plasma/plasmoids"))
+
+
+def addon_command(pkgs):
+    if pkgs[0] == "widget":
+        return [VH, "widget", pkgs[1]]
+    for i, (pm, cmd) in enumerate(PM):
+        if shutil.which(pm):
+            return cmd.split() + [pkgs[i]]
+    return None
+
+
+def addons_page(ui, scr):
+    while True:
+        items = []
+        for label, why, test, pkgs in ADDONS:
+            ok = bool(test())
+            items.append((label, f"{'✔' if ok else '✘'} {label}", "installed" if ok else f"missing - {why}"))
+        items.append(("back", "Back", ""))
+        c = ui.menu("Settings", "Add-ons", items,
+                    note="Enter on a missing one installs it: packages with your package manager (your\n"
+                         "password is asked), the panel widgets from @@NAME@@'s own copies (no password).")
+        if c in (None, "back"):
+            return
+        label, why, test, pkgs = next(a for a in ADDONS if a[0] == c)
+        if test():
+            ui.message("Add-ons", [f"{label} is already installed."])
+            continue
+        cmd = addon_command(pkgs)
+        if not cmd:
+            ui.message("Add-ons", [f"No package manager found - install {pkgs[0]} yourself."])
+            continue
+        run_outside(scr, cmd, f"Installing {label}")
+
+
+UT = "user-theme@gnome-shell-extensions.gcampax.github.com"
+
+
+def shell_theme():
+    """(state, theme name) of GNOME's User Themes extension."""
+    if not shutil.which("gnome-extensions"):
+        return "no gnome-extensions", ""
+    if subprocess.call(["gnome-extensions", "info", UT], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL):
+        return "User Themes not installed", ""
+    on = UT in read(["gnome-extensions", "list", "--enabled"]).split()
+    name = read(["gsettings", "get", "org.gnome.shell.extensions.user-theme", "name"])
+    if not name:
+        for d in (DATA / f"gnome-shell/extensions/{UT}/schemas", Path(f"/usr/share/gnome-shell/extensions/{UT}/schemas")):
+            if (d / "gschemas.compiled").exists():
+                name = read(["gsettings", "--schemadir", str(d), "get", "org.gnome.shell.extensions.user-theme", "name"])
+                break
+    return ("on" if on else "User Themes switched off"), name
+
+
+def status_lines():
+    import textwrap
+    mf = STATE / "manifest.tsv"
+    comps = sorted({l.split("\t")[1] for l in mf.read_text().splitlines() if l.count("\t") >= 3}) if mf.exists() else []
+    lines = [f"Desktop        {DESK or 'unknown'}",
+             f"Edition        {(current_edition() or 'not @@NAME@@').title()}",
+             f"Command        {VH if Path(VH).exists() else 'not installed'}"]
+    if IS_GNOME or (STATE / "topbar-style").exists():
+        state, name = shell_theme()
+        shown = name if (state == "on" and name in NAMES["gtk"].values()) else (f"not active - {state}" if state != "on" else f"not active - '{name or 'default'}' selected")
+        lines.append(f"Shell theme    {shown}")
+        if (STATE / "topbar-style").exists():
+            lines.append(f"Top bar        {(STATE / 'topbar-style').read_text().strip()}")
+        wp = read(["gsettings", "get", "org.gnome.desktop.background", "picture-uri-dark"]) if shutil.which("gsettings") else ""
+        lines.append(f"Wallpaper      {'@@NAME@@' if '@@COMMAND@@' in wp else 'not @@NAME@@'}")
+    if gtk_installed():
+        lines.append(f"GTK apps       {gtk_theme() or 'not set'}" + ("  (switched off)" if (STATE / "gtk-off").exists() else ""))
+    wrapped = textwrap.wrap(", ".join(comps) if comps else "nothing recorded", 60, break_on_hyphens=False) or [""]
+    lines.append(f"Installed      {wrapped[0]}")
+    lines += [f"               {w}" for w in wrapped[1:]]
+    for progs, why in ((["kvantummanager"], "Kvantum"), (["qdbus6", "qdbus-qt6", "/usr/lib/qt6/bin/qdbus", "/usr/lib64/qt6/bin/qdbus", "qdbus"], "qdbus"), (["fastfetch"], "Fastfetch")):
+        lines.append(f"{why:<15}{'installed' if any(shutil.which(p) for p in progs) else 'not installed'}")
+    if IS_GNOME and "not active" in " ".join(lines):
+        lines += ["", "Fix: run  @@COMMAND@@ dark  (or light) - it switches User Themes on and applies everything."]
+    return lines
+
+
+def version():
+    """The installed @@NAME@@ version (the uninstaller copy keeps it), else this folder's."""
+    for v in (STATE / "uninstaller/VERSION", Path(__file__).resolve().parents[2] / "VERSION"):
+        try:
+            return v.read_text().strip()
+        except OSError:
+            pass
+    return "unknown"
+
+
+def installed_components():
+    mf = STATE / "manifest.tsv"
+    try:
+        return sorted({l.split("\t")[1] for l in mf.read_text().splitlines() if l.count("\t") >= 3})
+    except OSError:
+        return []
+
+
+def about_page(ui, scr):
+    """Version, edition, GTK theme and what's installed; and Uninstall @@NAME@@."""
+    import textwrap
+    while True:
+        h, w = scr.getmaxyx()
+        comps = installed_components()
+        inst = textwrap.wrap(", ".join(comps) if comps else "nothing recorded", max(20, w - 23), break_on_hyphens=False)
+        if len(inst) > 4:                      # 80 x 24: four lines at most
+            inst = inst[:4]
+            inst[-1] = inst[-1][: max(0, w - 24)] + "…"
+        gtk = gtk_theme() or "not set"
+        if (STATE / "gtk-off").exists():
+            gtk += " (switched off)"
+        info = [("Version", version()), ("Edition", (current_edition() or "not @@NAME@@").title()),
+                ("GTK apps", gtk), ("Installed", inst[0])] + [("", l) for l in inst[1:]]
+        c = ui.menu("About", "@@NAME@@", [("uninstall", "Uninstall @@NAME@@", "puts your previous look back"),
+                                              ("back", "Back", "")], info=info)
+        if c != "uninstall":
+            return None
+        if not Path(VH).exists():
+            ui.message("Uninstall", ["The @@COMMAND@@ command is not installed, so there is nothing to run.",
+                                     "From the @@NAME@@ folder: ./uninstall.sh"])
+            continue
+        sure = ui.menu("Uninstall", "Uninstall @@NAME@@?",
+                       [("no", "No, keep @@NAME@@", ""), ("yes", "Yes, uninstall it", "")],
+                       note="This removes every @@NAME@@ file and puts back the look, GTK theme, panels and "
+                            "Fastfetch config you had before. Files you changed are kept.")
+        if sure != "yes":
+            continue                            # no: nothing changes
+        # leave full-screen mode: the uninstaller removes this program's own files, so after it Settings
+        # never draws again - main() closes with a message instead
+        curses.def_prog_mode()
+        curses.endwin()
+        print("\n  \033[38;2;@@RGB_WARM@@mUninstalling @@NAME@@\033[0m\n"
+              f"  \033[38;2;@@RGB_MUTED@@m$ {shlex.quote(VH)} uninstall --yes\033[0m\n", flush=True)
+        try:
+            rc = subprocess.call([VH, "uninstall", "--yes"])
+        except OSError as e:
+            print(f"  could not run it: {e}"); rc = 1
+        if rc == 0:
+            return "uninstalled"   # full-screen mode stays closed (run() won't close it twice)
+        try:
+            input("\n  The uninstaller reported a problem (above). Press Enter to return to @@NAME@@ Settings ")
+        except EOFError:
+            pass
+        curses.reset_prog_mode()
+        scr.clear()
+        scr.refresh()
+
+
+def run(fn):
+    """curses.wrapper, except it closes full-screen mode only if it is still open: after Uninstall it
+    already is, and a second endwin() raises "endwin() returned ERR"."""
+    scr = curses.initscr()
+    try:
+        curses.noecho()
+        curses.cbreak()
+        scr.keypad(True)
+        try:
+            curses.start_color()
+        except curses.error:
+            pass
+        return fn(scr)
+    finally:
+        if not curses.isendwin():
+            scr.keypad(False)
+            curses.echo()
+            curses.nocbreak()
+            curses.endwin()
+
+
+def main():
+    a = sys.argv[1:]
+    if a[:1] == ["--setup"]:     # older name for @@NAME@@ Setup
+        setup = Path(__file__).resolve().with_name("@@COMMAND@@-setup")
+        os.execv(sys.executable, [sys.executable, "-I", str(setup)] + a[1:])
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        sys.exit("@@NAME@@ Settings needs a terminal.")
+    if run(settings) == "uninstalled":
+        print("\n  @@NAME@@ is uninstalled. @@NAME@@ Settings has closed.\n")
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

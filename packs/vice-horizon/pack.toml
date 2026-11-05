@@ -12,7 +12,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.vicehorizon"
 previous_ids = ["org.digitalcohesion.vicehorizon"]
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs"]
 
 [theme.gtk.replace]
 # GTK 4 paints suggested-action with the selection colour; Vice Horizon keeps coral for primary actions
@@ -20,6 +20,14 @@ parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum
 
 [theme.icons]
 comment = "{Name} sunset folders, app, device and file-type icons (glyphs partly from KDE Breeze, LGPL-3.0-or-later); everything else inherits from Papirus, Breeze or Adwaita"
+
+[theme.programs]
+tagline = "A sunset theme for KDE Plasma 6, in Dark and Light."
+dark_surface = "Midnight Violet"
+light_surface = "Soft White"
+dark_hint = "Midnight Violet surfaces, sunset accents."
+light_hint = "Soft White surfaces with a see-through white top bar."
+bar = ["peach_glow", "horizon_pink", "sunset_mauve", "palm_violet"]   # Peach Glow -> Horizon Pink -> Sunset Mauve -> Palm Violet
 
 [theme.fastfetch]
 # the launcher tile's sunset gradient, peach (top right) to violet (bottom left)

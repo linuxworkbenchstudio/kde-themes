@@ -72,6 +72,18 @@ ACCEPT = {
         {
             "path": "look-and-feel/*",
             "why": "one Global Theme template for every theme: new ids, the shared panel script with the Fancy preset, the splash comment"
+        },
+        {
+            "path": "bin/*",
+            "why": "one set of programs for every theme: names per edition from the pack, generic wording"
+        },
+        {
+            "path": "fastfetch/*",
+            "why": "one Fastfetch tool for every theme: switches over from any sibling theme's logo"
+        },
+        {
+            "path": "sddm/README.md",
+            "why": "generic wording (every theme has the SDDM helper now)"
         }
     ],
     "waypoint": [
@@ -112,6 +124,10 @@ ACCEPT = {
 # files the engine adds that the release didn't have
 NEW_OK = {
     "vice-horizon": [
+        "install.sh",
+        "uninstall.sh",
+        "setup.sh",
+        "lib/*",
         "*/COPYING",
         "*/COPYING.LGPL-3",
         "*/CREDITS",
