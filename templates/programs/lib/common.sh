@@ -81,7 +81,7 @@ vh_brand_bar() {
 vh_banner() {
   local w=$(( VH_W - 4 ))
   printf '\n  %s\n' "$(vh_brand_bar "$w")"
-  printf '  %s%sV I C E   H O R I Z O N%s  %s%s%s\n' "$C_B" "$C_PEACH" "$C_R" "$C_MUTED" "$*" "$C_R"
+  printf '  %s%s@@SPACED@@%s  %s%s%s\n' "$C_B" "$C_PEACH" "$C_R" "$C_MUTED" "$*" "$C_R"
   printf '  %s\n' "$(vh_brand_bar "$w")"
 }
 

@@ -108,8 +108,11 @@ class UI:
             return []
         pairs = {}
         for k, v in cols.items():
-            rgb = tuple(int(x) for x in v.split(";")[2:5])
             n = 30 + int(k)
+            if not v.startswith("38;2;"):       # "39": the terminal's own text colour
+                pairs[k] = 0
+                continue
+            rgb = tuple(int(x) for x in v.split(";")[2:5])
             curses.init_pair(n, xterm256(rgb) if self.rich else curses.COLOR_MAGENTA, -1)
             pairs[k] = curses.color_pair(n)
         rows = []
@@ -145,7 +148,7 @@ class UI:
             for i, col in enumerate(["peach", "pink", "mauve", "violet"]):
                 part = bar[i * seg:(i + 1) * seg] if i < 3 else bar[3 * seg:]
                 self.put(row, 2 + i * seg, part, self.c[col])
-        self.put(2, 2, "V I C E   H O R I Z O N", self.c["peach"] | curses.A_BOLD)
+        self.put(2, 2, "@@SPACED@@", self.c["peach"] | curses.A_BOLD)
         self.put(2, 27, "  Setup", self.c["muted"])
         x = 2
         idx = STEPS.index(step)

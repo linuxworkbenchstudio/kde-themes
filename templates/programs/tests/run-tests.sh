@@ -5,6 +5,7 @@
 # Never touches your real home directory or desktop settings.
 #   ./tests/run-tests.sh            all tests
 #   ./tests/run-tests.sh --no-static   skip tests/validate.sh
+@@NAMES_SH@@
 set -uo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -62,7 +63,7 @@ for c in plasma-apply-colorscheme plasma-apply-desktoptheme plasma-apply-wallpap
 done
 cat > "$STUBS/kreadconfig6" <<'EOF'
 #!/usr/bin/env bash
-case "$*" in *ColorScheme*) echo "${STUB_CS:-BreezeDark}";; *LookAndFeelPackage*) echo org.fedoraproject.fedora.desktop;; *plasmarc*) echo default;; *"--group Icons"*) echo breeze-dark;;
+case "$*" in *ColorScheme*) echo "${STUB_CS:-BreezeDark}";; *LookAndFeelPackage*) echo "${STUB_LNF:-org.fedoraproject.fedora.desktop}";; *plasmarc*) echo default;; *"--group Icons"*) echo breeze-dark;;
   *DefaultProfile*) echo "${STUB_KP:-}";; *widgetStyle*) echo "${STUB_STYLE:-Breeze}";; *cursorTheme*) echo breeze_cursors;;
   *kdecoration2*library*) echo org.kde.breeze;; *kdecoration2*theme*) echo Breeze;; *ksplashrc*) echo org.kde.breeze.desktop;; esac
 EOF
@@ -154,7 +155,7 @@ t "Aurorae decoration installed" '[[ -f "$D/aurorae/themes/@@N:aurorae:Dark@@/de
 first_alias="$(grep -v '^#' "$ROOT/cursors/@@N:cursors:Dark@@/aliases.txt" | head -n1)"
 t "cursor theme + alias symlinks in ~/.icons"  '[[ -f "$H/.icons/@@N:cursors:Dark@@/cursors/default" && -L "$H/.icons/@@N:cursors:Dark@@/cursors/${first_alias%% *}" && -e "$H/.icons/@@N:cursors:Dark@@/cursors/${first_alias%% *}" && ! -e "$D/icons/@@N:cursors:Dark@@" ]]'
 t "folder MIME-type icon (Dolphin file view)" '[[ -f "$D/icons/@@N:icons:Light@@/mimetypes/scalable/inode-directory.svg" ]] && grep -q "mimetypes/scalable" "$D/icons/@@N:icons:Light@@/index.theme"'
-t "logo in hicolor"             '[[ -f "$D/icons/hicolor/scalable/apps/@@COMMAND@@-launcher.svg" && -f "$D/icons/hicolor/256x256/apps/@@COMMAND@@.png" ]]'
+t "logo in hicolor"             '[[ ( -f "$D/icons/hicolor/scalable/apps/@@COMMAND@@-launcher.svg" || -f "$D/icons/hicolor/256x256/apps/@@COMMAND@@-launcher.png" ) && -f "$D/icons/hicolor/256x256/apps/@@COMMAND@@.png" ]]'
 t "launcher in hicolor and in the theme at fixed sizes" '[[ -f "$D/icons/hicolor/22x22/apps/@@COMMAND@@-launcher.png" && -f "$D/icons/@@N:icons:Dark@@/apps/22/@@COMMAND@@-launcher.png" && -f "$D/icons/@@N:icons:Light@@/apps/16/@@COMMAND@@-launcher.png" && ! -e "$D/icons/@@N:icons:Dark@@/apps/scalable/@@COMMAND@@-launcher.svg" ]]'
 t "panel script + presets"      '[[ -f "$D/@@COMMAND@@/panel/@@COMMAND@@-panel.js" && -f "$C/panel-colorizer/presets/@@NAME@@ Fancy/settings.json" ]]'
 t "@@COMMAND@@ command executable" '[[ -x "$H/.local/bin/@@COMMAND@@" && -f "$C/autostart/@@COMMAND@@-sync.desktop" ]]'
@@ -249,11 +250,11 @@ t "  without --only they stay"    'run_vh panel --apply && ! grep -q "var @@PREF
 : > "$STUB_STATE/calls.log"
 t "panel --apply --plain"         'run_vh panel --apply --plain && grep -q evaluateScript "$STUB_STATE/calls.log" && ! grep -q "var @@PREFIX@@_FANCY =" "$STUB_STATE/calls.log"'
 : > "$STUB_STATE/calls.log"
-t "Light edition gets the see-through white preset" 'STUB_CS=@@N:color_scheme:Light@@ run_vh panel --apply && grep -q "@@NAME@@ Fancy Light" "$STUB_STATE/calls.log" && grep -q "\"custom\":\"#FEFCFC\"" "$STUB_STATE/calls.log"'
+t "Light edition gets the see-through white preset" 'STUB_CS=@@N:color_scheme:Light@@ run_vh panel --apply && grep -q "@@NAME@@ Fancy Light" "$STUB_STATE/calls.log" && grep -q "\"custom\":\"@@PANEL_LIGHT@@\"" "$STUB_STATE/calls.log"'
 : > "$STUB_STATE/calls.log"
-t "panel --restyle light"         'run_vh panel --restyle light && grep -q "@@KEY@@Style" "$STUB_STATE/calls.log" && grep -q "\"custom\":\"#FEFCFC\"" "$STUB_STATE/calls.log"'
+t "panel --restyle light"         'run_vh panel --restyle light && grep -q "@@KEY@@Style" "$STUB_STATE/calls.log" && grep -q "\"custom\":\"@@PANEL_LIGHT@@\"" "$STUB_STATE/calls.log"'
 : > "$STUB_STATE/calls.log"
-t "@@COMMAND@@ light restyles the panel" 'run_vh light && grep -q "@@KEY@@Style" "$STUB_STATE/calls.log" && grep -q "\"custom\":\"#FEFCFC\"" "$STUB_STATE/calls.log"'
+t "@@COMMAND@@ light restyles the panel" 'run_vh light && grep -q "@@KEY@@Style" "$STUB_STATE/calls.log" && grep -q "\"custom\":\"@@PANEL_LIGHT@@\"" "$STUB_STATE/calls.log"'
 t "bad panel style exits 2"       'run_vh panel --apply --style Neon; [[ $? -eq 2 ]]'
 t "installer rejects bad --panel-style" '! run_inst --desktop kde --panel-style Neon --yes'
 t "panel --restore"               'run_vh panel --restore && grep -q original-panels "$C/plasma-org.kde.plasma.desktop-appletsrc" && grep -q "systemctl --user start plasma-plasmashell" "$STUB_STATE/calls.log"'
@@ -386,6 +387,27 @@ t "  and by the @@COMMAND@@ command" 'grep -q "qdbus-qt6" "$ROOT/bin/@@COMMAND@@
 new_home full
 t "--full: programs, panel, Fastfetch and apply in one go" 'XDG_CURRENT_DESKTOP=KDE run_inst --desktop kde --variant dark --full --dry-run && grep -q "would run:" "$TMP/out" && grep -q "fastfetch" "$TMP/out" && grep -q "plasma-apply-colorscheme @@N:color_scheme:Dark@@" "$TMP/out"'
 t "Full setup is offered first in a terminal" 'grep -q "ask_full$" "$ROOT/install.sh" && grep -q "Do the full setup?" "$ROOT/install.sh"'
+
+section "An earlier install under its old id is moved over (asks first)"
+if [[ -n "@@OLD_LNF_FIRST@@" ]]; then
+  new_home migrate
+  old="$D/plasma/look-and-feel/@@OLD_LNF_FIRST@@.dark"; mkdir -p "$old/contents" "$D/@@COMMAND@@"
+  echo '{"KPlugin":{"Id":"@@OLD_LNF_FIRST@@.dark"}}' > "$old/metadata.json"; echo "[kdeglobals][General]" > "$old/contents/defaults"
+  echo "mine" > "$old/contents/my-note.txt"                       # a file you added: stays
+  { printf 'file\t%s\n' "$old"
+    printf 'sum\t%s\t%s\n' "$old/metadata.json" "$(sha "$old/metadata.json")" "$old/contents/defaults" "$(sha "$old/contents/defaults")"
+    printf 'setting\tkdeglobals\tKDE\tLookAndFeelPackage\torg.kde.breeze.desktop\n'; } > "$D/@@COMMAND@@/install-manifest.tsv"
+  t "--no-migrate leaves it alone" 'XDG_CURRENT_DESKTOP=KDE run_inst --components kde-colors --variant dark --no-migrate --yes && [[ -f "$old/metadata.json" && -f "$D/@@COMMAND@@/install-manifest.tsv" ]]'
+  t "with a yes it is moved over" 'XDG_CURRENT_DESKTOP=KDE STUB_LNF=@@OLD_LNF_FIRST@@.dark run_inst --variant both --yes && grep -q "An earlier @@NAME@@ is installed" "$TMP/out"'
+  t "  the old Global Theme is gone, your own file stays" '[[ ! -e "$old/metadata.json" && ! -e "$old/contents/defaults" && -f "$old/contents/my-note.txt" ]]'
+  t "  the old install record is put aside" '[[ ! -e "$D/@@COMMAND@@/install-manifest.tsv" ]] && ls "$D/@@COMMAND@@"/install-manifest.tsv.moved-* >/dev/null'
+  t "  your look from before is kept for uninstall" 'grep -q "^kde	lookandfeel	-	org.kde.breeze.desktop$" "$D/@@COMMAND@@/previous-settings.tsv"'
+  t "  the Dark edition you had is switched on" 'grep -q "plasma-apply-colorscheme @@N:color_scheme:Dark@@" "$STUB_STATE/calls.log"'
+  t "  the new Global Theme is installed" '[[ -f "$D/plasma/look-and-feel/@@LNF@@.dark/metadata.json" ]]'
+  run_uninst --yes
+else
+  ok "(no earlier ids for @@NAME@@)"
+fi
 
 section "Cursors move from ~/.local/share/icons (1.3.1 and older) to ~/.icons"
 new_home curmove

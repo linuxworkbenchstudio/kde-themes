@@ -406,8 +406,9 @@ migrate_old() {
   [[ -f "$OLD_MANIFEST" ]] && found+="${found:+, }its install record"
   vh_step "An earlier @@NAME@@ is installed"
   vh_row "Found" "$found"
-  vh_info "Moving it over keeps your choices (edition, panel look, Fastfetch, sync), switches your"
-  vh_info "desktop to the new @@NAME@@ and removes the old copy. Files you edited are kept."
+  vh_info "Moving it over keeps your choices (edition, panel look, Fastfetch, sync),"
+  vh_info "switches your desktop to the new @@NAME@@ and removes the old copy."
+  vh_info "Files you edited are kept."
   if [[ "$MIGRATE" != 1 ]] && ! { [[ "$VH_ASSUME_YES" == 1 ]] || { can_ask && vh_confirm "Move it over?" y; }; }; then
     vh_dim "$G_SKIP left as it is - the new @@NAME@@ installs next to it"; return 0
   fi
@@ -416,7 +417,7 @@ migrate_old() {
   for p in "${OLD_LNF_PREFIXES[@]}"; do
     case "$cur" in "$p.dark"|"$p.light") [[ -z "$ACTIVATE" ]] && ACTIVATE=1; [[ -z "$AV_WANT" ]] && AV_WANT="${cur##*.}" ;; esac
   done
-  look="$(sed -n 's/^\(waypointLook\|@@KEY@@Look\|@@KEY@@Style\)=//p' "$VH_CONFIG/plasma-org.kde.plasma.desktop-appletsrc" 2>/dev/null | head -n1)"
+  look="$(sed -n 's/^\(waypointLook\|@@KEY@@Look\|@@KEY@@Style\)=//p' "$VH_CONFIG/plasma-org.kde.plasma.desktop-appletsrc" 2>/dev/null | head -n1 || true)"
   look="${look#@@NAME@@ }"; look="${look% Light}"
   [[ -n "$look" && "$PANEL_STYLE_SET" != 1 ]] && PANEL_STYLE="$look"
   for ff in "$VH_CONFIG/fastfetch/config.jsonc.@@COMMAND@@-original" "$VH_CONFIG/fastfetch/config.json5.@@COMMAND@@-original"; do
@@ -477,7 +478,7 @@ for p in items:
             os.rmdir(d)
         except OSError:
             pass
-print(f"old copy removed ({kept} file(s) you edited kept)")
+print(f"    old copy removed ({kept} file(s) you edited kept)")
 PY
       mv -f -- "$OLD_MANIFEST" "$OLD_MANIFEST.moved-$(date +%Y%m%d%H%M%S)"
     fi

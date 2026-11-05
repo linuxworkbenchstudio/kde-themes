@@ -77,7 +77,7 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | 1 | KDE colour schemes | ✓ | ✓ | **done**, byte-identical to Waypoint 0.2.0 |
 | 2 | Konsole colour schemes and profiles | ✓ | ✓ | **done**, byte-identical to Waypoint 0.2.0 |
 | 3 | Plasma Style (desktoptheme) | ✓ | ✓ | **done**, from Waypoint templates, recoloured per pack |
-| 4 | Global Theme (look-and-feel: defaults, layout, splash, previews) | ✓ | ✓ | |
+| 4 | Global Theme (look-and-feel: defaults, layout, splash, previews) | ✓ | ✓ | **done**: new ids `org.thelinuxworkbench.<theme>.<edition>` |
 | 5 | Window decoration (Aurorae) | ✓ | ✓ | **done** |
 | 6 | Kvantum (from KvArc/KvArcDark, splitter_width=1, 30 %) | ✓ | ✓ | **done**: one rule set (`[edition.*.kvantum]`) reproduces both generators; defaults from roles |
 | 7 | Cursors (recoloured Breeze) | ✓ | ✓ | **done** |
@@ -87,14 +87,14 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | 11 | Top panel layout (40 px since 5 Nov 2026, was 36; KVitals, centred clock) | ✓ | ✓ | **done**: one script for every theme (Vice Horizon's, with Waypoint's look record); replaces any of the themes' panels |
 | 12 | Panel Colorizer: Normal, Transparent, Invisible, Cards, Pills, Fancy × Dark/Light | ✓ | ✓ | **done**: Vice Horizon's look rules, colours per pack; Waypoint moved to them; Cards without a bar, like Pills (5 Nov 2026) |
 | 13 | Fastfetch colours and design | ✓ | ✓ | design config **done**; logo with the artwork, recolouring program with the programs |
-| 14 | SDDM login screen (optional) | | ✓ | |
-| 15 | The theme command: dark/light, panel, dim, gtk, sync, watch, settings, uninstall | ✓ | ✓ | |
-| 16 | Settings app (terminal) with Add-ons and About | ✓ | ✓ (no About yet?) | |
-| 17 | Setup (guided installer) | ✓ | ✓ | |
-| 18 | Installer and uninstaller: manifest with fingerprints, keeps edited files, restores your look | ✓ | ✓ | |
-| 19 | Login sync helper (autostart) | ✓ | ✓ | |
+| 14 | SDDM login screen (optional) | | ✓ | **done**: every theme (helper + README) |
+| 15 | The theme command: dark/light, panel, dim, gtk, sync, watch, settings, uninstall | ✓ | ✓ | **done**: Vice Horizon 1.8.2's program as a template (templates/programs/) |
+| 16 | Settings app (terminal) with Add-ons and About | ✓ | ✓ (no About yet?) | **done**: Vice Horizon 1.8.2's program as a template (templates/programs/) |
+| 17 | Setup (guided installer) | ✓ | ✓ | **done**: Vice Horizon 1.8.2's program as a template (templates/programs/) |
+| 18 | Installer and uninstaller: manifest with fingerprints, keeps edited files, restores your look | ✓ | ✓ | **done**: Vice Horizon 1.8.2's program as a template (templates/programs/) |
+| 19 | Login sync helper (autostart) | ✓ | ✓ | **done**: Vice Horizon 1.8.2's program as a template (templates/programs/) |
 | 20 | Bundled widgets (KVitals, Panel Colorizer) | ✓ | ✓ | **done**: one shared copy (Vice Horizon's) |
-| 21 | Licences and credits in each installed part | ✓ | LICENSE only | |
+| 21 | Licences and credits in each installed part | ✓ | LICENSE only | **done** for every installed folder (single files such as colour schemes share KDE's folders) |
 | 22 | Release zip and KDE Store bundle | ✓ | ✓ | |
 | 23 | Tests: one suite run against every pack | 167 | 205 | started |
 
@@ -103,6 +103,26 @@ name in it; in the engine they become templates filled from the pack.
 
 Coverage now (both with 0 different): Vice Horizon 99.5 % of its released files; Waypoint 71.7 %
 (the rest is mostly its programs). Waypoint's icons, panel looks and panel script are redrawn on purpose.
+
+### Programs (phase 5, 5 Nov 2026)
+
+Every theme now ships Vice Horizon 1.8.2's programs, filled in from its pack (`tools/port_programs.py`
+made the templates once; they are edited by hand since). What changes for **Waypoint**:
+- the installer has components (`--with`, `--without`, `--list`), a guided Setup, `--full`, and
+  checks the programs the theme needs before asking to install them; Waypoint 0.5's options
+  (`--no-gtk`, `--no-fastfetch`, `--skip-addons`, `--activate=later` ...) still work;
+- Settings (the terminal app) and the theme command are Vice Horizon's, with Add-ons, About and
+  Uninstall; the panel looks, `sync`, `watch` and `gtk` work the same in every theme;
+- programs move from `settings/`, `setup/`, `autostart/` into `bin/`.
+For every theme:
+- `--panel-look` is the option (`--panel-style` still works);
+- an install under an old id (Waypoint 0.5 `org.waypoint.*` and its install record, Vice Horizon
+  1.8 `org.digitalcohesion.vicehorizon.*`) is found and moved over, with a yes (`--migrate` /
+  `--no-migrate`): edition, panel look, Fastfetch and your look from before are kept, the old copy
+  goes, files you edited stay;
+- the Konsole profile and Fastfetch logo switch over from any of the other themes;
+- `tests/run-tests.sh` (Vice Horizon's suite: installs, switches and uninstalls in a throw-away
+  home with stand-in KDE tools) runs in every theme's build.
 
 ## How each part moves over
 

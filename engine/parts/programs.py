@@ -16,6 +16,7 @@ from ..colour import rgb
 from ..pack import Pack
 from . import TEMPLATES
 from .panel_layout import PACKS, key
+from .panel_looks import Looks
 
 KINDS = ("color_scheme", "konsole", "plasma_style", "aurorae", "cursors", "kvantum", "gtk", "icons")
 FILES = {"install.sh": "install.sh", "uninstall.sh": "uninstall.sh", "setup.sh": "setup.sh",
@@ -91,8 +92,11 @@ def build(pack: Pack) -> dict:
         "@@NAMES_PY@@": "NAMES = " + json.dumps({k: {e.template.title(): pack.file_name(k, e) for e in eds} for k in KINDS}) + "   # this theme's file names, per edition",
         "@@PROFILES@@": "|".join(profiles),
         "@@OLD_LNF@@": " ".join(pack.previous_ids),
+        "@@PANEL_LIGHT@@": Looks(pack).c["light"],
+        "@@OLD_LNF_FIRST@@": pack.previous_ids[0] if pack.previous_ids else "",
         "@@SIBLINGS@@": json.dumps(sorted(p.command for p in others)),
-        "@@FF_PALETTE@@": json.dumps(palette),
+        "@@FF_PALETTE@@": "{\n" + "".join(f'    "{v}": {{"accent": {palette[v]["accent"]!r}, "muted": {palette[v]["muted"]!r}}},\n'
+                                           for v in ("dark", "light")) + "}",
         "@@FF_LIGHT_ACCENT@@": "%d;%d;%d" % palette["light"]["accent"],
         "@@FF_LOGO_1@@": logo["1"],
         "@@FIND_OURS@@": " -o ".join(f"-iname '*{w}*'" for w in sorted({pack.command, pack.name.replace(' ', '-'), pack.name.lower(),
@@ -108,7 +112,7 @@ def build(pack: Pack) -> dict:
         "@@LIGHT_SURFACE@@": spec.get("light_surface", f"{pack.name} Light"),
         "@@DARK_HINT@@": spec.get("dark_hint", "Dark surfaces, the theme's accent."),
         "@@LIGHT_HINT@@": spec.get("light_hint", "Light surfaces with a see-through top bar."),
-        "@@NAME@@": pack.name, "@@UPPER@@": pack.name.upper(), "@@COMMAND@@": pack.command,
+        "@@NAME@@": pack.name, "@@UPPER@@": pack.name.upper(), "@@SPACED@@": "   ".join(" ".join(w) for w in pack.name.upper().split()), "@@COMMAND@@": pack.command,
         "@@SLUG@@": pack.name.replace(" ", "-"), "@@COMPACT@@": pack.name.replace(" ", ""),
         "@@PREFIX@@": pack.id.upper().replace("-", "_"), "@@KEY@@": key(pack.id),
         "@@LNF@@": pack.lookandfeel_id, "@@BRAND@@": pack.brand,

@@ -104,7 +104,7 @@ ui_bar() {   # a rule in the theme's four brand colours
   done
   printf '  %s%s\n' "$out" "$R"
 }
-ui_head() { echo; ui_bar; printf '  %sV I C E   H O R I Z O N%s  %s%s%s\n' "$BO$PE" "$R" "$MU" "$*" "$R"; ui_bar; echo; }
+ui_head() { echo; ui_bar; printf '  %s@@SPACED@@%s  %s%s%s\n' "$BO$PE" "$R" "$MU" "$*" "$R"; ui_bar; echo; }
 ui_ok()   { printf '    %s%s%s %s%-14s%s %s%s\n' "$OK" "$G_OK" "$R" "$MV" "$1" "$R" "$2" "${3:+  $MU$3$R}"; }
 ui_no()   { printf '    %s%s%s %s%-14s%s %s%s%s\n' "$MU" "$G_NO" "$R" "$MV" "$1" "$R" "$MU" "$2" "$R"; }
 ui_warn() { printf '    %s%s%s %s\n' "$PE" "$G_WARN" "$R" "$*" >&2; }

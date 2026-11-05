@@ -67,7 +67,7 @@ class UI:
         for i, col in enumerate(stops):
             part = bar[i * seg:(i + 1) * seg] if i < 3 else bar[3 * seg:]
             self.put(1, 2 + i * seg, part, self.c[col])
-        self.put(2, 2, "V I C E   H O R I Z O N", self.c["peach"] | curses.A_BOLD)
+        self.put(2, 2, "@@SPACED@@", self.c["peach"] | curses.A_BOLD)
         self.put(2, 27, f" {title}", self.c["muted"])
         for i, col in enumerate(stops):
             part = bar[i * seg:(i + 1) * seg] if i < 3 else bar[3 * seg:]
