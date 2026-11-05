@@ -12,11 +12,14 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.vicehorizon"
 previous_ids = ["org.digitalcohesion.vicehorizon"]
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons"]
 
 [theme.gtk.replace]
 # GTK 4 paints suggested-action with the selection colour; Vice Horizon keeps coral for primary actions
 "gtk-4.0/_common.scss" = [["(suggested-action, $selected_bg_color)", "(suggested-action, $suggested_bg_color)"]]
+
+[theme.icons]
+comment = "{Name} sunset folders, app, device and file-type icons (glyphs partly from KDE Breeze, LGPL-3.0-or-later); everything else inherits from Papirus, Breeze or Adwaita"
 
 [theme.fastfetch]
 # the launcher tile's sunset gradient, peach (top right) to violet (bottom left)

@@ -66,7 +66,7 @@ TERMINAL_SETTINGS = {
 }
 
 THEME_KEYS = {"id", "name", "command", "brand", "version", "license", "editions", "names",
-              "lookandfeel_id", "previous_ids", "parts", "website", "fastfetch", "gtk"}
+              "lookandfeel_id", "previous_ids", "parts", "website", "fastfetch", "gtk", "icons"}
 LNF_ID = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){2,}$")      # org.thelinuxworkbench.waypoint
 OLD_ID = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$")         # older ids can be shorter
 NAME_DEFAULTS = {
@@ -82,7 +82,7 @@ NAME_DEFAULTS = {
     "gtk": "{Slug}-{Edition}",
     "icons": "{Slug}-{Edition}",
 }
-EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum", "gtk"}
+EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum", "gtk", "icons"}
 TEXT_DEFAULTS = {   # descriptions in the theme's metadata; {Name} and {Edition} are filled in
     "plasma": "{Name} {Edition} Plasma style",
     "decoration": "{Name} {Edition} window decoration",

@@ -56,7 +56,7 @@ ACCEPT = {
 }
 # files the engine adds that the release didn't have
 NEW_OK = {
-    "vice-horizon": ["*/COPYING", "*/CREDITS", "cursors/*/cursors_scalable/*"],
+    "vice-horizon": ["*/COPYING", "*/COPYING.LGPL-3", "*/CREDITS", "cursors/*/cursors_scalable/*"],
     "waypoint": ["cursors/*/aliases.txt",
                  # GTK 4's stylesheet used widget images the release didn't ship (no check marks in plain
                  # GTK 4 apps), and apps asking for dark got Light; GTK themes get an index.theme
