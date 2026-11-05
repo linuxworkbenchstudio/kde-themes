@@ -1,5 +1,5 @@
 """Natura wallpapers: take out the "NATURATECH ZEN" text, the dot grid and the line-and-square
-mark (top right), and crop the Dark picture's light strip; both stay 3840 x 2160."""
+mark (top right), and crop the light strip on the left of each; both stay 3840 x 2160."""
 import sys
 import numpy as np, cv2
 from PIL import Image
@@ -50,6 +50,8 @@ src, out, which = sys.argv[1], sys.argv[2], sys.argv[3]
 a = np.asarray(Image.open(src).convert("RGB"))
 if which == "light":
     a = clean(a, (3120, 60, 3840, 880))
+    a = a[3:3 + 2154, 10:10 + 3830]        # the faint light edge on the left
+    a = cv2.resize(a, (3840, 2160), interpolation=cv2.INTER_LANCZOS4)
 else:
     a = clean(a, (3190, 60, 3840, 880))
     a = a[14:14 + 2124, 64:64 + 3776]      # the light strip on the left (and the thin line along the top)
