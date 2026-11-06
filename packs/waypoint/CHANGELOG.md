@@ -7,7 +7,7 @@
 - Icons redrawn by the shared generator in Waypoint's style: graphite tiles with the amber bar,
   grey folders, file types told apart by colour.
 - Panel looks are the shared ones in Waypoint's colours; Cards and Pills have no bar behind them;
-  the top panel is 40 px (was 36).
+  the top panel is 32 px (was 36).
 - GTK 4: the widget images and the dark stylesheet are included now (check marks showed blank).
 - The installer, Setup, Settings and the `waypoint` command are the shared programs: components,
   `--full`, checks what your choices need, About and Uninstall in Settings. 0.5's options still work.

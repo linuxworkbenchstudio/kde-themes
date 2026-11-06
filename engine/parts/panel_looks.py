@@ -17,11 +17,11 @@ presets; their three theme colours are swapped for the pack's from [theme.panel]
   light  = "#FEFCFC"       light text and the Light twins' sections       (Soft White)
   ink    = "#2F1F2B"       the Light twins' text                          (Deep Plum)
   light_shadow = "#A77091" the Light twins' shadows                      (Rose Shadow)
-  height = 40              the top panel's height in px (every theme: 40 since 5 Nov 2026; was 36)
+  height = 32              the top panel's height in px (every theme: 32 since 5 Nov 2026 evening; was 40, before that 36)
   light_bar = 0.5          how solid the Light twins' bar is (Natura: 0.82, its semi-translucent rice)
 
 Top and bottom margins (the bar's and each widget's) are at most 2 px (5 Nov 2026; were 3-5), so
-the Task Manager's icons fill more of the 40 px bar: about 32 px instead of 24-26.
+the Task Manager's icons fill most of the 32 px bar.
 
 The Light twins never use Panel Colorizer's "Complementary" colour set (it stays dark in both
 editions). A preset may carry a block named after the theme (Vice Horizon: "viceHorizon") with
@@ -36,7 +36,7 @@ from . import TEMPLATES
 
 LOOKS = ("Normal", "Transparent", "Invisible", "Cards", "Pills", "Fancy")
 VMARGIN = 2      # largest top/bottom margin of the bar and of each widget (px)
-HEIGHT = 40      # the top panel's height (px); a radius of half of it gives a pill its round ends
+HEIGHT = 32      # the top panel's height (px); a radius of half of it gives a pill its round ends
 VH = {"shadow": "#121022", "accent": "#857DB5", "light": "#FEFCFC", "ink": "#2F1F2B", "light_shadow": "#A77091"}
 
 

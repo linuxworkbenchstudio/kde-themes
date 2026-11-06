@@ -84,7 +84,7 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | 8 | Icons: ~145 folder types, ~600 apps, ~260 file types, launcher in hicolor | ✓ | ✓ | **done**: Vice Horizon's generator, colours and style (tile, folder, pages, accent bar) per pack; Waypoint redrawn in its style (choice A, approved) |
 | 9 | Wallpapers (Dark/Light) | ✓ | ✓ | **done** (brand part: wallpapers, launcher, splash images, previews, Fastfetch logo from `packs/<pack>/art/`) |
 | 10 | GTK 3/4 for GTK apps on Plasma | ✓ | ✓ | **done**: GTK 3.24.52 / 4.16.13 SCSS compiled with Dart Sass 1.78.0 (`tools/get_sass.py`); GTK 4 now ships its images and gtk-dark.css in every theme |
-| 11 | Top panel layout (40 px since 5 Nov 2026, was 36; KVitals, centred clock) | ✓ | ✓ | **done**: one script for every theme (Vice Horizon's, with Waypoint's look record); replaces any of the themes' panels |
+| 11 | Top panel layout (32 px since 5 Nov 2026, was 36, then 40; KVitals, centred clock) | ✓ | ✓ | **done**: one script for every theme (Vice Horizon's, with Waypoint's look record); replaces any of the themes' panels |
 | 12 | Panel Colorizer: Normal, Transparent, Invisible, Cards, Pills, Fancy × Dark/Light | ✓ | ✓ | **done**: Vice Horizon's look rules, colours per pack; Waypoint moved to them; Cards without a bar, like Pills (5 Nov 2026) |
 | 13 | Fastfetch colours and design | ✓ | ✓ | design config **done**; logo with the artwork, recolouring program with the programs |
 | 14 | SDDM login screen (optional) | | ✓ | **done**: every theme (helper + README) |

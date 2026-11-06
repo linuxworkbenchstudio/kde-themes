@@ -71,7 +71,7 @@ ACCEPT = {
         },
         {
             "path": "panel-colorizer/* Pills*/settings.json",
-            "why": "the top panel is 40 px now (was 36), so the pills' round ends are 20 px (Kahlil, 5 Nov 2026)"
+            "why": "the top panel is 32 px now (was 36), so the pills' round ends are 16 px (Kahlil, 5 Nov 2026)"
         },
         {
             "path": "wallpapers/*/metadata.json",
@@ -79,7 +79,7 @@ ACCEPT = {
         },
         {
             "path": "panel/*-panel.js",
-            "why": "one panel script for every theme (Vice Horizon's, plus Waypoint's record of the look; 40 px; replaces any The Linux Workbench theme's panel)"
+            "why": "one panel script for every theme (Vice Horizon's, plus Waypoint's record of the look; 32 px; replaces any The Linux Workbench theme's panel)"
         },
         {
             "path": "widgets/README.md",
@@ -141,7 +141,7 @@ ACCEPT = {
         },
         {
             "path": "panel/*-panel.js",
-            "why": "one panel script for every theme (Vice Horizon's, plus Waypoint's record of the look; 40 px)"
+            "why": "one panel script for every theme (Vice Horizon's, plus Waypoint's record of the look; 32 px)"
         },
         {
             "path": "widgets/*",
