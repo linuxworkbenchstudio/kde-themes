@@ -12,3 +12,6 @@
 - The installer, Setup, Settings and the `waypoint` command are the shared programs: components,
   `--full`, checks what your choices need, About and Uninstall in Settings. 0.5's options still work.
 - Licence texts in every installed folder.
+- Icons readable in the panel: up to 32 px, app tiles use a bigger glyph (and no bar); tiles have
+  no light edge; the top panel's margins are slimmer, so Task Manager icons are bigger.
+- Light has its own icon theme (Waypoint Light), so toolbar and tray symbols are dark on light.

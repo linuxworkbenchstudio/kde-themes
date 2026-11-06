@@ -82,7 +82,7 @@ NAME_DEFAULTS = {
     "gtk": "{Slug}-{Edition}",
     "icons": "{Slug}-{Edition}",
 }
-EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum", "gtk", "icons"}
+EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum", "gtk", "icons", "names"}
 TEXT_DEFAULTS = {   # descriptions in the theme's metadata; {Name} and {Edition} are filled in
     "plasma": "{Name} {Edition} Plasma style",
     "decoration": "{Name} {Edition} window decoration",
@@ -139,7 +139,9 @@ class Pack:
     raw: dict = field(default_factory=dict)
 
     def file_name(self, kind: str, edition: Edition) -> str:
-        return self.names[kind].format(Name=self.name, Slug=self.name.replace(" ", "-"), id=self.id,
+        # [edition.<id>.names] can give one edition its own name (Waypoint's light icon theme)
+        fmt = edition.raw.get("names", {}).get(kind, self.names[kind])
+        return fmt.format(Name=self.name, Slug=self.name.replace(" ", "-"), id=self.id,
                                        Compact=self.name.replace(" ", ""), Edition=edition.name, edition=edition.id)
 
     def describe(self, kind: str, edition: Edition) -> str:

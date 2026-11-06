@@ -37,7 +37,6 @@ comment = "{Name} folders, app, device and file-type icons (glyphs partly from K
 
 [theme.icons.style]
 tile = ["ink_button", "ink"]                # ink app tiles
-tile_edge = 0.12
 folder = ["#B8CCB0", "#93B38A", "#6E8F66"]  # sage folders, every type
 page = ["stone", "#8C8A84"]                 # warm stone pages: text, documents, fonts, keys ...
 bar = "vermillion"                          # a vermillion bar under the glyph

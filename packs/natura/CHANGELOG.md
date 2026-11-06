@@ -5,3 +5,5 @@
 - Everything the other The Linux Workbench themes have: Global Themes, Plasma Style, colours,
   window borders, Kvantum, GTK 3/4, icons, cursors, Konsole, the top panel with six looks,
   Fastfetch colours and design, Settings, Setup and the `natura` command.
+- Icons readable in the panel: up to 32 px, app tiles use a bigger glyph (and no bar); tiles have
+  no light edge; the top panel's margins are slimmer, so Task Manager icons are bigger.

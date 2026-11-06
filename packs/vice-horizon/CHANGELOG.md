@@ -8,3 +8,5 @@
 - Konsole keeps unlimited scrollback.
 - The Fastfetch tool and the Konsole switch recognise every The Linux Workbench theme.
 - Licence texts in every installed folder.
+- Icons readable in the panel: up to 32 px, app tiles use a bigger glyph (and no bar); tiles have
+  no light edge; the top panel's margins are slimmer, so Task Manager icons are bigger.

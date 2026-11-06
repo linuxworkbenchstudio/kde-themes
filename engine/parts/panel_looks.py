@@ -20,6 +20,9 @@ presets; their three theme colours are swapped for the pack's from [theme.panel]
   height = 40              the top panel's height in px (every theme: 40 since 5 Nov 2026; was 36)
   light_bar = 0.5          how solid the Light twins' bar is (Natura: 0.82, its semi-translucent rice)
 
+Top and bottom margins (the bar's and each widget's) are at most 2 px (5 Nov 2026; were 3-5), so
+the Task Manager's icons fill more of the 40 px bar: about 32 px instead of 24-26.
+
 The Light twins never use Panel Colorizer's "Complementary" colour set (it stays dark in both
 editions). A preset may carry a block named after the theme (Vice Horizon: "viceHorizon") with
 options that are not Panel Colorizer's (Pills: {"islands": true} -> its Widget Islands switch).
@@ -32,6 +35,7 @@ from ..pack import Pack
 from . import TEMPLATES
 
 LOOKS = ("Normal", "Transparent", "Invisible", "Cards", "Pills", "Fancy")
+VMARGIN = 2      # largest top/bottom margin of the bar and of each widget (px)
 HEIGHT = 40      # the top panel's height (px); a radius of half of it gives a pill its round ends
 VH = {"shadow": "#121022", "accent": "#857DB5", "light": "#FEFCFC", "ink": "#2F1F2B", "light_shadow": "#A77091"}
 
@@ -169,12 +173,23 @@ class Looks:
             g["panel"]["normal"]["backgroundColor"]["alpha"] = 0.55   # a light bar needs a little more body
         return light
 
+    @staticmethod
+    def slim(d):
+        """Cap the top and bottom margins, so icons get most of the bar's height."""
+        g = d["globalSettings"]
+        for sec in ("panel", "widgets", "trayWidgets"):
+            side = g[sec]["normal"].get("margin", {}).get("side")
+            if side:
+                for k in ("top", "bottom"):
+                    side[k] = min(side.get(k, 0), VMARGIN)
+        return d
+
     def all(self):
         for look in LOOKS:
             dark = {"Normal": self.normal, "Transparent": self.transparent, "Invisible": lambda: self.invisible("dark"),
                     "Cards": self.cards, "Pills": self.pills, "Fancy": lambda: self.tpl("fancy")}[look]()
             light = self.invisible("light") if look == "Invisible" else self.lighten(dark, look)
-            for name, data in ((f"{self.name} {look}", dark), (f"{self.name} {look} Light", light)):
+            for name, data in ((f"{self.name} {look}", self.slim(dark)), (f"{self.name} {look} Light", self.slim(light))):
                 if name.endswith("Light"):
                     assert "Complementary" not in json.dumps(data), f"{name} uses the Complementary colour set"
                 yield name, data

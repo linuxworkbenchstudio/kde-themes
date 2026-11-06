@@ -50,6 +50,22 @@ RENAME = {
 ACCEPT = {
     "vice-horizon": [
         {
+            "path": "icons/*/apps/scalable/*",
+            "why": "app tiles have no light edge or top highlight (Kahlil, 5 Nov 2026: a stray line at panel sizes)"
+        },
+        {
+            "path": "icons/*/categories/scalable/*",
+            "why": "category tiles have no light edge or top highlight (Kahlil, 5 Nov 2026)"
+        },
+        {
+            "path": "icons/*/index.theme",
+            "why": "small-size tiles (apps|categories/small, up to 32 px) with a bigger glyph (Kahlil, 5 Nov 2026)"
+        },
+        {
+            "path": "panel-colorizer/*",
+            "why": "top and bottom margins at most 2 px, so the Task Manager's icons are bigger (Kahlil, 5 Nov 2026)"
+        },
+        {
             "path": "panel-colorizer/* Cards*/settings.json",
             "why": "Cards has no panel bar behind the cards now, like Pills (Kahlil, 5 Nov 2026)"
         },
@@ -176,6 +192,8 @@ ACCEPT = {
 # files the engine adds that the release didn't have
 NEW_OK = {
     "vice-horizon": [
+        "icons/*/apps/small/*",
+        "icons/*/categories/small/*",
         "install.sh",
         "uninstall.sh",
         "setup.sh",

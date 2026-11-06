@@ -11,12 +11,14 @@ and the generator runs with those colours swapped into its source, so gradients,
 shades all come from the pack's colours. Colours a pack doesn't map stay as they are.
 [theme.icons.style] (optional) gives every icon of a kind one look instead of per-type colours:
   tile = [top, bottom]           every app and category tile
-  tile_edge = 0.16               opacity of the tile's light edge (Vice Horizon: only its dark tiles)
   folder = [top, bottom, back]   every folder (front gradient, back flap)
   page = [top, bottom]           every file-type page
   pages = {pdf = [top, bottom], ...}   pages of one family (text, code, pdf, image, audio ...)
   bar = "accent"                 a short bar in this colour under the glyph on app tiles and file
                                  pages (Waypoint's amber bar); the glyph moves up to make room
+App and category tiles have no light edge or top highlight (removed 5 Nov 2026: at panel sizes they
+read as a stray line). Below 33 px (panel, Task Manager, menus) they come from apps|categories/small:
+the glyph scaled up to fill about 70% of the tile and no bar, so it stays readable.
 [theme.icons] also takes `comment` (index.theme) and `inherits_dark` / `inherits_light`.
 The theme's own brand icons (launcher, app icon) come from packs/<pack>/art/hicolor/.
 """
@@ -81,6 +83,30 @@ def _bar(text: str, colour: str) -> str:
             f'\n<rect x="19" y="{y}" width="10" height="2.4" rx="1" fill="{colour}"/>' + text[end:])
 
 
+EDGES = re.compile(r'\n?<rect x="4" y="4" width="40" height="1\.4" fill="#FFFFFF" opacity="\.4"/>'
+                   r'|\n<rect x="4\.5" y="4\.5" width="39" height="39" rx="9\.5" fill="none" stroke="#FFFFFF" stroke-opacity="[\d.]*"/>')
+SMALL = 1.3          # glyph scale on the small tiles
+SMALL_MAX = 32       # largest size the small tiles are used for
+
+
+def _no_edges(text: str) -> str:
+    """A tile without its light edge and top highlight."""
+    return EDGES.sub("", text).replace('<g clip-path="url(#c)">\n<rect', '<g clip-path="url(#c)"><rect')
+
+
+def _small(text: str) -> str | None:
+    """The small-size tile: glyph scaled up about the tile's centre (no bar), or None for non-tiles."""
+    if "app icon" not in text[:400]:
+        return None
+    m = GLYPH.search(text)
+    end = text.rfind("\n</svg>")
+    if not m or end < m.start():
+        return None
+    body = text[m.start() + 1:end]
+    return (text[:m.start()] + f'\n<g transform="translate(24 24) scale({SMALL}) translate(-24 -24)">{body}</g>'
+            + text[end:])
+
+
 def _map(pack: Pack, ed) -> dict:
     resolve = resolver(pack, ed)
     spec = dict(pack.raw.get("theme", {}).get("icons", {}).get("map", {}))
@@ -95,14 +121,16 @@ def _index(pack: Pack, ed, name: str, M) -> str:
     sizes = M["icons_base"].LAUNCHER_SIZES
     dirs = M["icons_set"].index_dirs()
     return ("[Icon Theme]\n"
-            f"Name={pack.display(ed) if '{Edition}' in pack.names['icons'] else pack.name}\n"
+            f"Name={pack.display(ed) if '{Edition}' in pack.names['icons'] or 'names' in ed.raw else pack.name}\n"
             f"Comment={theme.get('comment', COMMENT).format(Name=pack.name)}\n"
             f"Inherits={inherits}\n"
             "Example=folder\n"
-            "Directories=" + ",".join(f"apps/{n}" for n in sizes) + ","
+            "Directories=" + ",".join(f"apps/{n}" for n in sizes) + ",apps/small,categories/small,"
             + ",".join(d for d, *_ in dirs) +
             ",places/scalable,apps/scalable,mimetypes/scalable,devices/scalable\n\n"
             + "".join(f"[apps/{n}]\nContext=Applications\nSize={n}\nType=Fixed\n\n" for n in sizes)
+            + "".join(f"[{d}/small]\nContext={c}\nSize={SMALL_MAX}\nMinSize=16\nMaxSize={SMALL_MAX}\nType=Scalable\n\n"
+                      for d, c in (("apps", "Applications"), ("categories", "Categories")))
             + "".join(f"[{d}]\nContext={c}\nSize={n}\n" + ("Type=Fixed\n\n" if t == "Fixed" else "MinSize=16\nMaxSize=512\nType=Scalable\n\n")
                       for d, c, n, t in dirs) +
             "[places/scalable]\n"
@@ -178,16 +206,20 @@ def build_edition(pack: Pack, ed) -> dict:
         X.write_all(write, base, pack.version)
         MO.write_all(write, base, pack.version, lambda *a: B.folder_svg(*a, pack.version), variant)
         S.write_all(write, base, pack.version, variant)
-        edge = style.get("tile_edge")
         bar = resolve(style["bar"]) if "bar" in style else None
         for p in sorted(root.rglob("*")):
             if p.is_file():
+                rel = p.relative_to(root).as_posix()
                 text = p.read_text(encoding="utf-8")
-                if edge is not None and "app icon" in text[:400]:
-                    text = text.replace('stroke="#FFFFFF" stroke-opacity="0"', f'stroke="#FFFFFF" stroke-opacity="{edge}"')
+                if "app icon" in text[:400]:
+                    text = _no_edges(text)
+                    parts = rel.split("/")
+                    small = _small(text) if parts[1] in ("apps", "categories") and parts[2] == "scalable" else None
+                    if small:
+                        out[f"icons/{parts[0]}/{parts[1]}/small/{parts[3]}"] = small
                 if bar:
                     text = _bar(text, bar)
-                out[f"icons/{p.relative_to(root).as_posix()}"] = text
+                out[f"icons/{rel}"] = text
     licences = TEMPLATES / "licences"
     out[f"icons/{name}/COPYING"] = (licences / "CC-BY-SA-4.0.txt").read_text(encoding="utf-8")
     out[f"icons/{name}/COPYING.LGPL-3"] = (licences / "LGPL-3.0-or-later.txt").read_text(encoding="utf-8")

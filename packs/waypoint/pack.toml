@@ -19,7 +19,7 @@ color_scheme = "{Slug}-{Edition}"      # Waypoint-Dark
 konsole = "{Compact}{Edition}"         # WaypointDark
 plasma_style = "{id}-{edition}"        # waypoint-dark
 kvantum = "{Compact}{Edition}"         # WaypointDark
-icons = "{Name}"                       # one icon theme for both editions, as released
+icons = "{Name}"                       # the dark icon theme keeps its released name; Light: see below
 
 [theme.gtk]
 # GTK 3's pre-rendered slider knobs and text handles: Adwaita blue -> amber, greys -> steel greys
@@ -43,7 +43,6 @@ comment = "{Name} folders, app, device and file-type icons (glyphs partly from K
 
 [theme.icons.style]
 tile = ["graphite_raised", "graphite"]      # Waypoint's graphite app tile
-tile_edge = 0.14
 folder = ["#8A95A1", "#7F8A96", "#566170"]  # Waypoint's grey folder, every type
 page = ["#9AA6B2", "#7F8A96"]               # steel pages: text, documents, fonts, keys ...
 bar = "amber"                               # Waypoint's amber bar under the glyph
@@ -220,6 +219,11 @@ bright = ["#4A5562",         "#E58A8C", "#A9CB94", "#E8B572", "#9DB8DB", "#C9A9D
 # ----------------------------------------------------------------------------- Light
 [edition.light]
 name = "Light"
+
+[edition.light.names]
+# its own icon theme (5 Nov 2026): the shared one inherited Papirus-Dark, so toolbar and tray
+# symbols were white on the light panel and windows
+icons = "{Name}-Light"
 
 [edition.light.text]
 plasma = "Waypoint light Plasma theme with restrained amber highlights."

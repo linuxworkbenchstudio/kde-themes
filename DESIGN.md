@@ -138,6 +138,15 @@ input gives the same zip. The zip has no symbolic links (the installer makes the
 the Store's cursor packages keep them. README, LICENSE and LICENSES/ come from templates/docs/ and
 templates/licences/, CHANGELOG.md from the pack.
 
+### First test fixes (5 Nov 2026, from Kahlil's desktop tests)
+
+- Tiles: no light edge or top highlight (every theme).
+- Small tiles: `apps|categories/small` (Scalable, 16-32 px) with the glyph scaled 1.3x and no bar,
+  so Task Manager and menu icons stay readable; 48 px and up unchanged.
+- Panel looks: top/bottom margins of the bar and widgets at most 2 px (icons about 32 px in 40).
+- `[edition.<id>.names]` gives one edition its own file name; Waypoint Light's icon theme is
+  `Waypoint-Light` (inherits Papirus, not Papirus-Dark: the symbols were white on light).
+
 ## How each part moves over
 
 1. Take the part from **Vice Horizon** where it is generated (it already builds the theme from a
