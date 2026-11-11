@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.waypoint"
 previous_ids = ["org.waypoint"]       # the installer moves people off these
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs", "cosmic"]
 
 [theme.names]
 # as released; installed systems refer to these, so they stay

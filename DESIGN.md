@@ -97,6 +97,7 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | 21 | Licences and credits in each installed part | ✓ | LICENSE only | **done** for every installed folder (single files such as colour schemes share KDE's folders) |
 | 22 | Release zip and KDE Store bundle | ✓ | ✓ | **done**: `tools/release.py` |
 | 23 | Tests: one suite run against every pack | 167 | 205 | **done**: `tools/test_all.sh [--full]` |
+| 24 | COSMIC theme (Dark/Light `.ron`) and wallpapers | | | **done** (11 Nov 2026): `cosmic/` in every theme, see below |
 
 The command, Settings, Setup and installer (15-19) are mostly the same program with the theme's
 name in it; in the engine they become templates filled from the pack.
@@ -146,6 +147,22 @@ templates/licences/, CHANGELOG.md from the pack.
 - Panel looks: top/bottom margins of the bar and widgets at most 2 px (icons about 32 px in 40).
 - `[edition.<id>.names]` gives one edition its own file name; Waypoint Light's icon theme is
   `Waypoint-Light` (inherits Papirus, not Papirus-Dark: the symbols were white on light).
+
+### COSMIC (stage 3, 11 Nov 2026)
+
+`engine/parts/cosmic.py` writes `cosmic/<Slug>-<Edition>.ron` (a COSMIC ThemeBuilder, imported in
+COSMIC Settings > Desktop > Appearance > Import), one wallpaper per edition in `cosmic/wallpapers/`
+(the largest 16:9 picture) and `cosmic/README.md`. Made for COSMIC Epoch 1.11 (libcosmic 430f3d4)
+and checked once with its own code (each file parses with ron 0.12 and builds a theme).
+- Roles used: window_bg, surface_raised, button_bg (the three surfaces), border (neutral tint),
+  text, accent (also the active window outline), positive, neutral, negative. COSMIC derives
+  borders, muted and disabled text, hover, selection and text on accent itself.
+- `[edition.<id>.cosmic]` can change any of these and set roundness, gaps, active_hint, frosted
+  parts and blur. Core: frosted panel and applets, blur "very-low".
+- Not installed by the theme's installer (decision B, not taken yet); not in the KDE Store bundles.
+- Later (once released): COSMIC theme bundles (one .zip per mode with wallpaper and icons,
+  installable system-wide) and a wallpaper per mode, both in COSMIC's code since 6 Nov 2026.
+- No COSMIC equivalent: Plasma Style, Aurorae, Kvantum, panel looks, splash, SDDM, Konsole profiles.
 
 ## How each part moves over
 

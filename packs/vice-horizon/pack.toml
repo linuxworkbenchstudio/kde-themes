@@ -12,7 +12,7 @@ license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.vicehorizon"
 previous_ids = ["org.digitalcohesion.vicehorizon"]
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs", "cosmic"]
 
 [theme.gtk.replace]
 # GTK 4 paints suggested-action with the selection colour; Vice Horizon keeps coral for primary actions

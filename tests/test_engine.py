@@ -161,5 +161,50 @@ class Colours(unittest.TestCase):
         self.assertAlmostEqual(contrast("#777777", "#777777"), 1.0, places=6)
 
 
+class Cosmic(unittest.TestCase):
+    """COSMIC themes: every field COSMIC 1.11's ThemeBuilder needs, in the pack's colours."""
+    FIELDS = ("palette", "spacing", "corner_radii", "neutral_tint", "bg_color", "primary_container_bg",
+              "secondary_container_bg", "text_tint", "accent", "success", "warning", "destructive", "frosted",
+              "gaps", "active_hint", "window_hint", "frosted_windows", "frosted_system_interface",
+              "frosted_panel", "frosted_applets", "frosted_maximized_apps")
+
+    def fields(self, ron):
+        import re
+        return dict(re.findall(r"^    (\w+): (.*?),?$", ron, re.M))
+
+    def test_every_pack(self):
+        from engine.parts import cosmic
+        for pack_dir in sorted((ROOT / "packs").glob("*/pack.toml")):
+            p = load(pack_dir.parent)
+            files = cosmic.build(p)
+            for ed in p.editions.values():
+                with self.subTest(pack=p.id, edition=ed.id):
+                    slug = p.name.replace(" ", "-")
+                    ron = files[f"cosmic/{slug}-{ed.name}.ron"]
+                    self.assertEqual(ron.count("("), ron.count(")"))
+                    f = self.fields(ron)
+                    self.assertEqual(tuple(f), self.FIELDS)
+                    mode = "Dark" if ed.id == "dark" else "Light"
+                    self.assertEqual(f["palette"], f"{mode}((")
+                    self.assertIn(f'name: "{p.name} {ed.name}"', ron)
+                    for key, role in (("bg_color", "window_bg"), ("text_tint", "text"), ("accent", "accent"),
+                                      ("destructive", "negative"), ("success", "positive")):
+                        self.assertEqual(f[key], f'Some("{ed.roles[role]}FF")', key)
+                    self.assertIn(f"cosmic/wallpapers/{slug}-{ed.name}.jpg", files)
+            self.assertIn("cosmic/README.md", files)
+        core = cosmic.build(load(ROOT / "packs" / "core"))["cosmic/Core-Light.ron"]
+        self.assertEqual((self.fields(core)["frosted_panel"], self.fields(core)["frosted"]), ("true", "VeryLow"))
+
+    def test_bad_settings(self):
+        from engine.parts import cosmic
+        p = load(write_pack(MINIMAL.replace("[edition.dark.terminal]",
+                 '[edition.dark.cosmic]\naccent = "nonesuch"\nroundness = "blob"\nfrosted = ["dock"]\nshine = 1\n'
+                 "[edition.dark.terminal]")))
+        with self.assertRaises(ValueError) as cm:
+            cosmic.build(p)
+        for expected in ("accent = 'nonesuch'", "roundness = 'blob'", "'dock' is not one of", "shine: not a known"):
+            self.assertIn(expected, str(cm.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

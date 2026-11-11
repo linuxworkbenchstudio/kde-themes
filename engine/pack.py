@@ -81,8 +81,9 @@ NAME_DEFAULTS = {
     "kvantum": "{Slug}-{Edition}",
     "gtk": "{Slug}-{Edition}",
     "icons": "{Slug}-{Edition}",
+    "cosmic": "{Slug}-{Edition}",
 }
-EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum", "gtk", "icons", "names"}
+EDITION_KEYS = {"name", "roles", "kde", "terminal", "text", "recolour", "template", "kvantum", "gtk", "icons", "names", "cosmic"}
 TEXT_DEFAULTS = {   # descriptions in the theme's metadata; {Name} and {Edition} are filled in
     "plasma": "{Name} {Edition} Plasma style",
     "decoration": "{Name} {Edition} window decoration",

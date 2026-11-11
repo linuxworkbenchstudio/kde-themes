@@ -12,7 +12,7 @@ version = "0.1.0"
 license = "GPL-3.0-or-later"
 editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.core"
-parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs"]
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs", "cosmic"]
 
 [theme.programs]
 tagline = "Platinum, midnight and soft blue for KDE Plasma 6, in Dark and Light."
@@ -168,6 +168,11 @@ blur = true
 normal = ["night_surface", "rose", "mint", "amber", "core_blue", "lavender", "#7FCDD9", "silver"]
 bright = ["slate", "#F6AEAD", "#AEE0BF", "#F1D5A0", "sky_blue", "#BDB0E4", "#A3DDE6", "cloud_grey"]
 
+# COSMIC: a frosted (blurred, see-through) panel and applet popups, kept subtle
+[edition.dark.cosmic]
+frosted = ["panel", "applets"]
+blur = "very-low"
+
 # Waypoint's artwork (Plasma Style, window borders, cursors) in Core's colours
 [edition.dark.recolour]
 ramp_ends = ["#0C0D10", "text"]
@@ -213,6 +218,11 @@ blur = true
 #          black      red        green      yellow     blue       magenta    cyan       white
 normal = ["graphite", "rose_ink", "mint_ink", "amber_ink", "link_blue", "lavender_ink", "#1E7482", "slate_ink"]
 bright = ["#4D525C", "#9C2F2F", "#215F3C", "#6F4E00", "#244C91", "#57478C", "#175E6A", "silver_dim"]
+
+# COSMIC: a frosted (blurred, see-through) panel and applet popups, kept subtle
+[edition.light.cosmic]
+frosted = ["panel", "applets"]
+blur = "very-low"
 
 # Waypoint's artwork (Plasma Style, window borders, cursors) in Core's colours
 [edition.light.recolour]
