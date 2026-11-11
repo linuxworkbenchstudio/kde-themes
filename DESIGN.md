@@ -168,9 +168,51 @@ Natura is the first pack that never had its own copy: it starts on the engine.
 4. Global Theme ids: **`org.thelinuxworkbench.<theme>.<edition>`**.
 5. Brand: **The Linux Workbench** for every theme; DigitalCohesion and Desktop Foundry are dropped.
 6. **One repository**, `github.com/linuxworkbenchstudio/kde-themes` (public), for the engine and all packs; each theme gets its own page, releases and KDE Store entries (5 Nov 2026).
-7. **KDE only** for now.
+7. ~~KDE only for now.~~ Replaced on 11 Nov 2026: KDE **and COSMIC** (decision 9).
 
 Natura: all artwork designed here, from the wallpaper Kahlil supplied (Dark and Light).
+
+## Next: three new themes, COSMIC, new branding (decided 11 Nov 2026)
+
+Decisions:
+8. **Three new themes** on the engine: **Vacation**, **Vintage Trail**, **Core** (palettes below).
+9. **Every theme (all six) also gets a COSMIC version.** The KDE side stays as it is.
+10. Order: the new themes first, then the branding update for all six.
+11. Wallpapers that are too small are **upscaled**; the supplied ASCII art is **rescaled** (about 45x18) for Fastfetch.
+
+Palettes (from Kahlil's brief; five roles per mode, the rest to be proposed and approved):
+
+| | Vacation | Vintage Trail | Core |
+|---|---|---|---|
+| Identity | Caribbean, tropical, relaxed modern | heritage, outdoors, rugged contemporary | macOS-inspired, platinum, refined minimalism (no copying of Apple's interface or branding); subtle transparency, depth, restrained shadows |
+| Dark: bg / surface / elevated | #10272D / #183940 / #204951 | #252A28 / #303135 / #3B423D | #20232B / #292D37 / #353B48 |
+| Dark: text / accent | #F1E5CC / #39B9B0 | #E4E0D3 / #AEB795 | #F3F4F7 / #82AEED |
+| Light: bg / surface / elevated | #F5F0E5 / #FFFFFF / #E8E2D4 | #EAE7DD / #F5F2E9 / #DCD9CE | #F3F4F7 / #FFFFFF / #E8E9ED |
+| Light: text / accent | #193B40 / #167D82 | #303135 / #7B896B | #353941 / #6C9DE8 |
+| Named colours | Ocean Deep #123C46, Caribbean Teal #167D82, Lagoon #39B9B0, Sea Glass #8DD8CB, Palm Green #426B48, Tropical Leaf #78965A, Warm Sand #D9BE91, Sunlit Cream #F1E5CC, Coral #E98268, Sunset Gold #E6B45C | Weathered Grey #9B9B9D, Soft Sage #AEB795, Trail Olive #7B896B, Slate Blue #4C5663, Charcoal #303135, Forest Green #53634E, Parchment #D8D0BB, Canvas Beige #BDAE91, Rust #A66B4F, Antique Brass #B69A62 | Platinum #E8E9ED, Silver #C9CDD4, Cloud Grey #F3F4F7, Graphite #353941, Midnight #20232B, Soft Blue #6C9DE8, Sky Blue #9DC8F5, Lavender #A99AD8, Frost #DCE7F5, Slate #697386 |
+
+Plan:
+1. **Palettes:** a pack per new theme; propose the missing roles (line, muted, disabled, negative,
+   neutral, positive, link, visited, on_accent) for approval.
+2. **KDE themes:** everything the other themes have, from the engine. Core: subtle transparency and
+   soft shadows where Plasma supports them.
+3. **COSMIC:** first check what COSMIC accepts for themes and report before building; then a
+   COSMIC part of the engine (Dark and Light theme files, wallpapers) for all six themes.
+4. **Branding for all six:** logos (Waypoint keeps the amber W; Vice Horizon a stencil V with a
+   striped sunset, pink on a midnight tile; Natura a stencil N with a vermillion sun in its
+   top-right gap, rice white on an ink tile), in the launcher icon above all, the app icons, the
+   splash screens and the websites; Natura's new wallpapers (Light: crane, red sun, mountain; Dark:
+   crescent moon, fireflies); splash screens with the icon in the centre, the name below, and a
+   progress bar near the bottom with a percentage (Plasma reports 6 startup steps, so it moves in
+   jumps); Fastfetch logos from the supplied ASCII art.
+5. **Test, commit, push:** full suites for the three new themes; only the affected tests for the others.
+
+Open questions (Kahlil to answer):
+- Artwork (logos, wallpapers, ASCII art) for Vacation, Vintage Trail and Core, or placeholders?
+- Command name for Core: `core` is too generic; suggested `core-theme`.
+- Go-ahead for stage 1.
+
+Models: Sonnet 5.5 for stages 1, 2, 4, 5; Opus 5.5 for stage 3 (COSMIC); a new chat per stage.
 
 ## Needed to continue
 
