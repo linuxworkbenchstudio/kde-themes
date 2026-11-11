@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<!-- Core mark - placeholder, CC-BY-SA-4.0 (The Linux Workbench) -->
+<defs><linearGradient id="bg" x1="0" y1="4" x2="0" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E8E9ED"/></linearGradient></defs>
+<rect x="4" y="4" width="56" height="56" rx="14" fill="url(#bg)" stroke="#C9CDD4" stroke-width="1"/>
+<path d="M41.03 41.58A12.5 12.5 0 1 1 41.03 22.42" fill="none" stroke="#3F72C6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

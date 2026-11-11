@@ -1,0 +1,224 @@
+# Vintage Trail - heritage, outdoors, rugged contemporary: charcoal, sage, canvas and brass.
+# The Linux Workbench. The five colours per mode and the named colours are from Kahlil's brief
+# (11 Nov 2026); the rest (PALETTE.md) approved 11 Nov 2026. Artwork: placeholders.
+
+[theme]
+id = "vintage-trail"
+name = "Vintage Trail"
+command = "vintage-trail"
+brand = "The Linux Workbench"
+version = "0.1.0"
+license = "GPL-3.0-or-later"
+editions = ["dark", "light"]
+lookandfeel_id = "org.thelinuxworkbench.vintagetrail"
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs"]
+
+[theme.programs]
+tagline = "Charcoal, sage, canvas and brass for KDE Plasma 6, in Dark and Light."
+dark_surface = "Charcoal"
+light_surface = "Parchment"
+dark_hint = "Charcoal surfaces, soft sage and brass."
+light_hint = "Parchment surfaces with a see-through top bar."
+bar = ["parchment", "soft_sage", "antique_brass", "rust"]
+
+[theme.fastfetch]
+logo_colours = ["soft_sage", "linen"]        # placeholder logo: $1 the tile, $2 the letter
+
+[theme.panel]
+shadow = "trail_night"             # shadows and dark sections
+accent = "soft_sage"           # hover, open and attention outlines
+light = "linen"                  # light text; the Light twins' sections
+ink = "charcoal"                     # the Light twins' text
+light_shadow = "graphite"          # the Light twins' shadows
+
+[theme.icons.style]
+tile = ["trail_raised", "trail_bg"]                # app tiles
+folder = ["parchment", "canvas_beige", "#9A8C70"]  # folders, every type (front top, front bottom, back)
+page = ["linen", "parchment"]                 # pages: text, documents, fonts, keys ...
+bar = "soft_sage"                          # a bar under the glyph
+
+[theme.icons.style.pages]
+code = ["trail_border", "charcoal"]
+script = ["trail_border", "charcoal"]
+log = ["trail_border", "charcoal"]
+config = ["trail_border", "charcoal"]
+patch = ["trail_border", "charcoal"]
+executable = ["trail_border", "charcoal"]
+html = ["trail_line", "trail_raised"]
+web = ["trail_line", "trail_raised"]
+pdf = ["rust_light", "rust"]
+presentation = ["rust_light", "rust"]
+calendar = ["rust_light", "rust"]
+mail = ["rust_light", "rust"]
+image = ["slate_light", "#7B8CA1"]
+drawing = ["slate_light", "#7B8CA1"]
+vector = ["slate_light", "#7B8CA1"]
+audio = ["#8FB5AB", "#708D85"]
+playlist = ["#8FB5AB", "#708D85"]
+video = ["#B894A6", "#907381"]
+subtitle = ["#B894A6", "#907381"]
+archive = ["antique_brass", "#8E784C"]
+package = ["antique_brass", "#8E784C"]
+disc = ["antique_brass", "#8E784C"]
+torrent = ["antique_brass", "#8E784C"]
+spreadsheet = ["soft_sage", "trail_olive"]
+csv = ["soft_sage", "trail_olive"]
+data = ["soft_sage", "trail_olive"]
+database = ["soft_sage", "trail_olive"]
+cad = ["weathered_grey", "trail_line"]
+model = ["weathered_grey", "trail_line"]
+model3d = ["weathered_grey", "trail_line"]
+
+[theme.icons.map]
+# what is left (devices, the bin, small details) in this theme's colours
+"#FAD3C0" = "#BEBCB1"
+"#F9C8B2" = "#B8B6AC"
+"#F5B3A8" = "#ADABA1"
+"#DDB6D5" = "#A9A89E"
+"#D7AACD" = "#A1A097"
+"#CEC9EA" = "#C7C5B9"
+"#C3B8E6" = "#9D9D94"
+"#B9B2E3" = "#98978F"
+"#B9A9DA" = "#929289"
+"#A79FD4" = "#8E8E86"
+"#EFA1A1" = "#BDAE91"
+"#F2A98F" = "#909088"
+"#C48FBA" = "#7B7C75"
+"#A77091" = "#71736C"
+"#857DB5" = "#686A64"
+"#6C64A3" = "#6E716A"
+"#4B4670" = "#4F554F"
+"#302C49" = "#303135"
+"#252239" = "#252A28"
+"#F4A79A" = "#D2D7C5"
+"#EA5148" = "#AEB795"
+"#E58C8C" = "#818D72"
+"#C93B32" = "#53634E"
+"#A9D8B8" = "#D8D0BB"
+"#3B9564" = "#9A8C70"
+"#FEFCFC" = "#E4E0D3"
+"#2F1F2B" = "#252A28"
+
+[colours]
+trail_night = "#1F2321"     # views, terminal (Dark): the background, a step deeper
+trail_bg = "#252A28"        # Dark background (brief)
+trail_alt = "#2A2E2D"       
+charcoal = "#303135"        # Charcoal: Dark surface, Light text (brief)
+trail_raised = "#3B423D"    # Dark elevated (brief)
+trail_hover = "#474E48"     
+trail_border = "#4F554F"    
+trail_line = "#6E716A"      
+weathered_grey = "#9B9B9D"  # Weathered Grey: disabled text (Light)
+soft_sage = "#AEB795"       # Soft Sage: Dark accent
+trail_olive = "#7B896B"     # Trail Olive: Light accent
+slate_blue = "#4C5663"      # Slate Blue: links (Light)
+slate_light = "#A7B6C8"     # links (Dark): Slate Blue, lighter
+forest_green = "#53634E"    # Forest Green: selection, success (Light)
+forest_light = "#8FA886"    # success (Dark): Forest Green, lighter
+parchment = "#D8D0BB"       # Parchment
+canvas_beige = "#BDAE91"    # Canvas Beige: visited links (Dark), folders
+canvas_ink = "#6E5F45"      # visited links (Light): Canvas Beige, deeper
+rust = "#A66B4F"            # Rust
+rust_light = "#D2896A"      # error (Dark): Rust, lighter
+rust_ink = "#8C4A30"        # error (Light): Rust, deeper
+antique_brass = "#B69A62"   # Antique Brass: warning (Dark)
+brass_ink = "#735618"       # warning (Light): Antique Brass, deeper
+linen = "#E4E0D3"           # Dark text (brief)
+stone = "#A9A89F"           # muted text (Dark): Weathered Grey, warmer and lighter
+stone_dim = "#6E6F69"       # disabled text (Dark)
+paper = "#EAE7DD"           # Light background (brief)
+paper_alt = "#EFECE3"       
+paper_view = "#F5F2E9"      # Light surface (brief)
+paper_raised = "#DCD9CE"    # Light elevated (brief)
+paper_hover = "#CFCBBE"     
+paper_border = "#C4C1B6"    
+paper_line = "#A2A09A"      
+graphite = "#62635F"        # muted text (Light)
+
+# ----------------------------------------------------------------------------- Dark
+[edition.dark]
+name = "Dark"
+
+[edition.dark.roles]
+window_bg = "trail_bg"
+view_bg = "trail_night"
+view_alt_bg = "trail_alt"
+header_bg = "charcoal"
+button_bg = "trail_raised"
+hover_bg = "trail_hover"
+surface_raised = "charcoal"
+border = "trail_border"
+border_strong = "trail_line"
+text = "linen"
+text_muted = "stone"
+text_disabled = "stone_dim"
+accent = "soft_sage"
+selection_bg = "forest_green"
+selection_fg = "linen"
+link = "slate_light"
+visited = "canvas_beige"
+negative = "rust_light"
+neutral = "antique_brass"
+positive = "forest_light"
+osd_bg = "trail_night"
+
+[edition.dark.terminal]
+#          black      red        green      yellow     blue       magenta    cyan       white
+normal = ["charcoal", "rust_light", "soft_sage", "antique_brass", "#8FA3BA", "#B894A6", "#8FB5AB", "stone"]
+bright = ["trail_line", "#E0A58C", "#C3CBAE", "#CDB077", "slate_light", "#CDB0BF", "#AECBC3", "linen"]
+
+# Waypoint's artwork (Plasma Style, window borders, cursors) in Vintage Trail's colours
+[edition.dark.recolour]
+ramp_ends = ["#0E100F", "text"]
+highlight = "accent"
+accent = [[0.70, "#D7DBCA"], [0.52, "accent"], [0.42, "selection_bg"], [0.0, "#3A4537"]]
+map = { "#0f1217" = "#171A19", "#161b22" = "#1F2321", "#191e26" = "#222725", "#1c222a" = "#252A28", "#212730" = "#2A2E2D", "#272e37" = "#303135", "#2a313b" = "#363A39", "#2c343e" = "#3B423D", "#313945" = "#414843", "#333b47" = "#474E48", "#3a434f" = "#4F554F", "#46515d" = "#5F635D", "#566170" = "#6E716A", "#9aa6b2" = "#A9A89F", "#e6edf3" = "#E4E0D3" }
+cursors = { "#1c222a" = "header_bg", "#e6edf3" = "text", "#d69a50" = "accent", "#9aa6b2" = "text_muted" }
+
+[edition.dark.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "accent", "#b68344" = "selection_bg" }
+"aurorae/decoration.svg" = { "#d69a50" = "accent" }
+
+# ----------------------------------------------------------------------------- Light
+[edition.light]
+name = "Light"
+
+[edition.light.roles]
+window_bg = "paper"
+view_bg = "paper_view"
+view_alt_bg = "paper_alt"
+header_bg = "paper_raised"
+button_bg = "paper_raised"
+hover_bg = "paper_hover"
+surface_raised = "paper_view"
+border = "paper_border"
+border_strong = "paper_line"
+text = "charcoal"
+text_muted = "graphite"
+text_disabled = "weathered_grey"
+accent = "trail_olive"
+selection_bg = "forest_green"
+selection_fg = "paper_view"
+link = "slate_blue"
+visited = "canvas_ink"
+negative = "rust_ink"
+neutral = "brass_ink"
+positive = "forest_green"
+osd_bg = "paper_raised"
+
+[edition.light.terminal]
+#          black      red        green      yellow     blue       magenta    cyan       white
+normal = ["charcoal", "rust_ink", "forest_green", "brass_ink", "slate_blue", "#7A4F63", "#3F6660", "graphite"]
+bright = ["#4A4B4F", "#743B25", "#465642", "#5E4612", "#3F4A5A", "#643F50", "#33544F", "weathered_grey"]
+
+# Waypoint's artwork (Plasma Style, window borders, cursors) in Vintage Trail's colours
+[edition.light.recolour]
+ramp_ends = ["#171A19", "view_bg"]
+highlight = "accent"
+accent = [[0.70, "#BDC4B5"], [0.52, "accent"], [0.42, "selection_bg"], [0.0, "#3A4537"]]
+map = { "#0f1217" = "#171A19", "#2b2f36" = "#303135", "#667085" = "#62635F", "#b8bec6" = "#C4C1B6", "#bcbec1" = "#C4C1B6", "#c8cbd0" = "#DCD9CE", "#c9ced4" = "#CFCBBE", "#d1d3d6" = "#DCD9CE", "#e6e6e6" = "#EAE7DD", "#1c222a" = "#303135", "#e6edf3" = "#F5F2E9", "#9aa6b2" = "#9B9B9D" }
+cursors = { "#2b2f36" = "text", "#ffffff" = "#FFFFFF", "#d69a50" = "accent", "#667085" = "text_muted" }
+
+[edition.light.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "accent", "#b68344" = "selection_bg" }
+"aurorae/decoration.svg" = { "#d69a50" = "accent" }

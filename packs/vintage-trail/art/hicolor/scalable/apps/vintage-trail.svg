@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<!-- Vintage Trail mark - placeholder, CC-BY-SA-4.0 (The Linux Workbench) -->
+<defs><linearGradient id="bg" x1="0" y1="4" x2="0" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#303135"/><stop offset="1" stop-color="#1F2321"/></linearGradient></defs>
+<rect x="4" y="4" width="56" height="56" rx="14" fill="url(#bg)"/>
+<path d="M19 21L45 21 M32 21L32 45" fill="none" stroke="#AEB795" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

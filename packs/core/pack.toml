@@ -1,0 +1,222 @@
+# Core - platinum, refined minimalism: midnight, cloud grey and soft blue (macOS-inspired; nothing
+# of Apple's interface or branding is copied). The Linux Workbench. The five colours per mode and
+# the named colours are from Kahlil's brief (11 Nov 2026); the rest (PALETTE.md) is
+# approved 11 Nov 2026. Artwork: placeholders. The command is core-theme ("core" is too generic).
+
+[theme]
+id = "core"
+name = "Core"
+command = "core-theme"
+brand = "The Linux Workbench"
+version = "0.1.0"
+license = "GPL-3.0-or-later"
+editions = ["dark", "light"]
+lookandfeel_id = "org.thelinuxworkbench.core"
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs"]
+
+[theme.programs]
+tagline = "Platinum, midnight and soft blue for KDE Plasma 6, in Dark and Light."
+dark_surface = "Midnight"
+light_surface = "Platinum"
+dark_hint = "Midnight surfaces, soft blue accents."
+light_hint = "Cloud-grey and white surfaces with a see-through top bar."
+bar = ["frost", "sky_blue", "soft_blue", "lavender"]
+
+[theme.fastfetch]
+logo_colours = ["core_blue", "cloud_grey"]        # placeholder logo: $1 the tile, $2 the letter
+
+[theme.panel]
+shadow = "midnight_deep"             # shadows and dark sections
+accent = "core_blue"           # hover, open and attention outlines
+light = "cloud_grey"                  # light text; the Light twins' sections
+ink = "graphite"                     # the Light twins' text
+light_shadow = "slate"          # the Light twins' shadows
+
+[theme.icons.style]
+tile = ["night_raised", "midnight"]                # app tiles
+folder = ["sky_blue", "soft_blue", "#4F82D6"]  # folders, every type (front top, front bottom, back)
+page = ["cloud_grey", "silver"]                 # pages: text, documents, fonts, keys ...
+bar = "core_blue"                          # a bar under the glyph
+
+[theme.icons.style.pages]
+code = ["night_border", "night_surface"]
+script = ["night_border", "night_surface"]
+log = ["night_border", "night_surface"]
+config = ["night_border", "night_surface"]
+patch = ["night_border", "night_surface"]
+executable = ["night_border", "night_surface"]
+html = ["slate", "night_raised"]
+web = ["slate", "night_raised"]
+pdf = ["rose", "#BB7070"]
+presentation = ["rose", "#BB7070"]
+calendar = ["rose", "#BB7070"]
+mail = ["rose", "#BB7070"]
+image = ["sky_blue", "soft_blue"]
+drawing = ["sky_blue", "soft_blue"]
+vector = ["sky_blue", "soft_blue"]
+audio = ["#7FCDD9", "#63A0A9"]
+playlist = ["#7FCDD9", "#63A0A9"]
+video = ["lavender", "#8478A8"]
+subtitle = ["lavender", "#8478A8"]
+archive = ["amber", "#B59862"]
+package = ["amber", "#B59862"]
+disc = ["amber", "#B59862"]
+torrent = ["amber", "#B59862"]
+spreadsheet = ["mint", "#70A381"]
+csv = ["mint", "#70A381"]
+data = ["mint", "#70A381"]
+database = ["mint", "#70A381"]
+cad = ["silver", "slate"]
+model = ["silver", "slate"]
+model3d = ["silver", "slate"]
+
+[theme.icons.map]
+# what is left (devices, the bin, small details) in this theme's colours
+"#FAD3C0" = "#C9CACE"
+"#F9C8B2" = "#C2C4C8"
+"#F5B3A8" = "#B6B7BC"
+"#DDB6D5" = "#B2B3B8"
+"#D7AACD" = "#A9ABB0"
+"#CEC9EA" = "#D3D5D8"
+"#C3B8E6" = "#A5A7AC"
+"#B9B2E3" = "#9FA0A5"
+"#B9A9DA" = "#989A9F"
+"#A79FD4" = "#94969B"
+"#EFA1A1" = "#6C9DE8"
+"#F2A98F" = "#96989D"
+"#C48FBA" = "#7F8187"
+"#A77091" = "#74777D"
+"#857DB5" = "#6A6C72"
+"#6C64A3" = "#697386"
+"#4B4670" = "#484E5A"
+"#302C49" = "#292D37"
+"#252239" = "#20232B"
+"#F4A79A" = "#BAD2F5"
+"#EA5148" = "#82AEED"
+"#E58C8C" = "#6190DA"
+"#C93B32" = "#3F72C6"
+"#A9D8B8" = "#9DC8F5"
+"#3B9564" = "#4F82D6"
+"#FEFCFC" = "#F3F4F7"
+"#2F1F2B" = "#20232B"
+
+[colours]
+midnight_deep = "#1A1D24"   # views, terminal (Dark): Midnight, a step deeper
+midnight = "#20232B"        # Midnight: Dark background (brief)
+midnight_alt = "#252831"    
+night_surface = "#292D37"   # Dark surface (brief)
+night_raised = "#353B48"    # Dark elevated (brief)
+night_hover = "#414857"     
+night_border = "#484E5A"    
+slate = "#697386"           # Slate: disabled text and strong borders (Dark)
+slate_ink = "#5C6578"       # muted text (Light): Slate, deeper
+platinum = "#E8E9ED"        # Platinum: Light elevated (brief)
+silver = "#C9CDD4"          # Silver: muted text (Dark), borders (Light)
+silver_deep = "#A9AEB8"     
+silver_dim = "#A4A9B3"      # disabled text (Light)
+cloud_grey = "#F3F4F7"      # Cloud Grey: Light background, Dark text (brief)
+cloud_alt = "#F8F9FB"       
+platinum_hover = "#DCDEE4"  
+graphite = "#353941"        # Graphite: Light text (brief)
+soft_blue = "#6C9DE8"       # Soft Blue: Light accent (brief)
+core_blue = "#82AEED"       # Dark accent (brief)
+deep_blue = "#3F72C6"       # selection: Soft Blue, deeper (white text)
+link_blue = "#2D5DAF"       # links (Light)
+sky_blue = "#9DC8F5"        # Sky Blue: links (Dark)
+lavender = "#A99AD8"        # Lavender: visited links (Dark)
+lavender_ink = "#6A58A8"    # visited links (Light): Lavender, deeper
+frost = "#DCE7F5"           # Frost
+rose = "#F0908F"            # error (Dark)
+rose_ink = "#B93A3A"        # error (Light)
+amber = "#E8C37E"           # warning (Dark)
+amber_ink = "#8A6100"       # warning (Light)
+mint = "#8FD1A6"            # success (Dark)
+mint_ink = "#2A744A"        # success (Light)
+
+# ----------------------------------------------------------------------------- Dark
+[edition.dark]
+name = "Dark"
+
+[edition.dark.roles]
+window_bg = "midnight"
+view_bg = "midnight_deep"
+view_alt_bg = "midnight_alt"
+header_bg = "night_surface"
+button_bg = "night_raised"
+hover_bg = "night_hover"
+surface_raised = "night_surface"
+border = "night_border"
+border_strong = "slate"
+text = "cloud_grey"
+text_muted = "silver"
+text_disabled = "slate"
+accent = "core_blue"
+selection_bg = "deep_blue"
+selection_fg = "#FFFFFF"
+link = "sky_blue"
+visited = "lavender"
+negative = "rose"
+neutral = "amber"
+positive = "mint"
+osd_bg = "midnight_deep"
+
+[edition.dark.terminal]
+#          black      red        green      yellow     blue       magenta    cyan       white
+normal = ["night_surface", "rose", "mint", "amber", "core_blue", "lavender", "#7FCDD9", "silver"]
+bright = ["slate", "#F6AEAD", "#AEE0BF", "#F1D5A0", "sky_blue", "#BDB0E4", "#A3DDE6", "cloud_grey"]
+
+# Waypoint's artwork (Plasma Style, window borders, cursors) in Core's colours
+[edition.dark.recolour]
+ramp_ends = ["#0C0D10", "text"]
+highlight = "accent"
+accent = [[0.70, "#C1D7F6"], [0.52, "accent"], [0.42, "selection_bg"], [0.0, "#2C508B"]]
+map = { "#0f1217" = "#14161B", "#161b22" = "#1A1D24", "#191e26" = "#1D2028", "#1c222a" = "#20232B", "#212730" = "#252831", "#272e37" = "#292D37", "#2a313b" = "#2F3440", "#2c343e" = "#353B48", "#313945" = "#3B4250", "#333b47" = "#414857", "#3a434f" = "#484E5A", "#46515d" = "#596170", "#566170" = "#697386", "#9aa6b2" = "#C9CDD4", "#e6edf3" = "#F3F4F7" }
+cursors = { "#1c222a" = "header_bg", "#e6edf3" = "text", "#d69a50" = "accent", "#9aa6b2" = "text_muted" }
+
+[edition.dark.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "accent", "#b68344" = "selection_bg" }
+"aurorae/decoration.svg" = { "#d69a50" = "accent" }
+
+# ----------------------------------------------------------------------------- Light
+[edition.light]
+name = "Light"
+
+[edition.light.roles]
+window_bg = "cloud_grey"
+view_bg = "#FFFFFF"
+view_alt_bg = "cloud_alt"
+header_bg = "platinum"
+button_bg = "platinum"
+hover_bg = "platinum_hover"
+surface_raised = "#FFFFFF"
+border = "silver"
+border_strong = "silver_deep"
+text = "graphite"
+text_muted = "slate_ink"
+text_disabled = "silver_dim"
+accent = "soft_blue"
+selection_bg = "deep_blue"
+selection_fg = "#FFFFFF"
+link = "link_blue"
+visited = "lavender_ink"
+negative = "rose_ink"
+neutral = "amber_ink"
+positive = "mint_ink"
+osd_bg = "platinum"
+
+[edition.light.terminal]
+#          black      red        green      yellow     blue       magenta    cyan       white
+normal = ["graphite", "rose_ink", "mint_ink", "amber_ink", "link_blue", "lavender_ink", "#1E7482", "slate_ink"]
+bright = ["#4D525C", "#9C2F2F", "#215F3C", "#6F4E00", "#244C91", "#57478C", "#175E6A", "silver_dim"]
+
+# Waypoint's artwork (Plasma Style, window borders, cursors) in Core's colours
+[edition.light.recolour]
+ramp_ends = ["#14161B", "view_bg"]
+highlight = "accent"
+accent = [[0.70, "#B6CEF4"], [0.52, "accent"], [0.42, "selection_bg"], [0.0, "#2C508B"]]
+map = { "#0f1217" = "#14161B", "#2b2f36" = "#353941", "#667085" = "#5C6578", "#b8bec6" = "#C9CDD4", "#bcbec1" = "#C9CDD4", "#c8cbd0" = "#E8E9ED", "#c9ced4" = "#DCDEE4", "#d1d3d6" = "#E8E9ED", "#e6e6e6" = "#F3F4F7", "#1c222a" = "#353941", "#e6edf3" = "#FFFFFF", "#9aa6b2" = "#A4A9B3" }
+cursors = { "#2b2f36" = "text", "#ffffff" = "#FFFFFF", "#d69a50" = "accent", "#667085" = "text_muted" }
+
+[edition.light.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "accent", "#b68344" = "selection_bg" }
+"aurorae/decoration.svg" = { "#d69a50" = "accent" }

@@ -1,0 +1,223 @@
+# Vacation - Caribbean, tropical, relaxed modern: ocean, lagoon teal, sand and coral.
+# The Linux Workbench. The five colours per mode and the named colours are from Kahlil's brief
+# (11 Nov 2026); the rest (PALETTE.md) approved 11 Nov 2026. Artwork: placeholders.
+
+[theme]
+id = "vacation"
+name = "Vacation"
+command = "vacation"
+brand = "The Linux Workbench"
+version = "0.1.0"
+license = "GPL-3.0-or-later"
+editions = ["dark", "light"]
+lookandfeel_id = "org.thelinuxworkbench.vacation"
+parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs"]
+
+[theme.programs]
+tagline = "Ocean, lagoon teal and warm sand for KDE Plasma 6, in Dark and Light."
+dark_surface = "Ocean"
+light_surface = "Shell"
+dark_hint = "Deep ocean surfaces, lagoon teal and coral."
+light_hint = "Shell and white surfaces with a see-through top bar."
+bar = ["sea_glass", "lagoon", "sunset_gold", "coral"]
+
+[theme.fastfetch]
+logo_colours = ["lagoon", "sunlit_cream"]        # placeholder logo: $1 the tile, $2 the letter
+
+[theme.panel]
+shadow = "ocean_night"             # shadows and dark sections
+accent = "lagoon"           # hover, open and attention outlines
+light = "sunlit_cream"                  # light text; the Light twins' sections
+ink = "lagoon_ink"                     # the Light twins' text
+light_shadow = "reef"          # the Light twins' shadows
+
+[theme.icons.style]
+tile = ["ocean_raised", "ocean_bg"]                # app tiles
+folder = ["#E6D2AE", "warm_sand", "#B79A6A"]  # folders, every type (front top, front bottom, back)
+page = ["sunlit_cream", "warm_sand"]                 # pages: text, documents, fonts, keys ...
+bar = "lagoon"                          # a bar under the glyph
+
+[theme.icons.style.pages]
+code = ["ocean_border", "ocean_surface"]
+script = ["ocean_border", "ocean_surface"]
+log = ["ocean_border", "ocean_surface"]
+config = ["ocean_border", "ocean_surface"]
+patch = ["ocean_border", "ocean_surface"]
+executable = ["ocean_border", "ocean_surface"]
+html = ["ocean_line", "ocean_raised"]
+web = ["ocean_line", "ocean_raised"]
+pdf = ["coral", "#B66551"]
+presentation = ["coral", "#B66551"]
+calendar = ["coral", "#B66551"]
+mail = ["coral", "#B66551"]
+image = ["#6FAFD6", "#5789A7"]
+drawing = ["#6FAFD6", "#5789A7"]
+vector = ["#6FAFD6", "#5789A7"]
+audio = ["lagoon", "caribbean_teal"]
+playlist = ["lagoon", "caribbean_teal"]
+video = ["#DE8FA8", "#AD7083"]
+subtitle = ["#DE8FA8", "#AD7083"]
+archive = ["sunset_gold", "#B38C48"]
+package = ["sunset_gold", "#B38C48"]
+disc = ["sunset_gold", "#B38C48"]
+torrent = ["sunset_gold", "#B38C48"]
+spreadsheet = ["tropical_leaf", "palm_green"]
+csv = ["tropical_leaf", "palm_green"]
+data = ["tropical_leaf", "palm_green"]
+database = ["tropical_leaf", "palm_green"]
+cad = ["sea_mist", "ocean_line"]
+model = ["sea_mist", "ocean_line"]
+model3d = ["sea_mist", "ocean_line"]
+
+[theme.icons.map]
+# what is left (devices, the bin, small details) in this theme's colours
+"#FAD3C0" = "#C4BFAC"
+"#F9C8B2" = "#BDB9A7"
+"#F5B3A8" = "#B0AE9E"
+"#DDB6D5" = "#ABAA9B"
+"#D7AACD" = "#A2A394"
+"#CEC9EA" = "#CFC9B4"
+"#C3B8E6" = "#9E9F91"
+"#B9B2E3" = "#97998C"
+"#B9A9DA" = "#909388"
+"#A79FD4" = "#8C9084"
+"#EFA1A1" = "#D9BE91"
+"#F2A98F" = "#8E9186"
+"#C48FBA" = "#757D75"
+"#A77091" = "#6A736D"
+"#857DB5" = "#5F6A65"
+"#6C64A3" = "#63817E"
+"#4B4670" = "#3D6265"
+"#302C49" = "#183940"
+"#252239" = "#10272D"
+"#F4A79A" = "#92D9D4"
+"#EA5148" = "#39B9B0"
+"#E58C8C" = "#289B99"
+"#C93B32" = "#167D82"
+"#A9D8B8" = "#E6D2AE"
+"#3B9564" = "#B79A6A"
+"#FEFCFC" = "#F1E5CC"
+"#2F1F2B" = "#10272D"
+
+[colours]
+ocean_night = "#0D2025"     # views, terminal (Dark): the background, a step deeper
+ocean_bg = "#10272D"        # Dark background (brief)
+ocean_alt = "#143036"       
+ocean_surface = "#183940"   # Dark surface (brief)
+ocean_raised = "#204951"    # Dark elevated (brief)
+ocean_hover = "#2F575C"     
+ocean_border = "#3D6265"    
+ocean_line = "#63817E"      
+ocean_deep = "#123C46"      # Ocean Deep
+caribbean_teal = "#167D82"  # Caribbean Teal: Light accent, selection
+teal_ink = "#0F6A70"        # links (Light): Caribbean Teal, deeper
+lagoon = "#39B9B0"          # Lagoon: Dark accent
+sea_glass = "#8DD8CB"       # Sea Glass: links (Dark)
+palm_green = "#426B48"      # Palm Green: success (Light)
+tropical_leaf = "#78965A"   # Tropical Leaf
+leaf_light = "#9CBB7A"      # success (Dark): Tropical Leaf, lighter
+warm_sand = "#D9BE91"       # Warm Sand: visited links (Dark), folders
+sunlit_cream = "#F1E5CC"    # Sunlit Cream: Dark text
+coral = "#E98268"           # Coral: error (Dark)
+coral_ink = "#A93F27"       # error (Light): Coral, deeper
+sunset_gold = "#E6B45C"     # Sunset Gold: warning (Dark)
+gold_ink = "#7F560A"        # warning (Light): Sunset Gold, deeper
+sea_mist = "#A9B8A9"        # muted text (Dark)
+sea_dim = "#66736F"         # disabled text (Dark)
+shell = "#F5F0E5"           # Light background (brief)
+shell_alt = "#FAF7F0"       
+shell_raised = "#E8E2D4"    # Light elevated (brief)
+shell_hover = "#DCD4C2"     
+shell_border = "#D3CBB9"    
+shell_line = "#A8A698"      
+lagoon_ink = "#193B40"      # Light text (brief)
+reef = "#4F6769"            # muted text (Light)
+reef_dim = "#99A4A0"        # disabled text (Light)
+
+# ----------------------------------------------------------------------------- Dark
+[edition.dark]
+name = "Dark"
+
+[edition.dark.roles]
+window_bg = "ocean_bg"
+view_bg = "ocean_night"
+view_alt_bg = "ocean_alt"
+header_bg = "ocean_surface"
+button_bg = "ocean_raised"
+hover_bg = "ocean_hover"
+surface_raised = "ocean_surface"
+border = "ocean_border"
+border_strong = "ocean_line"
+text = "sunlit_cream"
+text_muted = "sea_mist"
+text_disabled = "sea_dim"
+accent = "lagoon"
+selection_bg = "caribbean_teal"
+selection_fg = "#FFFFFF"
+link = "sea_glass"
+visited = "warm_sand"
+negative = "coral"
+neutral = "sunset_gold"
+positive = "leaf_light"
+osd_bg = "ocean_night"
+
+[edition.dark.terminal]
+#          black      red        green      yellow     blue       magenta    cyan       white
+normal = ["ocean_surface", "coral", "leaf_light", "sunset_gold", "#6FAFD6", "#DE8FA8", "lagoon", "sea_mist"]
+bright = ["ocean_line", "#F2A08B", "#B7D197", "#F0CB85", "#94C7E6", "#EBB0C3", "sea_glass", "sunlit_cream"]
+
+# Waypoint's artwork (Plasma Style, window borders, cursors) in Vacation's colours
+[edition.dark.recolour]
+ramp_ends = ["#060E11", "text"]
+highlight = "accent"
+accent = [[0.70, "#9CDCD8"], [0.52, "accent"], [0.42, "selection_bg"], [0.0, "#0F585B"]]
+map = { "#0f1217" = "#0A181C", "#161b22" = "#0D2025", "#191e26" = "#0F2429", "#1c222a" = "#10272D", "#212730" = "#143036", "#272e37" = "#183940", "#2a313b" = "#1C4149", "#2c343e" = "#204951", "#313945" = "#285057", "#333b47" = "#2F575C", "#3a434f" = "#3D6265", "#46515d" = "#507272", "#566170" = "#63817E", "#9aa6b2" = "#A9B8A9", "#e6edf3" = "#F1E5CC" }
+cursors = { "#1c222a" = "header_bg", "#e6edf3" = "text", "#d69a50" = "accent", "#9aa6b2" = "text_muted" }
+
+[edition.dark.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "accent", "#b68344" = "selection_bg" }
+"aurorae/decoration.svg" = { "#d69a50" = "accent" }
+
+# ----------------------------------------------------------------------------- Light
+[edition.light]
+name = "Light"
+
+[edition.light.roles]
+window_bg = "shell"
+view_bg = "#FFFFFF"
+view_alt_bg = "shell_alt"
+header_bg = "shell_raised"
+button_bg = "shell_raised"
+hover_bg = "shell_hover"
+surface_raised = "#FFFFFF"
+border = "shell_border"
+border_strong = "shell_line"
+text = "lagoon_ink"
+text_muted = "reef"
+text_disabled = "reef_dim"
+accent = "caribbean_teal"
+selection_bg = "caribbean_teal"
+selection_fg = "#FFFFFF"
+link = "teal_ink"
+visited = "palm_green"
+negative = "coral_ink"
+neutral = "gold_ink"
+positive = "palm_green"
+osd_bg = "shell_raised"
+
+[edition.light.terminal]
+#          black      red        green      yellow     blue       magenta    cyan       white
+normal = ["lagoon_ink", "coral_ink", "palm_green", "gold_ink", "#2B6A94", "#96486A", "caribbean_teal", "reef"]
+bright = ["#3E5A5E", "#8E3420", "#355839", "#6A4808", "#225879", "#7D3B58", "teal_ink", "reef_dim"]
+
+# Waypoint's artwork (Plasma Style, window borders, cursors) in Vacation's colours
+[edition.light.recolour]
+ramp_ends = ["#0A181C", "view_bg"]
+highlight = "accent"
+accent = [[0.70, "#8BBEC1"], [0.52, "accent"], [0.42, "selection_bg"], [0.0, "#0F585B"]]
+map = { "#0f1217" = "#0A181C", "#2b2f36" = "#193B40", "#667085" = "#4F6769", "#b8bec6" = "#D3CBB9", "#bcbec1" = "#D3CBB9", "#c8cbd0" = "#E8E2D4", "#c9ced4" = "#DCD4C2", "#d1d3d6" = "#E8E2D4", "#e6e6e6" = "#F5F0E5", "#1c222a" = "#193B40", "#e6edf3" = "#FFFFFF", "#9aa6b2" = "#99A4A0" }
+cursors = { "#2b2f36" = "text", "#ffffff" = "#FFFFFF", "#d69a50" = "accent", "#667085" = "text_muted" }
+
+[edition.light.recolour.files]
+"aurorae/close.svg" = { "#d69a50" = "accent", "#b68344" = "selection_bg" }
+"aurorae/decoration.svg" = { "#d69a50" = "accent" }
