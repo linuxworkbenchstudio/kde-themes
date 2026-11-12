@@ -78,8 +78,6 @@ def build(pack: Pack) -> dict:
     others = other_packs(pack)
     profiles = sorted({f"{p.file_name('konsole', e)}.profile" for p in [pack, *others] for e in p.editions.values()})
     ff = pack.raw.get("theme", {}).get("fastfetch", {})
-    from .fastfetch import ansi
-    logo = {str(i): ansi(pack, c) for i, c in enumerate(ff.get("logo_colours", [r["accent"], "text"]), 1)}
     def pick(v, ed):
         return rgb(v if v.startswith("#") else (ed.roles.get(v) or pack.colours[v]))
     palette = {"dark": {"accent": pick(ff.get("accent_dark", "accent"), dark), "muted": pick(ff.get("muted_dark", "text_muted"), dark)},
@@ -98,13 +96,11 @@ def build(pack: Pack) -> dict:
         "@@FF_PALETTE@@": "{\n" + "".join(f'    "{v}": {{"accent": {palette[v]["accent"]!r}, "muted": {palette[v]["muted"]!r}}},\n'
                                            for v in ("dark", "light")) + "}",
         "@@FF_LIGHT_ACCENT@@": "%d;%d;%d" % palette["light"]["accent"],
-        "@@FF_LOGO_1@@": logo["1"],
         "@@FIND_OURS@@": " -o ".join(f"-iname '*{w}*'" for w in sorted({pack.command, pack.name.replace(' ', '-'), pack.name.lower(),
                                                                            pack.lookandfeel_id.rsplit('.', 1)[-1]})),
         "@@SIBLING_COMMAND@@": (others[0].command if others else "another-theme"),
         "@@SIBLING_PROFILE@@": (f"{others[0].file_name('konsole', next(iter(others[0].editions.values())))}.profile"
                                 if others else "Other.profile"),
-        "@@FF_LOGO@@": json.dumps({"dark": logo, "light": logo}),
         "@@BAR_R@@": " ".join(str(c[0]) for c in bar), "@@BAR_G@@": " ".join(str(c[1]) for c in bar),
         "@@BAR_B@@": " ".join(str(c[2]) for c in bar),
         "@@TAGLINE@@": spec.get("tagline", f"A {pack.name} theme for KDE Plasma 6, in Dark and Light."),

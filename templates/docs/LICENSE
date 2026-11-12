@@ -34,6 +34,6 @@ texts are in LICENSES/, and each installed folder carries its own copy (COPYING)
 
 6. CC-BY-SA-4.0  (LICENSES/CC-BY-SA-4.0.txt)
    icons/ (apart from the Breeze glyphs), hicolor/, wallpapers/, the Global Theme previews and
-   splash images, and the Fastfetch logo. Attribution: "@@NAME@@ by @@BRAND@@".
+   splash images. Attribution: "@@NAME@@ by @@BRAND@@".
 
 No third-party logos, characters or trademarks are included.

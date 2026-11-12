@@ -5,7 +5,7 @@ packs/<pack>/art/ holds the finished artwork (made with the theme's design tools
   wallpaper/images/, images_dark/, screenshot.png                     -> wallpapers/<Slug>/
   splash/<edition>/{background.jpg, wordmark.png, preview.png}        -> the Global Theme's splash
   previews/<edition>/{preview.png, fullscreenpreview.*}               -> the Global Theme's previews
-  fastfetch/<command>-logo.txt                                        -> fastfetch/design/
+  fastfetch/<command>-logo.txt     kept for later, not shipped (Fastfetch shows the distro logo)
 Plasma picks wallpapers/<Slug>/contents/images_dark/ under dark colour schemes by itself.
 """
 import json
@@ -35,5 +35,4 @@ def build(pack: Pack) -> dict:
         lnf = f"look-and-feel/{pack.lookandfeel_id}.{ed.id}/contents/"
         out.update(_files(art / "splash" / ed.id, lnf + "splash/images/"))
         out.update(_files(art / "previews" / ed.id, lnf + "previews/"))
-    out.update(_files(art / "fastfetch", "fastfetch/design/"))
     return out

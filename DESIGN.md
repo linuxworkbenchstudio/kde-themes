@@ -82,11 +82,11 @@ settings point at these names, so `[theme.names]` keeps each theme's own.
 | 6 | Kvantum (from KvArc/KvArcDark, splitter_width=1, 30 %) | ✓ | ✓ | **done**: one rule set (`[edition.*.kvantum]`) reproduces both generators; defaults from roles |
 | 7 | Cursors (recoloured Breeze) | ✓ | ✓ | **done** |
 | 8 | Icons: ~145 folder types, ~600 apps, ~260 file types, launcher in hicolor | ✓ | ✓ | **done**: Vice Horizon's generator, colours and style (tile, folder, pages, accent bar) per pack; Waypoint redrawn in its style (choice A, approved) |
-| 9 | Wallpapers (Dark/Light) | ✓ | ✓ | **done** (brand part: wallpapers, launcher, splash images, previews, Fastfetch logo from `packs/<pack>/art/`) |
+| 9 | Wallpapers (Dark/Light) | ✓ | ✓ | **done** (brand part: wallpapers, launcher, splash images, previews from `packs/<pack>/art/`) |
 | 10 | GTK 3/4 for GTK apps on Plasma | ✓ | ✓ | **done**: GTK 3.24.52 / 4.16.13 SCSS compiled with Dart Sass 1.78.0 (`tools/get_sass.py`); GTK 4 now ships its images and gtk-dark.css in every theme |
 | 11 | Top panel layout (32 px since 5 Nov 2026, was 36, then 40; KVitals, centred clock) | ✓ | ✓ | **done**: one script for every theme (Vice Horizon's, with Waypoint's look record); replaces any of the themes' panels |
 | 12 | Panel Colorizer: Normal, Transparent, Invisible, Cards, Pills, Fancy × Dark/Light | ✓ | ✓ | **done**: Vice Horizon's look rules, colours per pack; Waypoint moved to them; Cards without a bar, like Pills (5 Nov 2026) |
-| 13 | Fastfetch colours and design | ✓ | ✓ | design config **done**; logo with the artwork, recolouring program with the programs |
+| 13 | Fastfetch colours and design | ✓ | ✓ | **done**: no theme logo for now, the distro's own in the theme's colours (12 Nov 2026) |
 | 14 | SDDM login screen (optional) | | ✓ | **done**: every theme (helper + README) |
 | 15 | The theme command: dark/light, panel, dim, gtk, sync, watch, settings, uninstall | ✓ | ✓ | **done**: Vice Horizon 1.8.2's program as a template (templates/programs/) |
 | 16 | Settings app (terminal) with Add-ons and About | ✓ | ✓ (no About yet?) | **done**: Vice Horizon 1.8.2's program as a template (templates/programs/) |
@@ -147,6 +147,26 @@ templates/licences/, CHANGELOG.md from the pack.
 - Panel looks: top/bottom margins of the bar and widgets at most 2 px (icons about 32 px in 40).
 - `[edition.<id>.names]` gives one edition its own file name; Waypoint Light's icon theme is
   `Waypoint-Light` (inherits Papirus, not Papirus-Dark: the symbols were white on light).
+
+### Branding (stage 4, 12 Nov 2026)
+
+- **Logos** (launcher, app icon Dark and Light, 16-512 px and scalable): Waypoint keeps the amber W;
+  Vice Horizon and Natura traced from Kahlil's originals (C tiles for Dark: midnight, ink; A tiles
+  for Light: pink, sage); Vacation a sand V on lagoon (Inter Display Bold), Vintage Trail a
+  parchment VT on forest green (Caladea Bold), letters as outlines; Core a platinum C round a
+  soft-blue core. Light: Vacation teal on cream, Vintage Trail green on parchment, Core graphite on
+  platinum.
+- **Splash** (every theme): the launcher logo in the centre, the name below (Inter Display
+  SemiBold, spaced capitals), a bar near the bottom with the percentage (KSplash's 6 stages), in
+  the Dark edition's colours. Checked by loading the built Splash.qml in Qt 6.
+- **Natura wallpapers**: Kahlil's crane / red sun (Light) and crescent moon / fireflies (Dark),
+  1672x941, upscaled 4x with Real-ESRGAN (realesrgan-x4plus-anime, ncnn on the CPU), then
+  1920/2560/3840. The splash backgrounds are the same pictures, blurred.
+- **Fastfetch**: no theme logos for now (the ASCII art stays in `art/fastfetch/`, not shipped).
+  The design is the theme's layout with the distro's own logo in its colours; an older design
+  with a theme logo is switched to the distro logo on recolour.
+- Still to do: the websites (`site/` in this repo, GitHub Pages, one page per theme; the
+  repository is being renamed `lwbs-themes`).
 
 ### COSMIC (stage 3, 11 Nov 2026)
 

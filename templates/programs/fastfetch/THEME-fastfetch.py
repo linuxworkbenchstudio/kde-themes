@@ -12,7 +12,8 @@ Options: --variant dark|light|auto (auto: from KDE's colour scheme, else dark)
 What changes (only colour values; layout, modules, logo, keys and formats stay as they are):
   display.color             keys + title = @@NAME@@ accent, separator = muted, output = terminal text
   logo.color                1 = accent, 2 = terminal text, 3 = muted (repeating up to 9);
-                            the @@NAME@@ logo (@@COMMAND@@-logo.txt) gets its own colours
+                            a The Linux Workbench theme logo (<theme>-logo.txt, from an older
+                            design) is swapped for the distro's own logo
   modules[].keyColor        accent (only where the module already sets one)
   modules[].outputColor     terminal text (only where already set)
   title module color        user/host accent, @ muted (only where already set)
@@ -43,10 +44,7 @@ from pathlib import Path
 
 # @@NAME@@ palette (from the theme pack). Raw 24-bit ANSI codes work in every Fastfetch version.
 PALETTE = @@FF_PALETTE@@
-# Colours of the @@NAME@@ logo (@@COMMAND@@-logo.txt): $1, $2 ... as the theme pack gives them;
-# the same on a light terminal.
-LOGO = @@FF_LOGO@@
-SIBLINGS = @@SIBLINGS@@   # the other The Linux Workbench themes (their Fastfetch logos)
+THEMES = ["@@COMMAND@@", *@@SIBLINGS@@]   # The Linux Workbench themes (their old Fastfetch logos)
 TEXT = "39"            # the terminal's own text colour (default foreground)
 DEFAULT_MODULES = ["title", "separator", "os", "host", "kernel", "uptime", "packages", "shell",
                    "display", "de", "wm", "wmtheme", "theme", "icons", "font", "cursor", "terminal",
@@ -317,17 +315,13 @@ def recolour(text, variant):
                                                                "sixel", "iterm", "chafa", "raw"):
             notes.append(f"logo type '{typ.text}' is a picture or none; its colours were left alone")
         elif (logo.get("source") is not None and logo.get("source").kind == "str"
-              and "@@COMMAND@@-logo" in logo.get("source").text):
-            ed.set_member(logo, "color", jdump(LOGO[variant]), "logo.color (@@NAME@@ logo, " + variant + ")")
-        elif (logo.get("source") is not None and logo.get("source").kind == "str"
-              and any(f"{o}-logo" in logo.get("source").text for o in SIBLINGS)):
-            # another The Linux Workbench theme's design: same layout, @@NAME@@ logo
-            other = next(o for o in SIBLINGS if f"{o}-logo" in logo.get("source").text)
-            src = logo.get("source").text.replace(f"{other}-logo", "@@COMMAND@@-logo")
-            ed.replace(logo.get("source"), jdump(src), f"logo.source ({other} logo -> @@NAME@@ logo)")
-            ed.set_member(logo, "color", jdump(LOGO[variant]), "logo.color (@@NAME@@ logo, " + variant + ")")
-            if not Path(os.path.expanduser(src)).is_file():
-                notes.append(f"@@NAME@@ logo expected at {src} - run the installer's Fastfetch step to put it there")
+              and any(f"{o}-logo" in logo.get("source").text for o in THEMES)):
+            # an older The Linux Workbench design with a theme logo: same layout, the distro's logo
+            other = next(o for o in THEMES if f"{o}-logo" in logo.get("source").text)
+            keep = [f"{jdump(k)}: {text[v.start:v.end]}" for k, _, v in logo.members
+                    if k not in ("type", "source", "color")]          # padding and the like, as written
+            ed.replace(logo, "{ " + ", ".join([*keep, f'"color": {jdump(c["logo"])}']) + " }",
+                       f"logo ({other} logo -> your distro's logo)")
         else:
             ed.set_member(logo, "color", jdump(c["logo"]), "logo.color")
     elif logo.kind == "str":

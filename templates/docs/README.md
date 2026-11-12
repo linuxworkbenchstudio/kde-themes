@@ -21,7 +21,7 @@ By @@BRAND@@.
   tray, with six looks via the Panel Colorizer widget — Normal, Transparent, Invisible, Cards,
   Pills and Fancy (the default), each in Dark and Light
 - **Fastfetch colours**: recolours your own Fastfetch setup, keeping its layout and logo; or the
-  optional @@NAME@@ Fastfetch design with the @@NAME@@ logo
+  optional @@NAME@@ Fastfetch layout, with your distro's logo in @@NAME@@ colours
 - **@@NAME@@ Settings**: every setting in one full-screen terminal app (`@@COMMAND@@ settings`, or
   "@@NAME@@ Settings" in the app menu), with Add-ons, About and Uninstall
 - **`@@COMMAND@@`**: one command to switch everything between Dark and Light

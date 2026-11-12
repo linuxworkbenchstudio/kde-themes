@@ -14,7 +14,6 @@ import shlex
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 @@NAMES_PY@@
@@ -258,22 +257,15 @@ def settings(scr):
         elif choice == "fastfetch":
             tool = STATE / "fastfetch/@@COMMAND@@-fastfetch.py"
             f = ui.menu("Settings", "Fastfetch", [("recolour", "Recolour my config (keep layout and logo)", ""),
-                                                  ("design", "Use the @@NAME@@ design (its logo)", ""),
+                                                  ("design", "Use the @@NAME@@ layout (your distro logo)", ""),
                                                   ("restore", "Put my original config back", "")])
             v = ed or "dark"
             if f == "recolour":
                 run_outside(scr, ["python3", "-I", str(tool), "--apply", "--variant", v], "Recolouring Fastfetch")
             elif f == "design":
-                src = STATE / "fastfetch/design/config.jsonc"
-                logo = CONF / "fastfetch/@@COMMAND@@-logo.txt"
-                with tempfile.NamedTemporaryFile("w", suffix=".jsonc", delete=False) as t:
-                    t.write(src.read_text().replace("~/.config/fastfetch/@@COMMAND@@-logo.txt", str(logo)))
-                logo.parent.mkdir(parents=True, exist_ok=True)
-                if not logo.exists() and (STATE / "fastfetch/design/@@COMMAND@@-logo.txt").exists():
-                    shutil.copyfile(STATE / "fastfetch/design/@@COMMAND@@-logo.txt", logo)
-                run_outside(scr, ["python3", "-I", str(tool), "--apply", "--variant", v, "--from", t.name],
-                            "Using the @@NAME@@ Fastfetch design")
-                os.unlink(t.name)
+                run_outside(scr, ["python3", "-I", str(tool), "--apply", "--variant", v,
+                                  "--from", str(STATE / "fastfetch/design/config.jsonc")],
+                            "Using the @@NAME@@ Fastfetch layout")
             elif f == "restore":
                 run_outside(scr, ["python3", "-I", str(tool), "--restore"], "Restoring your Fastfetch config")
         elif choice == "gtk":

@@ -7,7 +7,7 @@
 #   ./install-fastfetch-colours.sh --restore  put your original Fastfetch config back
 #   ./install-fastfetch-colours.sh --design --apply
 #                                             optional: use the @@NAME@@ Fastfetch design instead
-#                                             (@@NAME@@ logo + module list); your config is kept
+#                                             (module list, your distro's logo); your config is kept
 #                                             and comes back with --restore
 # Options:  --dark | --light   palette to use (default: follows KDE's colour scheme, else dark)
 #           --yes              install missing Fastfetch/Python without asking (uses sudo)
@@ -102,24 +102,13 @@ fi
 need fastfetch fastfetch "the system-info tool these colours are for" || \
   echo "  Continuing: the colours are set up now and Fastfetch will use them once it is installed."
 
-FROM=""
+FROM=""   # a file to start from (the @@NAME@@ layout), passed as --from
 if [ $DESIGN = 1 ]; then
-  # the optional @@NAME@@ design: config + logo from this folder; the logo path is written for
-  # this user's config folder. The recolour step below backs up the current config first.
-  [ -f "$HERE/design/config.jsonc" ] && [ -f "$HERE/design/@@COMMAND@@-logo.txt" ] || \
-    { echo "design/ files not found next to this script" >&2; exit 1; }
-  CONF="${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch"
-  TMPD=$(mktemp -d); trap 'rm -rf "$TMPD"' EXIT
-  sed "s|~/.config/fastfetch/@@COMMAND@@-logo.txt|$CONF/@@COMMAND@@-logo.txt|" "$HERE/design/config.jsonc" > "$TMPD/config.jsonc"
-  FROM="--from $TMPD/config.jsonc"
-  echo "@@NAME@@ design: logo -> $CONF/@@COMMAND@@-logo.txt"
-  if [ $APPLY = 1 ]; then
-    mkdir -p "$CONF"
-    if [ -f "$CONF/@@COMMAND@@-logo.txt" ] && ! cmp -s "$HERE/design/@@COMMAND@@-logo.txt" "$CONF/@@COMMAND@@-logo.txt"; then
-      cp "$CONF/@@COMMAND@@-logo.txt" "$CONF/@@COMMAND@@-logo.txt.@@COMMAND@@-previous"
-    fi
-    cp "$HERE/design/@@COMMAND@@-logo.txt" "$CONF/@@COMMAND@@-logo.txt"
-  fi
+  # the optional @@NAME@@ layout (your distro's logo); the recolour step below backs up the
+  # current config first
+  [ -f "$HERE/design/config.jsonc" ] || { echo "design/config.jsonc not found next to this script" >&2; exit 1; }
+  FROM="$HERE/design/config.jsonc"
+  echo "@@NAME@@ layout, with your distro's logo"
 fi
 
 if [ $APPLY = 1 ]; then
@@ -127,9 +116,9 @@ if [ $APPLY = 1 ]; then
   if [ "$TOOL" != "$DEST" ]; then
     mkdir -p "$(dirname "$DEST")"; cp "$TOOL" "$DEST"; chmod 755 "$DEST"
   fi
-  python3 -I "$DEST" --apply --variant "$VARIANT" $Q $FROM
+  python3 -I "$DEST" --apply --variant "$VARIANT" $Q ${FROM:+--from "$FROM"}
   echo "Run  fastfetch  to see it. Undo:  $0 --restore"
 else
-  python3 -I "$TOOL" --variant "$VARIANT" $Q $FROM
+  python3 -I "$TOOL" --variant "$VARIANT" $Q ${FROM:+--from "$FROM"}
   echo "Preview only. Add  --apply  to write it."
 fi

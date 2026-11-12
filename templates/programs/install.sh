@@ -29,7 +29,7 @@ declare -A DESC=(
   [kde-panel]="Top panel (KVitals stats, styled by Panel Colorizer) + presets; built only when you ask"
   [kde-command]="'@@COMMAND@@' command + @@NAME@@ Settings app + login sync helper"
   [icons]="@@NAME@@ icons: folders, apps, drives, file types + the launcher; inherits Papirus/Breeze"
-  [fastfetch]="OPTIONAL: recolour your Fastfetch config (original kept; --fastfetch-design for the logo)"
+  [fastfetch]="OPTIONAL: recolour your Fastfetch config (original kept; --fastfetch-design for the @@NAME@@ layout)"
 )
 declare -A DEPS=([kde-lookandfeel]="kde-colors kde-plasma kde-aurorae kde-cursors icons kde-wallpaper"
                 [kde-panel]="icons kde-command")
@@ -75,7 +75,7 @@ Extras:
                                    leave it as it is (asked otherwise)
       --no-autosync                don't add the login helper that keeps Kvantum/Konsole/Fastfetch in step
       --fastfetch                  recolour your Fastfetch config (same as --with fastfetch)
-      --fastfetch-design           use the @@NAME@@ Fastfetch design (its logo) instead
+      --fastfetch-design           use the @@NAME@@ Fastfetch layout (your distro logo) instead
 
 Full setup:
       --full                       everything in one go: install missing programs, build the top
@@ -228,25 +228,18 @@ path_note() {
   esac
   vh_more "or run it as ~/.local/bin/@@COMMAND@@"; }
 inst_fastfetch() {
-  local dir="$VH_STATE_DIR/fastfetch" variant="$1" from=() tmp
+  local dir="$VH_STATE_DIR/fastfetch" variant="$1" from=()
   vh_install_file fastfetch "$VH_ROOT/fastfetch/@@COMMAND@@-fastfetch.py" "$dir/@@COMMAND@@-fastfetch.py" 755 || return 1
   vh_install_file fastfetch "$VH_ROOT/fastfetch/install-fastfetch-colours.sh" "$dir/install-fastfetch-colours.sh" 755
   vh_install_tree fastfetch "$VH_ROOT/fastfetch/design" "$dir/design"
   vh_have python3 || { vh_warn "python3 not found - Fastfetch colours not applied (files are in ${dir/#$HOME/\~})"; return 1; }
-  # the logo sits next to your config (also used when another theme's design is switched over)
-  vh_install_file fastfetch "$VH_ROOT/fastfetch/design/@@COMMAND@@-logo.txt" "$VH_CONFIG/fastfetch/@@COMMAND@@-logo.txt" || return 1
-  if [[ $FF_DESIGN -eq 1 ]]; then
-    tmp="$(mktemp)"
-    sed "s|~/.config/fastfetch/@@COMMAND@@-logo.txt|$VH_CONFIG/fastfetch/@@COMMAND@@-logo.txt|" "$VH_ROOT/fastfetch/design/config.jsonc" > "$tmp"
-    from=(--from "$tmp")
-  fi
+  [[ $FF_DESIGN -eq 1 ]] && from=(--from "$VH_ROOT/fastfetch/design/config.jsonc")
   if [[ "$VH_DRY_RUN" == 1 ]]; then vh_dim "recolour Fastfetch config ($variant${from:+, @@NAME@@ design})"; return 0; fi
   if python3 -I "$dir/@@COMMAND@@-fastfetch.py" --apply --quiet --variant "$variant" "${from[@]}"; then
     vh_mf_set R fastfetch fastfetch -
   else
     vh_warn "Fastfetch recolour failed - run ${dir/#$HOME/\~}/install-fastfetch-colours.sh --apply later"
   fi
-  [[ -n "${tmp:-}" ]] && rm -f -- "$tmp"
   return 0; }
 inst_kde_kvantum() { local T; T="$(Title "$1")"
   vh_install_tree kde-kvantum "$VH_ROOT/Kvantum/$(tw_name kvantum "$T")" "$VH_CONFIG/Kvantum/$(tw_name kvantum "$T")" || return 1
@@ -709,7 +702,7 @@ ask_fastfetch() { # your layout and logo stay; uninstall restores them
   echo
   if vh_confirm "Recolour Fastfetch to match @@NAME@@? (keeps your layout and logo; uninstall restores it)" y; then
     select_add fastfetch
-    vh_confirm "  Use the @@NAME@@ Fastfetch design with its logo instead?" n && FF_DESIGN=1
+    vh_confirm "  Use the @@NAME@@ Fastfetch layout instead (your distro logo in @@NAME@@ colours)?" n && FF_DESIGN=1
   fi
   return 0
 }

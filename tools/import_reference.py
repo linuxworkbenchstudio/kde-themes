@@ -103,7 +103,7 @@ ACCEPT = {
         },
         {
             "path": "fastfetch/*",
-            "why": "one Fastfetch tool for every theme: switches over from any sibling theme's logo"
+            "why": "one Fastfetch tool for every theme; no theme logo, the distro's own in the theme's colours (Kahlil, 12 Nov 2026)"
         },
         {
             "path": "sddm/README.md",
@@ -127,6 +127,10 @@ ACCEPT = {
         }
     ],
     "waypoint": [
+        {
+            "path": "look-and-feel/*/contents/splash/*",
+            "why": "new splash: logo in the centre, name below, progress bar with percentage (Kahlil, 12 Nov 2026)"
+        },
         {
             "path": "plasma/desktoptheme/*/metadata.json",
             "why": "Plasma 6 metadata: X-Plasma-API-Minimum-Version 6.0 replaces X-Plasma-API 5.0"
@@ -165,7 +169,7 @@ ACCEPT = {
         },
         {
             "path": "fastfetch/*",
-            "why": "one Fastfetch tool for every theme"
+            "why": "one Fastfetch tool for every theme; no theme logo, the distro's own in the theme's colours (Kahlil, 12 Nov 2026)"
         },
         {
             "path": "install.sh",
@@ -200,6 +204,7 @@ ACCEPT = {
 # files the engine adds that the release didn't have
 NEW_OK = {
     "vice-horizon": [
+        "look-and-feel/*/contents/splash/images/logo.png",
         "icons/*/apps/small/*",
         "icons/*/categories/small/*",
         "install.sh",
@@ -216,6 +221,7 @@ NEW_OK = {
         "LICENSES/*"
     ],
     "waypoint": [
+        "look-and-feel/*/contents/splash/images/logo.png",
         "cursors/*/aliases.txt",
         "gtk/*/gtk-4.0/assets/*",
         "gtk/*/gtk-4.0/gtk-dark.css",

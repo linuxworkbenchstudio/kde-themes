@@ -52,7 +52,7 @@ CHOICES = [
       "keep": "Your other panels stay, e.g. Plasma's default bottom panel."}),
     ("fastfetch", "Fastfetch", [("recolour", "Recolour mine"), ("design", "@@NAME@@ design"), ("off", "Leave alone")],
      {"recolour": "Your Fastfetch layout and logo stay; only the colours change. Uninstall restores it.",
-      "design": "The @@NAME@@ design with its logo. Your config is kept and comes back on uninstall.",
+      "design": "The @@NAME@@ layout, with your distro's logo in @@NAME@@ colours. Your config is kept and comes back on uninstall.",
       "off": "Fastfetch is not touched."}),
     ("sync", "Keep in step", [("on", "On"), ("off", "Off")],
      {"on": "Picking @@NAME@@ Dark or Light in System Settings also switches Kvantum, Konsole and Fastfetch.",
