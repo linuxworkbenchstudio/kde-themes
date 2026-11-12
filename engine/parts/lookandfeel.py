@@ -41,10 +41,12 @@ def build(pack: Pack) -> dict:
             f"[kwinrc][org.kde.kdecoration2]\nlibrary=org.kde.kwin.aurorae\ntheme=__aurorae__svg__{n('aurorae')}\n\n"
             f"[ksplashrc][KSplash]\nEngine=KSplashQML\nTheme={lid}\n\n"
             f"[Wallpaper]\nImage={pack.name.replace(' ', '-')}\n")
-        bg = (ed if ed.template == "dark" else next(e for e in pack.editions.values() if e.template == "dark")).roles["base_bg"]
+        # every splash has a dark picture behind it, so it takes the Dark edition's colours
+        dark = ed if ed.template == "dark" else next(e for e in pack.editions.values() if e.template == "dark")
         out[base + "contents/splash/Splash.qml"] = ((TEMPLATES / "lookandfeel" / "Splash.qml").read_text(encoding="utf-8")
                                                    .replace("@VARIANT@", ed.id).replace("@NAME@", pack.name)
-                                                   .replace("@BG@", bg).replace("@LINE@", ed.roles["accent"]))
+                                                   .replace("@BG@", dark.roles["base_bg"]).replace("@LINE@", dark.roles["accent"])
+                                                   .replace("@TEXT@", dark.roles["text"]))
         preset = f"{pack.name} Fancy" + (" Light" if ed.template == "light" else "")
         out[base + "contents/layouts/org.kde.plasma.desktop-layout.js"] = (
             f"// Global Theme layout = the {pack.name} top panel (panel/{pack.command}-panel.js).\n"
