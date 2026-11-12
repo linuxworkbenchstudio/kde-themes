@@ -73,6 +73,9 @@ pre { background: var(--deep); border: 1px solid var(--line); border-radius: 10p
 :root, :root[data-mode='dark'] { --bg: #10272D; --deep: #0D2025; --surface: #183940; --raised: #204951; --line: #3D6265; --text: #F1E5CC; --muted: #A9B8A9; --accent: #39B9B0; --on-accent: #000000; --accent-rgb: 57, 185, 176; }
 @media (prefers-color-scheme: light) { :root:not([data-mode='dark']) { --bg: #F5F0E5; --deep: #FFFFFF; --surface: #FFFFFF; --raised: #E8E2D4; --line: #D3CBB9; --text: #193B40; --muted: #4F6769; --accent: #167D82; --on-accent: #FFFFFF; --accent-rgb: 22, 125, 130; } }
 :root[data-mode='light'] { --bg: #F5F0E5; --deep: #FFFFFF; --surface: #FFFFFF; --raised: #E8E2D4; --line: #D3CBB9; --text: #193B40; --muted: #4F6769; --accent: #167D82; --on-accent: #FFFFFF; --accent-rgb: 22, 125, 130; }
+:root .hero { background-image: url('wallpaper-dark.jpg'); }
+:root[data-mode='light'] .hero { background-image: url('wallpaper-light.jpg'); }
+@media (prefers-color-scheme: light) { :root:not([data-mode='dark']) .hero { background-image: url('wallpaper-light.jpg'); } }
 .only-light { display: none; }
 :root[data-mode='light'] .only-light { display: grid; } :root[data-mode='light'] .only-dark { display: none; }
 @media (prefers-color-scheme: light) { :root:not([data-mode='dark']) .only-light { display: grid; } :root:not([data-mode='dark']) .only-dark { display: none; } }
@@ -86,7 +89,7 @@ pre { background: var(--deep); border: 1px solid var(--line); border-radius: 10p
   <a class="navlink" href="https://github.com/linuxworkbenchstudio/lwbs-themes">GitHub</a>
 </div></header>
 <main>
-<div class="hero drawn"><div class="wrap">
+<div class="hero"><div class="wrap">
   <img class="logo" src="logo.svg" alt="Vacation logo" width="88" height="88">
   <h1>Vacation</h1>
   <p>Ocean, lagoon teal and warm sand for KDE Plasma 6, in Dark and Light.</p>

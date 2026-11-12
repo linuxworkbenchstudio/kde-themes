@@ -13,8 +13,6 @@ editions = ["dark", "light"]
 lookandfeel_id = "org.thelinuxworkbench.vacation"
 parts = ["kde-colors", "konsole", "plasma-style", "aurorae", "cursors", "kvantum", "fastfetch", "gtk", "icons", "brand", "panel-looks", "panel-layout", "widgets", "lookandfeel", "programs", "docs", "cosmic"]
 
-[theme.site]
-placeholder_wallpaper = true       # the website draws a hero from the palette until the artwork is in
 
 [theme.programs]
 tagline = "Ocean, lagoon teal and warm sand for KDE Plasma 6, in Dark and Light."

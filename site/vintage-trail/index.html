@@ -73,6 +73,9 @@ pre { background: var(--deep); border: 1px solid var(--line); border-radius: 10p
 :root, :root[data-mode='dark'] { --bg: #252A28; --deep: #1F2321; --surface: #303135; --raised: #3B423D; --line: #4F554F; --text: #E4E0D3; --muted: #A9A89F; --accent: #AEB795; --on-accent: #000000; --accent-rgb: 174, 183, 149; }
 @media (prefers-color-scheme: light) { :root:not([data-mode='dark']) { --bg: #EAE7DD; --deep: #F5F2E9; --surface: #F5F2E9; --raised: #DCD9CE; --line: #C4C1B6; --text: #303135; --muted: #62635F; --accent: #7B896B; --on-accent: #000000; --accent-rgb: 123, 137, 107; } }
 :root[data-mode='light'] { --bg: #EAE7DD; --deep: #F5F2E9; --surface: #F5F2E9; --raised: #DCD9CE; --line: #C4C1B6; --text: #303135; --muted: #62635F; --accent: #7B896B; --on-accent: #000000; --accent-rgb: 123, 137, 107; }
+:root .hero { background-image: url('wallpaper-dark.jpg'); }
+:root[data-mode='light'] .hero { background-image: url('wallpaper-light.jpg'); }
+@media (prefers-color-scheme: light) { :root:not([data-mode='dark']) .hero { background-image: url('wallpaper-light.jpg'); } }
 .only-light { display: none; }
 :root[data-mode='light'] .only-light { display: grid; } :root[data-mode='light'] .only-dark { display: none; }
 @media (prefers-color-scheme: light) { :root:not([data-mode='dark']) .only-light { display: grid; } :root:not([data-mode='dark']) .only-dark { display: none; } }
@@ -86,7 +89,7 @@ pre { background: var(--deep); border: 1px solid var(--line); border-radius: 10p
   <a class="navlink" href="https://github.com/linuxworkbenchstudio/lwbs-themes">GitHub</a>
 </div></header>
 <main>
-<div class="hero drawn"><div class="wrap">
+<div class="hero"><div class="wrap">
   <img class="logo" src="logo.svg" alt="Vintage Trail logo" width="88" height="88">
   <h1>Vintage Trail</h1>
   <p>Charcoal, sage, canvas and brass for KDE Plasma 6, in Dark and Light.</p>
