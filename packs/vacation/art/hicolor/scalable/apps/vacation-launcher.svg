@@ -1,6 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-<!-- Vacation mark - placeholder, CC-BY-SA-4.0 (The Linux Workbench) -->
-<defs><linearGradient id="bg" x1="0" y1="4" x2="0" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#183940"/><stop offset="1" stop-color="#0D2025"/></linearGradient></defs>
-<circle cx="32" cy="32" r="29" fill="url(#bg)"/>
-<path d="M20 20L32 45L44 20" fill="none" stroke="#39B9B0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- Vacation logo - original artwork, CC-BY-SA-4.0 (The Linux Workbench) -->
+<defs><linearGradient id="t" x1="0" y1="8" x2="0" y2="248" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#39B9B0"/><stop offset="1" stop-color="#167D82"/></linearGradient></defs>
+<rect x="8" y="8" width="240" height="240" rx="52" fill="url(#t)"/>
+<path d="M112.65771812080538 188.0H144.2281879194631L185.46308724832215 68.00000000000001H158.80536912751677L140.04026845637583 126.38926174496645C136.5771812080537 137.8255033557047 132.8724832214765 150.71140939597316 128.68456375838926 165.4496644295302C124.33557046979865 150.71140939597316 120.5503355704698 137.8255033557047 116.92617449664431 126.38926174496645L97.51677852348993 68.00000000000001H70.53691275167786Z" fill="#F1E5CC"/>
+
 </svg>

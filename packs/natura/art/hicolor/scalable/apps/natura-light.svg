@@ -1,17 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-<!-- Natura mark - original artwork, CC-BY-SA-4.0 (The Linux Workbench) -->
-<defs>
-<linearGradient id="bg" x1="0" y1="4" x2="0" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FBFAF7"/><stop offset="1" stop-color="#EAE2D2"/></linearGradient>
-<linearGradient id="sun" x1="0" y1="13" x2="0" y2="41" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#E05A47"/><stop offset="1" stop-color="#F2A58C"/></linearGradient>
-<clipPath id="c"><rect x="4" y="4" width="56" height="56" rx="14"/></clipPath>
-</defs>
-<rect x="4" y="4" width="56" height="56" rx="14" fill="url(#bg)" stroke="#D3C9B6" stroke-width="1"/>
-<g clip-path="url(#c)">
-<circle cx="38" cy="27" r="13" fill="url(#sun)"/>
-<path d="M2 41C11 31 18 29 26 33S41 34 48 30 60 30 66 34V66H2z" fill="#B7CCAE"/>
-<path d="M2 45C12 38 20 37 30 41S48 41 66 37V66H2z" fill="#7E9F74"/>
-<rect x="2" y="47" width="64" height="20" fill="#EAE2D2"/>
-<path d="M14 51.5h36M21 55.5h22" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round"/>
-<path d="M33 51.5h10" stroke="#E05A47" stroke-opacity=".9" stroke-width="1.6" stroke-linecap="round"/>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- Natura logo - original artwork, CC-BY-SA-4.0 (The Linux Workbench) -->
+<rect x="8" y="8" width="240" height="240" rx="52" fill="#9DBF94"/>
+<path d="M47.8 87.6l36.6 38.8v68.9H47.8z" fill="#1C1C1C"/>
+<path d="M50 75.8h44.1L206 195.3h-44.1z" fill="#1C1C1C"/>
+<path d="M171.6 75.8h36.6v107.6l-36.6-37.6z" fill="#1C1C1C"/>
+<circle cx="148.4" cy="93.6" r="11.3" fill="#E05A47"/>
+
 </svg>

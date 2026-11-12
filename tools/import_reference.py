@@ -54,6 +54,14 @@ ACCEPT = {
             "why": "app tiles have no light edge or top highlight (Kahlil, 5 Nov 2026: a stray line at panel sizes)"
         },
         {
+            "path": "hicolor/*",
+            "why": "new logo: the V with the striped sun, midnight tile (Dark) and pink tile (Light) (Kahlil, 12 Nov 2026)"
+        },
+        {
+            "path": "icons/*/apps/*/vice-horizon-launcher.png",
+            "why": "new logo, as above (the launcher's fixed sizes in the icon theme)"
+        },
+        {
             "path": "icons/*/categories/scalable/*",
             "why": "category tiles have no light edge or top highlight (Kahlil, 5 Nov 2026)"
         },
