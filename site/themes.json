@@ -1,0 +1,32 @@
+[
+ {
+  "id": "waypoint",
+  "name": "Waypoint",
+  "tagline": "Graphite and machined amber for KDE Plasma 6, in Dark and Light."
+ },
+ {
+  "id": "vice-horizon",
+  "name": "Vice Horizon",
+  "tagline": "A sunset theme for KDE Plasma 6, in Dark and Light."
+ },
+ {
+  "id": "natura",
+  "name": "Natura",
+  "tagline": "Ink, sage and vermillion for KDE Plasma 6, in Dark and Light."
+ },
+ {
+  "id": "vacation",
+  "name": "Vacation",
+  "tagline": "Ocean, lagoon teal and warm sand for KDE Plasma 6, in Dark and Light."
+ },
+ {
+  "id": "vintage-trail",
+  "name": "Vintage Trail",
+  "tagline": "Charcoal, sage, canvas and brass for KDE Plasma 6, in Dark and Light."
+ },
+ {
+  "id": "core",
+  "name": "Core",
+  "tagline": "Platinum, midnight and soft blue for KDE Plasma 6, in Dark and Light."
+ }
+]

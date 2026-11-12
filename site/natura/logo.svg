@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- Natura logo - original artwork, CC-BY-SA-4.0 (The Linux Workbench) -->
+<rect x="8" y="8" width="240" height="240" rx="52" fill="#1C1C1C"/>
+<path d="M47.8 87.6l36.6 38.8v68.9H47.8z" fill="#F4F3EF"/>
+<path d="M50 75.8h44.1L206 195.3h-44.1z" fill="#F4F3EF"/>
+<path d="M171.6 75.8h36.6v107.6l-36.6-37.6z" fill="#F4F3EF"/>
+<circle cx="148.4" cy="93.6" r="11.3" fill="#E05A47"/>
+
+</svg>

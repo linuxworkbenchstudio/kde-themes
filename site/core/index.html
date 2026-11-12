@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core — The Linux Workbench</title>
+<meta name="description" content="Core: Platinum, midnight and soft blue for KDE Plasma 6, in Dark and Light.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
+a { color: var(--accent); }
+img { max-width: 100%; display: block; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+header.top { position: sticky; top: 0; z-index: 5; backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--bg) 82%, transparent); border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; align-items: center; gap: 16px; height: 56px; }
+.brand { color: var(--text); text-decoration: none; font-weight: 650; letter-spacing: .02em; white-space: nowrap; }
+@media (max-width: 520px) { .brand small { display: none; } header.top .wrap { gap: 10px; } }
+.brand small { color: var(--muted); font-weight: 500; margin-left: 6px; }
+.spacer { flex: 1; }
+.navlink { color: var(--muted); text-decoration: none; font-size: 14px; }
+.navlink:hover { color: var(--text); }
+.switch { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; }
+.switch button { font: inherit; font-size: 13px; border: 0; background: none; color: var(--muted);
+  padding: 4px 12px; border-radius: 999px; cursor: pointer; }
+.switch button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;
+  font-weight: 600; text-decoration: none; border: 1px solid transparent; }
+.btn.primary { background: var(--accent); color: var(--on-accent); }
+.btn.ghost { border-color: color-mix(in srgb, currentColor 35%, transparent); color: inherit; }
+h1, h2, h3 { line-height: 1.2; margin: 0; }
+h2 { font-size: 24px; margin-bottom: 20px; }
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+code, pre { font-family: "JetBrains Mono", ui-monospace, "DejaVu Sans Mono", monospace; font-size: 14px; }
+pre { background: var(--deep); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+  overflow-x: auto; margin: 0; }
+
+.hero { position: relative; min-height: min(78vh, 640px); display: flex; align-items: flex-end;
+  color: #fff; background: var(--deep) center / cover no-repeat; overflow: hidden; }
+.hero::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,.62) 100%); }
+.hero.drawn { background: radial-gradient(1200px 520px at 70% 10%, rgba(var(--accent-rgb), .35), transparent 60%),
+  linear-gradient(160deg, var(--surface), var(--deep)); color: var(--text); }
+.hero.drawn::after { display: none; }
+.hero .wrap { position: relative; z-index: 1; width: 100%; padding-bottom: 48px; }
+.hero .logo { width: 88px; height: 88px; filter: drop-shadow(0 8px 24px rgba(0,0,0,.35)); }
+.hero h1 { font-size: clamp(36px, 7vw, 64px); margin: 18px 0 8px; letter-spacing: -.01em; }
+.hero p { font-size: 18px; max-width: 560px; margin: 0 0 24px; opacity: .92; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero .version { font-size: 13px; opacity: .8; margin-top: 16px; }
+.hero:not(.drawn) .btn.ghost { color: #fff; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+@media (max-width: 520px) { .sw i { height: 44px; } }
+.sw { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.sw i { display: block; height: 64px; }
+.sw div { padding: 8px 10px; font-size: 13px; }
+.sw b { display: block; font-weight: 600; }
+.sw span { color: var(--muted); font-family: ui-monospace, monospace; font-size: 12px; }
+.features { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.card h3 { font-size: 16px; margin-bottom: 6px; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.steps { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.steps ol { margin: 0 0 12px; padding-left: 20px; color: var(--muted); }
+.steps h3 { font-size: 16px; margin-bottom: 10px; }
+.note { color: var(--muted); font-size: 14px; }
+:root, :root[data-mode='dark'] { --bg: #20232B; --deep: #1A1D24; --surface: #292D37; --raised: #353B48; --line: #484E5A; --text: #F3F4F7; --muted: #C9CDD4; --accent: #82AEED; --on-accent: #000000; --accent-rgb: 130, 174, 237; }
+@media (prefers-color-scheme: light) { :root:not([data-mode='dark']) { --bg: #F3F4F7; --deep: #FFFFFF; --surface: #FFFFFF; --raised: #E8E9ED; --line: #C9CDD4; --text: #353941; --muted: #5C6578; --accent: #6C9DE8; --on-accent: #000000; --accent-rgb: 108, 157, 232; } }
+:root[data-mode='light'] { --bg: #F3F4F7; --deep: #FFFFFF; --surface: #FFFFFF; --raised: #E8E9ED; --line: #C9CDD4; --text: #353941; --muted: #5C6578; --accent: #6C9DE8; --on-accent: #000000; --accent-rgb: 108, 157, 232; }
+.only-light { display: none; }
+:root[data-mode='light'] .only-light { display: grid; } :root[data-mode='light'] .only-dark { display: none; }
+@media (prefers-color-scheme: light) { :root:not([data-mode='dark']) .only-light { display: grid; } :root:not([data-mode='dark']) .only-dark { display: none; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../">The Linux Workbench <small>themes</small></a>
+  <span class="spacer"></span>
+  <div class="switch" role="group" aria-label="Edition"><button data-show="dark" aria-pressed="true">Dark</button><button data-show="light" aria-pressed="false">Light</button></div>
+  <a class="navlink" href="https://github.com/linuxworkbenchstudio/lwbs-themes">GitHub</a>
+</div></header>
+<main>
+<div class="hero drawn"><div class="wrap">
+  <img class="logo" src="logo.svg" alt="Core logo" width="88" height="88">
+  <h1>Core</h1>
+  <p>Platinum, midnight and soft blue for KDE Plasma 6, in Dark and Light.</p>
+  <div class="actions">
+    <a class="btn primary" href="https://github.com/linuxworkbenchstudio/lwbs-themes/releases?q=Core">Download</a>
+    <a class="btn ghost" href="https://github.com/linuxworkbenchstudio/lwbs-themes/tree/main/packs/core">Source</a>
+  </div>
+  <div class="version">Version 0.1.0 · KDE Plasma 6 and COSMIC · GPL-3.0-or-later</div>
+</div></div>
+
+<section><div class="wrap">
+  <h2>Palette</h2>
+  <div class="swatches only-dark"><div class="sw"><i style="background:#20232B"></i><div><b>Background</b><span>#20232B</span></div></div><div class="sw"><i style="background:#292D37"></i><div><b>Surface</b><span>#292D37</span></div></div><div class="sw"><i style="background:#353B48"></i><div><b>Raised</b><span>#353B48</span></div></div><div class="sw"><i style="background:#F3F4F7"></i><div><b>Text</b><span>#F3F4F7</span></div></div><div class="sw"><i style="background:#C9CDD4"></i><div><b>Muted</b><span>#C9CDD4</span></div></div><div class="sw"><i style="background:#82AEED"></i><div><b>Accent</b><span>#82AEED</span></div></div><div class="sw"><i style="background:#8FD1A6"></i><div><b>Success</b><span>#8FD1A6</span></div></div><div class="sw"><i style="background:#E8C37E"></i><div><b>Warning</b><span>#E8C37E</span></div></div><div class="sw"><i style="background:#F0908F"></i><div><b>Error</b><span>#F0908F</span></div></div></div><div class="swatches only-light"><div class="sw"><i style="background:#F3F4F7"></i><div><b>Background</b><span>#F3F4F7</span></div></div><div class="sw"><i style="background:#FFFFFF"></i><div><b>Surface</b><span>#FFFFFF</span></div></div><div class="sw"><i style="background:#E8E9ED"></i><div><b>Raised</b><span>#E8E9ED</span></div></div><div class="sw"><i style="background:#353941"></i><div><b>Text</b><span>#353941</span></div></div><div class="sw"><i style="background:#5C6578"></i><div><b>Muted</b><span>#5C6578</span></div></div><div class="sw"><i style="background:#6C9DE8"></i><div><b>Accent</b><span>#6C9DE8</span></div></div><div class="sw"><i style="background:#2A744A"></i><div><b>Success</b><span>#2A744A</span></div></div><div class="sw"><i style="background:#8A6100"></i><div><b>Warning</b><span>#8A6100</span></div></div><div class="sw"><i style="background:#B93A3A"></i><div><b>Error</b><span>#B93A3A</span></div></div></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>What you get</h2>
+  <div class="features"><div class="card"><h3>Global Theme</h3><p>Dark and Light, with its own splash screen and wallpapers.</p></div><div class="card"><h3>Plasma Style and colours</h3><p>Panels, popups and widgets, colour schemes and window borders.</p></div><div class="card"><h3>Apps</h3><p>A Kvantum style for Qt apps and a GTK theme for Firefox, GIMP and Inkscape, switched with the rest.</p></div><div class="card"><h3>Icons and cursors</h3><p>About 145 folder types, 600 app tiles and 260 file types; Breeze cursors recoloured.</p></div><div class="card"><h3>Top panel</h3><p>Launcher, tasks, a centred clock and system stats, in six looks from Normal to Fancy.</p></div><div class="card"><h3>Terminal</h3><p>Konsole colour schemes and profiles, and Fastfetch in the theme&#x27;s colours.</p></div><div class="card"><h3>One command</h3><p>Switch everything between Dark and Light, with a Settings app for the rest.</p></div><div class="card"><h3>COSMIC too</h3><p>Dark and Light themes and wallpapers for the COSMIC desktop.</p></div></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Install</h2>
+  <div class="steps">
+    <div><h3>KDE Plasma 6</h3>
+      <ol><li>Download <code>Core-0.1.0.zip</code> and unzip it.</li><li>Run the installer: a guided setup in the terminal. Nothing changes until you press Install.</li></ol>
+      <pre>cd Core-0.1.0
+./install.sh</pre>
+      <p class="note">Afterwards, <code>core-theme dark</code> or <code>core-theme light</code> switches everything.</p></div>
+    <div><h3>COSMIC</h3>
+      <ol><li>Open COSMIC Settings › Desktop › Appearance.</li><li>Choose Dark or Light, then Import, and pick <code>cosmic/Core-Dark.ron</code> or <code>Core-Light.ron</code>.</li><li>Set the wallpaper from <code>cosmic/wallpapers/</code>.</li></ol></div>
+  </div>
+</div></section>
+</main>
+<footer><div class="wrap">Core by The Linux Workbench · Code GPL-3.0-or-later, artwork CC BY-SA 4.0 · <a href="../">All themes</a></div></footer>
+
+<script>
+(function () {
+  var root = document.documentElement, key = "lwbs-mode", saved = null;
+  try { saved = localStorage.getItem(key); } catch (e) {}
+  function set(mode, keep) {
+    var m = mode || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    root.setAttribute("data-mode", m);
+    document.querySelectorAll("[data-show]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.show === m)); });
+    if (keep) { try { localStorage.setItem(key, m); } catch (e) {} }
+  }
+  set(saved);
+  document.querySelectorAll("[data-show]").forEach(function (b) { b.addEventListener("click", function () { set(b.dataset.show, true); }); });
+  matchMedia("(prefers-color-scheme: light)").addEventListener("change", function () { if (!saved) set(null); });
+})();
+</script>
+</body>
+</html>

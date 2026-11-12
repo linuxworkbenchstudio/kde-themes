@@ -9,6 +9,7 @@ python3 -m engine check packs/waypoint             # check a pack: palette, cont
 python3 -m engine build packs/waypoint --out dist  # write the theme's files
 python3 -m engine compare packs/waypoint           # how much of the released theme the engine reproduces
 python3 -m unittest discover -s tests -t . -v      # tests
+python3 tools/build_site.py                         # the website, into site/ (needs Pillow)
 ```
 
 Python 3.11 or newer, nothing to install.

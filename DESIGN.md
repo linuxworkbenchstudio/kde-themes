@@ -165,8 +165,14 @@ templates/licences/, CHANGELOG.md from the pack.
 - **Fastfetch**: no theme logos for now (the ASCII art stays in `art/fastfetch/`, not shipped).
   The design is the theme's layout with the distro's own logo in its colours; an older design
   with a theme logo is switched to the distro logo on recolour.
-- Still to do: the websites (`site/` in this repo, GitHub Pages, one page per theme; the
-  repository is being renamed `lwbs-themes`).
+- **Website**: `tools/build_site.py` writes `site/` from the packs (home page with all six themes,
+  one page per theme: logo, wallpaper hero, Dark/Light palette following the reader's setting
+  with a switch, what you get, KDE and COSMIC install steps). Links point at
+  `github.com/linuxworkbenchstudio/lwbs-themes` (the rename). `.github/workflows/pages.yml`
+  publishes `site/` on pushes to main; Pages' source must be set to GitHub Actions once.
+  Vacation, Vintage Trail and Core have placeholder wallpapers (`[theme.site]
+  placeholder_wallpaper = true`): their heroes are drawn from the palette until the artwork is in.
+  Their Global Theme previews and wallpapers still show the old placeholder letters.
 
 ### COSMIC (stage 3, 11 Nov 2026)
 

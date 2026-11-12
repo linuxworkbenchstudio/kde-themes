@@ -208,3 +208,28 @@ class Cosmic(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Site(unittest.TestCase):
+    """The website: a page per theme, and every local link and picture on it exists."""
+
+    def test_site(self):
+        import re
+        import tempfile
+        import sys
+        sys.path.insert(0, str(ROOT / "tools"))
+        import build_site
+        with tempfile.TemporaryDirectory() as tmp:
+            out = build_site.build(Path(tmp) / "site")
+            pages = sorted(out.rglob("index.html"))
+            self.assertEqual(len(pages), 1 + len(build_site.ORDER))
+            for page in pages:
+                text = page.read_text(encoding="utf-8")
+                for ref in re.findall(r'(?:href|src)="([^"#?]+)"|url\(\'([^\']+)\'\)', text):
+                    ref = ref[0] or ref[1]
+                    if ref.startswith(("http", "mailto:")):
+                        continue
+                    target = (page.parent / ref)
+                    target = target / "index.html" if ref.endswith("/") or ref in (".", "..", "./", "../") else target
+                    with self.subTest(page=str(page.relative_to(out)), ref=ref):
+                        self.assertTrue(target.exists(), ref)
