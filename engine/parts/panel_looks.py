@@ -8,7 +8,8 @@ Colorizer widget (luisbocanegra/plasma-panel-colorizer), six looks, each with a 
   Cards        each widget on its own card, no bar behind them (like Pills; 5 Nov 2026)
   Pills        no bar; each group of widgets is one pill with fully rounded ends
   Fancy        the default
-  (Cards, Pills and Fancy: Dark cards are the pack's deep shadow colour at 85%, Kahlil 13 Nov 2026)
+  (Cards, Pills and Fancy: Dark cards are the pack's deep shadow colour at 85%, Light cards its light colour at 88%,
+   Fancy Light's bar at 40%, so the cards stand out from the bar; Kahlil 13 Nov 2026)
 
 This is Vice Horizon's panel-looks.py. The templates (templates/panel-colorizer/) are its Dark
 presets; their three theme colours are swapped for the pack's from [theme.panel]:
@@ -37,6 +38,8 @@ from . import TEMPLATES
 
 LOOKS = ("Normal", "Transparent", "Invisible", "Cards", "Pills", "Fancy")
 CARD_ALPHA = 0.85   # Dark Cards, Pills and Fancy: each card is the theme's deep shadow colour, almost solid (13 Nov 2026)
+LIGHT_CARD_ALPHA = 0.88   # Light Cards, Pills and Fancy: each card is the pack's light colour, almost solid
+LIGHT_FANCY_BAR = 0.4     # Fancy Light's bar is more see-through than its cards, so they read as raised
 VMARGIN = 2      # largest top/bottom margin of the bar and of each widget (px)
 HEIGHT = 32      # the top panel's height (px); a radius of half of it gives a pill its round ends
 VH = {"shadow": "#121022", "accent": "#857DB5", "light": "#FEFCFC", "ink": "#2F1F2B", "light_shadow": "#A77091"}
@@ -170,6 +173,14 @@ class Looks:
         self.colour(d["globalSettings"]["widgets"]["normal"]["backgroundColor"], custom=self.c["shadow"], alpha=CARD_ALPHA)
         return d
 
+    def light_cards(self, d, look):
+        """Light: cards almost solid in the pack's light colour; Fancy's bar behind them more see-through."""
+        g = d["globalSettings"]
+        self.colour(g["widgets"]["normal"]["backgroundColor"], custom=self.c["light"], alpha=LIGHT_CARD_ALPHA)
+        if look == "Fancy":
+            g["panel"]["normal"]["backgroundColor"]["alpha"] = LIGHT_FANCY_BAR
+        return d
+
     def lighten(self, d, look):
         light = copy.deepcopy(d)
         self.lighten_preset(light)
@@ -197,6 +208,7 @@ class Looks:
                     "Cards": self.cards, "Pills": self.pills, "Fancy": lambda: self.tpl("fancy")}[look]()
             light = self.invisible("light") if look == "Invisible" else self.lighten(dark, look)
             if look in ("Cards", "Pills", "Fancy"):
+                light = self.light_cards(light, look)
                 dark = self.deep_cards(dark)      # after the Light twin is made: Light keeps its own cards
             for name, data in ((f"{self.name} {look}", self.slim(dark)), (f"{self.name} {look} Light", self.slim(light))):
                 if name.endswith("Light"):
