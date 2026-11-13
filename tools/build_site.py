@@ -262,7 +262,7 @@ def theme_page(pack, out: Path):
 ./install.sh</pre>
       <p class="note">Afterwards, <code>{E(pack.command)} dark</code> or <code>{E(pack.command)} light</code> switches everything.</p></div>
     <div><h3>COSMIC</h3>
-      <ol><li>Open COSMIC Settings › Desktop › Appearance.</li><li>Choose Dark or Light, then Import, and pick <code>cosmic/{E(slug)}-Dark.ron</code> or <code>{E(slug)}-Light.ron</code>.</li><li>Set the wallpaper from <code>cosmic/wallpapers/</code>.</li></ol></div>
+      <ol><li>Download <code>{E(slug)}-COSMIC-{E(pack.version)}.zip</code> (a separate download) and unzip it.</li><li>Run <code>./install.sh</code>: it puts the two theme files and the wallpapers in place. Nothing in COSMIC changes by itself.</li><li>Open COSMIC Settings › Desktop › Appearance, choose Dark or Light, then Import, and pick the matching <code>.ron</code> file.</li><li>Pick the wallpaper in Settings › Desktop › Wallpaper › Add image.</li></ol></div>
   </div>
 </div></section>
 </main>

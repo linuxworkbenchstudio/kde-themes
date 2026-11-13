@@ -195,6 +195,33 @@ class Cosmic(unittest.TestCase):
         core = cosmic.build(load(ROOT / "packs" / "core"))["cosmic/Core-Light.ron"]
         self.assertEqual((self.fields(core)["frosted_panel"], self.fields(core)["frosted"]), ("true", "VeryLow"))
 
+    def test_scripts_install_and_uninstall(self):
+        import os
+        import subprocess
+        from engine.parts import cosmic
+        files = cosmic.build(load(ROOT / "packs" / "core"))
+        pkg, home = Path(tempfile.mkdtemp()), Path(tempfile.mkdtemp())
+        for rel, v in files.items():
+            p = pkg / rel.removeprefix("cosmic/")
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(v if isinstance(v, bytes) else v.encode())
+            if rel.endswith(".sh"):
+                p.chmod(0o755)
+        env = {**os.environ, "HOME": str(home), "XDG_DATA_HOME": str(home / ".local/share"), "XDG_CONFIG_HOME": str(home / ".config")}
+        env.pop("XDG_PICTURES_DIR", None)
+        for script in ("install.sh", "uninstall.sh"):
+            self.assertEqual(subprocess.run(["sh", "-n", str(pkg / script)]).returncode, 0)
+        r = subprocess.run(["sh", str(pkg / "install.sh")], env=env, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        share = home / ".local/share/core-theme-cosmic"
+        self.assertEqual(sorted(p.name for p in share.iterdir()), ["Core-Dark.ron", "Core-Light.ron"])
+        pics = list(home.rglob("Core-Dark.jpg"))
+        self.assertEqual(len(pics), 1)
+        r = subprocess.run(["sh", str(pkg / "uninstall.sh")], env=env, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertFalse(share.exists())
+        self.assertEqual(list(home.rglob("Core-*.jpg")), [])
+
     def test_bad_settings(self):
         from engine.parts import cosmic
         p = load(write_pack(MINIMAL.replace("[edition.dark.terminal]",

@@ -5,6 +5,8 @@
 
 For each pack, into OUT/<Folder>/ (e.g. dist/releases/Waypoint-0.1.0/):
   <Folder>.zip                 the full theme with install.sh (the main download)
+  <Name>-COSMIC-<ver>.zip      the COSMIC theme as its own download: Dark and Light .ron files,
+                               wallpapers, install.sh / uninstall.sh (the KDE zip does not hold it)
   store/                       one package per KDE Store category, each installable by Plasma's
                                "Get New ..." or by unpacking into the usual folder:
                                Global Themes, Plasma Styles, window decorations, colour schemes,
@@ -174,13 +176,24 @@ def main(argv=None):
         top = stage(pack, work)
         check(top, not a.skip_tests)
         dest.mkdir(parents=True)
+        cosmic_top = None
+        if (top / "cosmic").is_dir():   # COSMIC is its own download
+            cosmic_top = work / f"{pack.name.replace(' ', '-')}-COSMIC-{pack.version}"
+            shutil.move(str(top / "cosmic"), str(cosmic_top))
         z = dest / f"{folder(pack)}.zip"
         make_zip(top, z, when)
-        made = [z] + store(pack, top, dest / "store", when)
+        made = [z]
+        if cosmic_top:
+            cz = dest / f"{cosmic_top.name}.zip"
+            make_zip(cosmic_top, cz, when)
+            made.append(cz)
+        made += store(pack, top, dest / "store", when)
         (dest / "CHECKSUMS.sha256").write_text("".join(f"{sha(p)}  {p.relative_to(dest).as_posix()}\n" for p in made))
         shutil.rmtree(work)
         mb = z.stat().st_size / 1e6
-        print(f"  {z.relative_to(Path(a.out))}  {mb:.1f} MB; {len(made) - 1} Store packages; CHECKSUMS.sha256")
+        print(f"  {z.relative_to(Path(a.out))}  {mb:.1f} MB; "
+              + (f"{cosmic_top.name}.zip; " if cosmic_top else "")
+              + f"{len(made) - (2 if cosmic_top else 1)} Store packages; CHECKSUMS.sha256")
     return 0
 
 

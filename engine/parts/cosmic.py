@@ -27,6 +27,7 @@ images_dark (Dark). COSMIC 1.11 shows one wallpaper whatever the mode; you pick 
 """
 from ..colour import is_hex, luminance
 from ..pack import Pack
+from . import TEMPLATES
 
 COLOUR_KEYS = {   # builder field -> default role
     "bg_color": "window_bg",
@@ -191,20 +192,28 @@ def _wallpaper(folder):
 README = """# {Name} for COSMIC
 
 {Name} Dark and {Name} Light as COSMIC themes, with the wallpapers. Made for COSMIC Epoch 1.11.
+A separate download from the KDE theme: {Name} for KDE Plasma 6 has its own installer.
 
-## Theme
+## Install
+
+    ./install.sh
+
+This only puts files where you can find them (nothing in COSMIC changes by itself):
+
+- the two theme files in `~/.local/share/{command}-cosmic/`
+- the wallpapers in `~/Pictures/{Name}/`
+
+`./uninstall.sh` removes them again. Then switch the theme on in COSMIC (COSMIC 1.11 has no way to
+install a theme from outside its Settings):
 
 1. Open COSMIC Settings > Desktop > Appearance.
-2. Choose Dark or Light at the top, then Import, and pick `{dark}` or `{light}` from this folder.
-   Do this once for each mode.
+2. Choose Dark or Light at the top, then Import, and pick `{dark}` or `{light}` from
+   `~/.local/share/{command}-cosmic/`. Do this once for each mode.
+3. Open COSMIC Settings > Desktop > Wallpaper, choose "Add image" and pick the wallpaper for the
+   mode you use. COSMIC 1.11 shows one wallpaper in both modes.
 
 COSMIC works out the rest of the theme (borders, hover, selection) from these colours, and
 passes them on to GTK 4 and Qt (qt5ct/qt6ct) apps.
-
-## Wallpaper
-
-Open COSMIC Settings > Desktop > Wallpaper, choose "Add image" and pick the wallpaper from
-`wallpapers/` for the mode you use. COSMIC 1.11 shows one wallpaper in both modes.
 
 ## Not in COSMIC
 
@@ -212,6 +221,40 @@ The KDE parts of {Name} (Plasma Style, window borders, Kvantum, panel looks, spl
 Konsole profiles and the login screen) have no COSMIC equivalent.
 
 Licence: {licence}. {Brand}.
+"""
+
+INSTALL = """#!/bin/sh
+# {Name} for COSMIC: puts the theme files and wallpapers where COSMIC Settings can pick them.
+# Nothing else changes. Undo with ./uninstall.sh
+set -eu
+here=$(cd "$(dirname "$0")" && pwd)
+share="${{XDG_DATA_HOME:-$HOME/.local/share}}/{command}-cosmic"
+pics=$(xdg-user-dir PICTURES 2>/dev/null || true)
+[ -n "$pics" ] || pics="$HOME/Pictures"
+pics="$pics/{Name}"
+mkdir -p "$share" "$pics"
+for f in {themes}; do cp -f "$here/$f" "$share/$f"; done
+for f in {pictures}; do cp -f "$here/wallpapers/$f" "$pics/$f"; done
+echo "{Name} for COSMIC"
+echo "  theme files: $share"
+echo "  wallpapers:  $pics"
+echo
+echo "Now, in COSMIC Settings:"
+echo "  Desktop > Appearance: choose Dark or Light, press Import, pick the matching file from the folder above"
+echo "  Desktop > Wallpaper:  Add image, pick the wallpaper for that mode"
+"""
+
+UNINSTALL = """#!/bin/sh
+# Removes what ./install.sh put in place (the theme files and wallpapers). Settings you made in COSMIC stay.
+set -eu
+share="${{XDG_DATA_HOME:-$HOME/.local/share}}/{command}-cosmic"
+pics=$(xdg-user-dir PICTURES 2>/dev/null || true)
+[ -n "$pics" ] || pics="$HOME/Pictures"
+pics="$pics/{Name}"
+for f in {themes}; do rm -f "$share/$f"; done
+for f in {pictures}; do rm -f "$pics/$f"; done
+rmdir "$share" "$pics" 2>/dev/null || true
+echo "{Name} for COSMIC removed."
 """
 
 
@@ -227,6 +270,11 @@ def build(pack: Pack) -> dict:
         pic = _wallpaper(pack.root / "art" / "wallpaper" / folder)
         if pic:
             out[f"cosmic/wallpapers/{slug}-{ed.name}{pic.suffix.lower()}"] = pic.read_bytes()
-    out["cosmic/README.md"] = README.format(Name=pack.name, Brand=pack.brand, licence=pack.license,
+    out["cosmic/README.md"] = README.format(Name=pack.name, Brand=pack.brand, licence=pack.license, command=pack.command,
                                             dark=names.get("dark", ""), light=names.get("light", ""))
+    fill = dict(Name=pack.name, command=pack.command, themes=" ".join(names.values()),
+                pictures=" ".join(p.split("/")[-1] for p in out if p.startswith("cosmic/wallpapers/")))
+    out["cosmic/install.sh"] = INSTALL.format(**fill)
+    out["cosmic/uninstall.sh"] = UNINSTALL.format(**fill)
+    out["cosmic/LICENSE"] = (TEMPLATES / "licences" / "GPL-3.0-or-later.txt").read_text(encoding="utf-8")
     return out

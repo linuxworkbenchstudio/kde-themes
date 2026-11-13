@@ -185,7 +185,12 @@ and checked once with its own code (each file parses with ron 0.12 and builds a 
   borders, muted and disabled text, hover, selection and text on accent itself.
 - `[edition.<id>.cosmic]` can change any of these and set roundness, gaps, active_hint, frosted
   parts and blur. Core: frosted panel and applets, blur "very-low".
-- Not installed by the theme's installer (decision B, not taken yet); not in the KDE Store bundles.
+- Its own download (13 Nov 2026): `tools/release.py` makes `<Name>-COSMIC-<ver>.zip` beside the KDE zip (the KDE zip no longer holds `cosmic/`).
+  It has the two `.ron` files, the wallpapers, `README.md`, `LICENSE` and `install.sh` / `uninstall.sh`. The scripts only copy the
+  `.ron` files to `~/.local/share/<command>-cosmic/` and the wallpapers to `~/Pictures/<Name>/`: COSMIC 1.11 has no way to install a
+  theme from outside Settings, so the user still imports the `.ron` in Settings > Appearance. Writing COSMIC's config directly
+  (to apply without Settings) is not done: its file layout changes between releases and cannot be tested without COSMIC.
+  Not in the KDE installer or the KDE Store bundles.
 - Later (once released): COSMIC theme bundles (one .zip per mode with wallpaper and icons,
   installable system-wide) and a wallpaper per mode, both in COSMIC's code since 6 Nov 2026.
 - No COSMIC equivalent: Plasma Style, Aurorae, Kvantum, panel looks, splash, SDDM, Konsole profiles.
