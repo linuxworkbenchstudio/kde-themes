@@ -26,6 +26,7 @@ from engine.pack import load  # noqa: E402
 
 REPO = "linuxworkbenchstudio/lwbs-themes"
 GITHUB = f"https://github.com/{REPO}"
+KOFI = "https://ko-fi.com/linuxworkbench"
 ORDER = ["waypoint", "vice-horizon", "natura", "vacation", "vintage-trail", "core"]
 SWATCHES = [("window_bg", "Background"), ("surface_raised", "Surface"), ("button_bg", "Raised"),
             ("text", "Text"), ("text_muted", "Muted"), ("accent", "Accent"),
@@ -266,7 +267,7 @@ def theme_page(pack, out: Path):
   </div>
 </div></section>
 </main>
-<footer><div class="wrap">{E(pack.name)} by The Linux Workbench · Code {E(pack.license)}, artwork CC BY-SA 4.0 · <a href="../">All themes</a></div></footer>
+<footer><div class="wrap">{E(pack.name)} by The Linux Workbench · Code {E(pack.license)}, artwork CC BY-SA 4.0 · <a href="../">All themes</a> · <a href="{KOFI}">Support on Ko-fi</a></div></footer>
 {SWITCH_JS}"""
     # the swatches follow the edition shown
     body = body.replace(f'<div class="swatches" data-for="dark">{swatches(dark)}</div>',
@@ -307,7 +308,7 @@ def home(cards, out: Path):
   <p>Six complete themes for KDE Plasma 6 and COSMIC, each in Dark and Light: colours, apps, icons, cursors, panel, terminal and wallpapers, switched with one command.</p></div>
   <div class="grid">{''.join(tiles)}</div>
 </main>
-<footer><div class="wrap">The Linux Workbench · <a href="{GITHUB}">Source on GitHub</a></div></footer>"""
+<footer><div class="wrap">The Linux Workbench · <a href="{GITHUB}">Source on GitHub</a> · <a href="{KOFI}">Support on Ko-fi</a></div></footer>"""
     (out / "index.html").write_text(page("The Linux Workbench themes",
                                          "Six desktop themes for KDE Plasma 6 and COSMIC, in Dark and Light.", css, body),
                                     encoding="utf-8")
