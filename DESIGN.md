@@ -274,4 +274,4 @@ Waypoint 0.2.0's built files, which is what parts 1 and 2 were checked against.
 - All versions 0.1.0 (Waypoint's 0.5.0 and Vice Horizon's 1.8.2 are not carried on).
 - Wallpapers are AI-made (ChatGPT, upscaled with Real-ESRGAN): all rights reserved, free to use as wallpapers, share unmodified with
   the theme (`templates/licences/WALLPAPERS.txt`); code stays GPL-3.0-or-later, icons and logos CC-BY-SA-4.0.
-- Problems: GitHub Issues, comments on KDE-look.org, and email (address still to come).
+- Problems: GitHub Issues, comments on KDE-look.org, and email (linuxworkbenchstudio@gmail.com).
