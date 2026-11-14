@@ -1,0 +1,11 @@
+@@NAME@@ wallpapers
+
+(c) @@BRAND@@. All rights reserved.
+
+You may use these images as wallpapers on your own computers and devices, and share them unmodified
+together with the @@NAME@@ theme.
+
+Please do not sell them, include them in other products, or redistribute them on their own or
+changed without permission. Contact: github.com/linuxworkbenchstudio/lwbs-themes
+
+The wallpapers were made with the help of AI image tools.

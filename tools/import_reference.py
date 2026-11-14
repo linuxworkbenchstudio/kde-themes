@@ -82,6 +82,10 @@ ACCEPT = {
             "why": "the top panel is 32 px now (was 36), so the pills' round ends are 16 px (Kahlil, 5 Nov 2026)"
         },
         {
+            "path": "wallpapers/*/COPYING",
+            "why": "wallpapers: all rights reserved, free to use as wallpapers (AI-made images; Kahlil, 14 Nov 2026)"
+        },
+        {
             "path": "wallpapers/*/metadata.json",
             "why": "the wallpaper package says what it is (Description) and its Version, as Waypoint's does"
         },
@@ -127,6 +131,10 @@ ACCEPT = {
         }
     ],
     "waypoint": [
+        {
+            "path": "wallpapers/*/COPYING",
+            "why": "wallpapers: all rights reserved, free to use as wallpapers (AI-made images; Kahlil, 14 Nov 2026)"
+        },
         {
             "path": "look-and-feel/*/contents/splash/*",
             "why": "new splash: logo in the centre, name below, progress bar with percentage (Kahlil, 12 Nov 2026)"

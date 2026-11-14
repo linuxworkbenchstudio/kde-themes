@@ -170,9 +170,9 @@ templates/licences/, CHANGELOG.md from the pack.
   with a switch, what you get, KDE and COSMIC install steps). Links point at
   `github.com/linuxworkbenchstudio/lwbs-themes` (the rename). `.github/workflows/pages.yml`
   publishes `site/` on pushes to main; Pages' source must be set to GitHub Actions once.
-  Vacation, Vintage Trail and Core have placeholder wallpapers (`[theme.site]
-  placeholder_wallpaper = true`): their heroes are drawn from the palette until the artwork is in.
-  Their Global Theme previews and wallpapers still show the old placeholder letters.
+  Vacation, Vintage Trail and Core are "coming soon" (`[theme.site] status = "coming-soon"`): their pages and
+  tiles say so and have no Download button; the home page lists what is out now and what is next.
+  Real wallpapers and previews for all six are in (13 Nov 2026).
 
 ### COSMIC (stage 3, 11 Nov 2026)
 
@@ -267,3 +267,11 @@ Models: Sonnet 5.5 for stages 1, 2, 4, 5; Opus 5.5 for stage 3 (COSMIC); a new c
 The full source of both themes (generators, dev scripts, assets, tests), not their release zips:
 Vice Horizon's latest and Waypoint KDE 0.5.0. The public waypoint-kde repository only has
 Waypoint 0.2.0's built files, which is what parts 1 and 2 were checked against.
+
+## Release decisions (14 Nov 2026, Kahlil)
+- Ship Waypoint, Vice Horizon and Natura as 0.1.0 now; Vacation, Vintage Trail and Core are "future release" until tried on
+  real desktops and the full test suite has run on a normal host.
+- All versions 0.1.0 (Waypoint's 0.5.0 and Vice Horizon's 1.8.2 are not carried on).
+- Wallpapers are AI-made (ChatGPT, upscaled with Real-ESRGAN): all rights reserved, free to use as wallpapers, share unmodified with
+  the theme (`templates/licences/WALLPAPERS.txt`); code stays GPL-3.0-or-later, icons and logos CC-BY-SA-4.0.
+- Problems: GitHub Issues, comments on KDE-look.org, and email (address still to come).

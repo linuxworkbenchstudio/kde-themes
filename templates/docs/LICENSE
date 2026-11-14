@@ -33,7 +33,12 @@ texts are in LICENSES/, and each installed folder carries its own copy (COPYING)
    Copyright (C) 2014 Uri Herrera and others, used as glyphs on some icons in icons/.
 
 6. CC-BY-SA-4.0  (LICENSES/CC-BY-SA-4.0.txt)
-   icons/ (apart from the Breeze glyphs), hicolor/, wallpapers/, the Global Theme previews and
-   splash images. Attribution: "@@NAME@@ by @@BRAND@@".
+   icons/ (apart from the Breeze glyphs) and hicolor/ (the logos and launcher icons).
+   Attribution: "@@NAME@@ by @@BRAND@@".
+
+7. Wallpapers: all rights reserved, free to use as wallpapers (wallpapers/*/COPYING)
+   wallpapers/, and the pictures made from them: the Global Theme previews and splash backgrounds.
+   Use them as wallpapers and share them unmodified with this theme; no selling, no other products,
+   no redistribution on their own or changed without permission. Made with the help of AI image tools.
 
 No third-party logos, characters or trademarks are included.

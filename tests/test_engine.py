@@ -222,6 +222,16 @@ class Cosmic(unittest.TestCase):
         self.assertFalse(share.exists())
         self.assertEqual(list(home.rglob("Core-*.jpg")), [])
 
+    def test_wallpaper_terms(self):
+        from engine.parts import brand, cosmic
+        for pid in ("waypoint", "core"):
+            p = load(ROOT / "packs" / pid)
+            for files, key in ((brand.build(p), f"wallpapers/{p.name.replace(' ', '-')}/COPYING"),
+                               (cosmic.build(p), "cosmic/wallpapers/COPYING")):
+                self.assertIn("All rights reserved", files[key])
+                self.assertIn(p.name, files[key])
+                self.assertNotIn("Creative Commons", files[key])
+
     def test_bad_settings(self):
         from engine.parts import cosmic
         p = load(write_pack(MINIMAL.replace("[edition.dark.terminal]",
@@ -239,6 +249,22 @@ if __name__ == "__main__":
 
 class Site(unittest.TestCase):
     """The website: a page per theme, and every local link and picture on it exists."""
+
+    def test_coming_soon(self):
+        import sys
+        import tempfile
+        sys.path.insert(0, str(ROOT / "tools"))
+        import build_site
+        with tempfile.TemporaryDirectory() as tmp:
+            out = build_site.build(Path(tmp) / "site")
+            for pid, soon in (("waypoint", False), ("vice-horizon", False), ("natura", False),
+                              ("vacation", True), ("vintage-trail", True), ("core", True)):
+                text = (out / pid / "index.html").read_text(encoding="utf-8")
+                self.assertEqual("Coming soon" in text, soon, pid)
+                self.assertEqual(">Download<" in text, not soon, pid)
+            home = (out / "index.html").read_text(encoding="utf-8")
+            self.assertIn("Out now:</b> Waypoint, Vice Horizon, Natura.", home)
+            self.assertIn("Coming next:</b> Vacation, Vintage Trail, Core.", home)
 
     def test_site(self):
         import re

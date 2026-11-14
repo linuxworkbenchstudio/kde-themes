@@ -223,3 +223,6 @@ cursors = { "#2b2f36" = "text", "#ffffff" = "#FFFFFF", "#d69a50" = "accent", "#6
 [edition.light.recolour.files]
 "aurorae/close.svg" = { "#d69a50" = "accent", "#b68344" = "selection_bg" }
 "aurorae/decoration.svg" = { "#d69a50" = "accent" }
+
+[theme.site]
+status = "coming-soon"

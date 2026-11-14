@@ -26,10 +26,11 @@ def build(pack: Pack) -> dict:
     if wall.is_dir():
         out.update(_files(wall, f"wallpapers/{slug}/contents/"))
         from . import TEMPLATES
-        out[f"wallpapers/{slug}/COPYING"] = (TEMPLATES / "licences" / "CC-BY-SA-4.0.txt").read_text(encoding="utf-8")
+        out[f"wallpapers/{slug}/COPYING"] = (TEMPLATES / "licences" / "WALLPAPERS.txt").read_text(
+            encoding="utf-8").replace("@@NAME@@", pack.name).replace("@@BRAND@@", pack.brand)
         out[f"wallpapers/{slug}/metadata.json"] = json.dumps({"KPlugin": {
             "Id": slug, "Name": pack.name, "Description": "Dark and Light versions follow the colour scheme",
-            "Authors": [{"Name": pack.brand}], "License": "CC-BY-SA-4.0", "Version": pack.version}},
+            "Authors": [{"Name": pack.brand}], "License": "Custom: all rights reserved, free to use as wallpapers (COPYING)", "Version": pack.version}},
             indent=2) + "\n"
     for ed in pack.editions.values():
         lnf = f"look-and-feel/{pack.lookandfeel_id}.{ed.id}/contents/"

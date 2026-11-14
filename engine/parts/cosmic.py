@@ -220,7 +220,8 @@ passes them on to GTK 4 and Qt (qt5ct/qt6ct) apps.
 The KDE parts of {Name} (Plasma Style, window borders, Kvantum, panel looks, splash screen,
 Konsole profiles and the login screen) have no COSMIC equivalent.
 
-Licence: {licence}. {Brand}.
+Licence: {licence} for the theme files. The wallpapers: all rights reserved, free to use as wallpapers
+(wallpapers/COPYING). {Brand}.
 """
 
 INSTALL = """#!/bin/sh
@@ -276,5 +277,7 @@ def build(pack: Pack) -> dict:
                 pictures=" ".join(p.split("/")[-1] for p in out if p.startswith("cosmic/wallpapers/")))
     out["cosmic/install.sh"] = INSTALL.format(**fill)
     out["cosmic/uninstall.sh"] = UNINSTALL.format(**fill)
+    out["cosmic/wallpapers/COPYING"] = (TEMPLATES / "licences" / "WALLPAPERS.txt").read_text(
+        encoding="utf-8").replace("@@NAME@@", pack.name).replace("@@BRAND@@", pack.brand)
     out["cosmic/LICENSE"] = (TEMPLATES / "licences" / "GPL-3.0-or-later.txt").read_text(encoding="utf-8")
     return out

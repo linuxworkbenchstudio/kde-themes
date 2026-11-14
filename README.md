@@ -1,6 +1,6 @@
 # The Linux Workbench themes
 
-One engine for The Linux Workbench's KDE Plasma 6 themes (Waypoint, Vice Horizon, Natura): each
+One engine for The Linux Workbench's KDE Plasma 6 and COSMIC themes (Waypoint, Vice Horizon and Natura out now; Vacation, Vintage Trail and Core coming): each
 theme is a pack of colours, names and artwork, and the engine makes every file from it. A fix or a
 new feature in the engine reaches every theme at once. `DESIGN.md` has the plan and the decisions.
 
